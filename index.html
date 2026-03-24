@@ -102,6 +102,18 @@ input, button, select, textarea {
     #btnScrollTop { position: fixed; right: 20px; bottom: 85px; z-index: 1020; width: 45px; height: 45px; border-radius: 50%; display: none; align-items: center; justify-content: center; font-size: 1.2rem; background: #6c757d; color: #fff; border: none; box-shadow: 0 4px 12px rgba(0,0,0,0.3); transition: transform 0.2s; }
     #btnScrollTop:active { transform: scale(0.9); }
 
+    /* --- CSS KHUSUS CETAK KARTU MASSAL --- */
+    @media screen { #print-area { display: none; } }
+    @media print {
+        body * { visibility: hidden; }
+        #print-area, #print-area * { visibility: visible; }
+        #print-area { position: absolute; left: 0; top: 0; width: 100%; display: block; }
+        @page { size: A4 portrait; margin: 15mm; }
+        .print-page { display: grid; grid-template-columns: 85mm 85mm; grid-template-rows: repeat(4, 55mm); gap: 5mm; justify-content: center; align-content: start; width: 100%; page-break-after: always; padding-top: 5mm; }
+        .print-card-wrapper { width: 85mm; height: 55mm; overflow: hidden; position: relative; border: 1px dashed #cbd5e1; border-radius: 8px; -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
+        .print-card-wrapper .id-card { transform-origin: top left; transform: scale(0.805); margin: 0; box-shadow: none; border-radius: 0; }
+    }
+
     /* --- PASSWORD EYE --- */
     .pass-wrapper { position: relative; }
     .pass-toggle-btn { position: absolute; right: 15px; top: 50%; transform: translateY(-50%); cursor: pointer; color: #6c757d; z-index: 10; }
@@ -272,7 +284,7 @@ input, button, select, textarea {
             <div id="view-datasiswa" class="hidden">
                 <div class="d-flex flex-wrap justify-content-between align-items-center mb-4 gap-2">
                     <h3 class="m-0 text-secondary fw-bold">Data Siswa</h3>
-                    <button class="btn btn-sm btn-success shadow-sm fw-bold" onclick="alert('Fitur Cetak Massal sedang disiapkan')"><i class="bi bi-printer"></i> Unduh Kartu Semua</button>
+                    <button class="btn btn-sm btn-success shadow-sm fw-bold" onclick="cetakKartuMassal('siswa')"><i class="bi bi-printer"></i> Unduh Kartu Semua</button>
                 </div>
                 <div class="card p-4 bg-white">
                     <div class="table-responsive">
@@ -287,7 +299,7 @@ input, button, select, textarea {
             <div id="view-alumni" class="hidden">
                 <div class="d-flex flex-wrap justify-content-between align-items-center mb-4 gap-2">
                     <h3 class="m-0 text-secondary fw-bold">Data Alumni</h3>
-                    <button class="btn btn-sm btn-success shadow-sm fw-bold" onclick="alert('Fitur Cetak Massal sedang disiapkan')"><i class="bi bi-printer"></i> Unduh Kartu Semua</button>
+                    <button class="btn btn-sm btn-success shadow-sm fw-bold" onclick="cetakKartuMassal('alumni')"><i class="bi bi-printer"></i> Unduh Kartu Semua</button>
                 </div>
                 <div class="card p-4 bg-white">
                     <div class="table-responsive">
@@ -296,6 +308,50 @@ input, button, select, textarea {
                             <tbody id="tbodyAlumni"></tbody>
                         </table>
                     </div>
+                </div>
+            </div>
+
+            <div id="view-profil_siswa" class="hidden" style="width: 100%; max-width: 900px; margin: 0 auto; align-self: flex-start;">
+                <div id="headerSiswa" class="card p-3 mb-4 shadow-sm border-0 bg-white" style="border-bottom: 4px solid var(--primary-color) !important; border-radius: 0;">
+                    <div class="d-flex align-items-center justify-content-center text-center gap-3">
+                        <img id="headerLogoInstansi" src="" style="height: 50px; object-fit: contain;" class="hidden">
+                        <div>
+                            <h6 class="m-0 fw-bold text-secondary" id="headerInstansi">DINAS PENDIDIKAN</h6>
+                            <h4 class="m-0 fw-bold text-dark text-uppercase" id="headerSekolah">NAMA SEKOLAH</h4>
+                        </div>
+                        <img id="headerLogoSekolah" src="" style="height: 50px; object-fit: contain;" class="hidden">
+                    </div>
+                </div>
+
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <h4 class="text-secondary fw-bold m-0">Profil Elektronik Siswa</h4>
+                    <button class="btn btn-danger btn-sm fw-bold shadow-sm" onclick="logout()"><i class="bi bi-box-arrow-left"></i> Keluar</button>
+                </div>
+
+                <div class="card p-4 text-center border-top border-primary border-4 shadow-sm mb-4">
+                    <img id="profil_foto" src="" style="width:120px; height:160px; object-fit:cover; margin:0 auto; border:3px solid #eee; border-radius:8px;">
+                    <h4 class="fw-bold mt-3 mb-1" id="profil_nama">Nama Siswa</h4>
+                    <div><span class="badge bg-primary mb-3" id="profil_nisn" style="font-size: 14px;">NISN</span></div>
+                    
+                    <div class="d-flex justify-content-center gap-2 flex-wrap">
+                        <button class="btn btn-warning fw-bold shadow-sm px-4" onclick="lihatKartu()"><i class="bi bi-card-heading"></i> Lihat & Unduh Kartu Pelajar</button>
+                        <button class="btn btn-secondary fw-bold shadow-sm px-4" onclick="$('#mdlGantiPass').modal('show')"><i class="bi bi-key"></i> Ganti Password</button>
+                    </div>
+                </div>
+
+                <div class="card p-4 shadow-sm">
+                    <h5 class="fw-bold border-bottom pb-2 mb-3">Biodata Lengkap</h5>
+                    <table class="table table-sm table-borderless">
+                        <tr><td width="35%" class="fw-bold text-muted">NIS / NISN</td><td id="profil_nis_nisn"></td></tr>
+                        <tr><td class="fw-bold text-muted">Tempat, Tgl Lahir</td><td id="profil_ttl"></td></tr>
+                        <tr><td class="fw-bold text-muted">Jenis Kelamin</td><td id="profil_jk"></td></tr>
+                        <tr><td class="fw-bold text-muted">Agama</td><td id="profil_agama"></td></tr>
+                        <tr><td class="fw-bold text-muted">Kelas / Thn Masuk</td><td id="profil_kelas"></td></tr>
+                        <tr><td class="fw-bold text-muted">Alamat Lengkap</td><td id="profil_alamat"></td></tr>
+                        <tr><td class="fw-bold text-muted">No HP / WA</td><td id="profil_hp"></td></tr>
+                        <tr><td class="fw-bold text-muted">Nama Ayah / Ibu</td><td id="profil_ortu"></td></tr>
+                        <tr><td class="fw-bold text-muted">Status Siswa</td><td id="profil_status" class="fw-bold"></td></tr>
+                    </table>
                 </div>
             </div>
 
@@ -416,51 +472,6 @@ input, button, select, textarea {
             </div>
         </div>
 
-        <div id="view-profil_siswa" class="hidden">
-                <div id="headerSiswa" class="card p-3 mb-4 shadow-sm border-0 bg-white" style="border-bottom: 4px solid var(--primary-color) !important;">
-                    <div class="d-flex align-items-center justify-content-center text-center gap-3">
-                        <img id="headerLogoInstansi" src="" style="height: 50px; object-fit: contain;" class="hidden">
-                        <div>
-                            <h6 class="m-0 fw-bold text-secondary" id="headerInstansi">DINAS PENDIDIKAN</h6>
-                            <h4 class="m-0 fw-bold text-dark text-uppercase" id="headerSekolah">NAMA SEKOLAH</h4>
-                        </div>
-                        <img id="headerLogoSekolah" src="" style="height: 50px; object-fit: contain;" class="hidden">
-                    </div>
-                </div>
-
-                <div class="d-flex justify-content-between align-items-center mb-3">
-                    <h4 class="text-secondary fw-bold m-0">Profil Elektronik Siswa</h4>
-                    <button class="btn btn-danger btn-sm fw-bold shadow-sm" onclick="logout()"><i class="bi bi-box-arrow-left"></i> Keluar (Logout)</button>
-                </div>
-
-                <div class="row">
-                    <div class="col-md-4 text-center mb-3">
-                        <div class="card p-3 border-top border-primary border-4 shadow-sm">
-                            <img id="profil_foto" src="" style="width:150px; height:200px; object-fit:cover; margin:0 auto; border:3px solid #eee; border-radius:8px;">
-                            <h5 class="fw-bold mt-3 mb-1" id="profil_nama">Nama Siswa</h5>
-                            <span class="badge bg-primary mb-3" id="profil_nisn">NISN</span>
-                            <button class="btn btn-warning w-100 fw-bold mb-2 shadow-sm" onclick="lihatKartu()"><i class="bi bi-card-heading"></i> Kartu Pelajar Digital</button>
-                            <button class="btn btn-secondary w-100 fw-bold shadow-sm" onclick="$('#mdlGantiPass').modal('show')"><i class="bi bi-key"></i> Ganti Password</button>
-                        </div>
-                    </div>
-                    <div class="col-md-8">
-                        <div class="card p-4 shadow-sm">
-                            <h5 class="fw-bold border-bottom pb-2 mb-3">Biodata Lengkap</h5>
-                            <table class="table table-sm table-borderless">
-                                <tr><td width="35%" class="fw-bold text-muted">NIS / NISN</td><td id="profil_nis_nisn"></td></tr>
-                                <tr><td class="fw-bold text-muted">Tempat, Tgl Lahir</td><td id="profil_ttl"></td></tr>
-                                <tr><td class="fw-bold text-muted">Jenis Kelamin</td><td id="profil_jk"></td></tr>
-                                <tr><td class="fw-bold text-muted">Agama</td><td id="profil_agama"></td></tr>
-                                <tr><td class="fw-bold text-muted">Kelas / Thn Masuk</td><td id="profil_kelas"></td></tr>
-                                <tr><td class="fw-bold text-muted">Alamat Lengkap</td><td id="profil_alamat"></td></tr>
-                                <tr><td class="fw-bold text-muted">No HP / WA</td><td id="profil_hp"></td></tr>
-                                <tr><td class="fw-bold text-muted">Nama Ayah / Ibu</td><td id="profil_ortu"></td></tr>
-                                <tr><td class="fw-bold text-muted">Status Siswa</td><td id="profil_status" class="fw-bold"></td></tr>
-                            </table>
-                        </div>
-                    </div>
-                </div>
-            </div>
         
         <footer class="app-footer">
             <div class="container small">
@@ -638,6 +649,59 @@ input, button, select, textarea {
 <div class="modal fade" id="mdlGantiPass" tabindex="-1">
     <div class="modal-dialog modal-dialog-centered"><div class="modal-content"><div class="modal-header bg-secondary text-white"><h5 class="modal-title">Ganti Password</h5><button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button></div>
     <div class="modal-body"><input type="password" id="oldPass" class="form-control mb-2" placeholder="Password Lama"><input type="password" id="newPass" class="form-control mb-3" placeholder="Password Baru"><button class="btn btn-primary w-100 fw-bold" onclick="simpanPasswordSiswa()">SIMPAN PASSWORD</button></div></div></div>
+</div>
+
+<div class="modal fade" id="mdlScanner" tabindex="-1" style="z-index: 1060;">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-0 shadow-lg">
+            <div class="modal-header bg-dark text-white">
+                <h5 class="modal-title fw-bold"><i class="bi bi-qr-code-scan me-2"></i>Scan Validasi Kartu</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" onclick="closeScannerPublic()"></button>
+            </div>
+            <div class="modal-body text-center p-4">
+                <div id="reader" style="width: 100%; border-radius: 8px; overflow: hidden; border: 3px solid var(--primary-color);"></div>
+                <p class="text-muted mt-3 mb-0 small fw-bold">
+                    <i class="bi bi-camera-video"></i> Arahkan kamera ke QR Code di Kartu Pelajar.
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="mdlHasilScan" tabindex="-1" style="z-index: 1055;">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-0 shadow-lg">
+            <div class="modal-header d-flex justify-content-center bg-light border-bottom border-primary border-3">
+                <h5 class="modal-title fw-bold text-primary m-0">HASIL VALIDASI DATA</h5>
+            </div>
+            <div class="modal-body p-4">
+                <div class="d-flex align-items-center justify-content-between border-bottom border-dark border-2 pb-3 mb-3">
+                    <img id="val-logo-instansi" src="" style="width: 50px; height: 50px; object-fit: contain;">
+                    <div class="text-center flex-grow-1 px-2">
+                        <div id="val-instansi" class="fw-bold text-secondary" style="font-size: 11px; text-transform: uppercase;"></div>
+                        <div id="val-sekolah" class="fw-bold text-dark text-uppercase" style="font-size: 16px; line-height: 1.1;"></div>
+                    </div>
+                    <img id="val-logo-sekolah" src="" style="width: 50px; height: 50px; object-fit: contain;">
+                </div>
+                
+                <div class="text-center mb-3">
+                    <img id="val-foto" src="" style="width: 90px; height: 120px; object-fit: cover; border: 3px solid #e2e8f0; border-radius: 8px; background: #eee;">
+                </div>
+                <table class="table table-sm table-borderless m-0" style="font-size: 13px;">
+                    <tr><td width="35%" class="fw-bold text-muted">Nama Siswa</td><td width="5%">:</td><td id="val-nama" class="fw-bold text-dark"></td></tr>
+                    <tr><td class="fw-bold text-muted">NISN</td><td>:</td><td id="val-nisn" class="fw-bold text-primary"></td></tr>
+                    <tr><td class="fw-bold text-muted">TTL</td><td>:</td><td id="val-ttl"></td></tr>
+                    <tr><td class="fw-bold text-muted">Jenis Kelamin</td><td>:</td><td id="val-jk"></td></tr>
+                    <tr><td class="fw-bold text-muted">Status Siswa</td><td>:</td><td id="val-status"></td></tr>
+                </table>
+                
+                <div class="mt-4 d-flex flex-column gap-2">
+                    <button id="btn-buka-kartu-digital" class="btn btn-primary fw-bold w-100 shadow-sm"><i class="bi bi-card-heading"></i> Buka Kartu Pelajar Digital</button>
+                    <button class="btn btn-danger fw-bold w-100 shadow-sm" data-bs-dismiss="modal"><i class="bi bi-x-lg"></i> Tutup Halaman</button>
+                </div>
+            </div>
+        </div>
+    </div>
 </div>
 
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
@@ -912,7 +976,11 @@ function loadSiswa() {
 
             // 3. Masuk Data Alumni (Hanya Lulus)
             if (status === 'Lulus') {
-                htmlAlumni += `<tr><td>${nisGabung}</td><td>${nama}</td><td>${jk}</td><td><span class="badge bg-primary">Lulus</span></td><td>${thnKeluar}</td><td>${btnData}</td></tr>`;
+                let btnDataAlumni = `<button class="btn btn-sm btn-secondary me-1 shadow-sm" onclick="reviewSiswa('${nis}')" title="Lihat"><i class="bi bi-eye"></i></button> <button class="btn btn-sm btn-success me-1 shadow-sm" onclick="cetakKartuAdmin('${nis}')" title="Unduh Kartu"><i class="bi bi-card-heading"></i></button>`;
+                // Tambahkan Tombol Kunci (Reset Password) untuk Alumni
+                if(isAdmin) btnDataAlumni += `<button class="btn btn-sm btn-danger shadow-sm" onclick="resetPassAdmin('${nis}')" title="Reset Password"><i class="bi bi-key"></i></button>`;
+                
+                htmlAlumni += `<tr><td>${nisGabung}</td><td>${nama}</td><td>${jk}</td><td><span class="badge bg-success">Lulus</span></td><td>${thnKeluar}</td><td>${btnDataAlumni}</td></tr>`;
             }
         }); 
 
@@ -1595,6 +1663,203 @@ window.onscroll = function() {
         document.getElementById("btnScrollTop").style.display = "none";
     }
 };
+
+// ==========================================
+// LOGIKA KARTU PELAJAR & ALUMNI (SINGLE & MASSAL)
+// ==========================================
+function lihatKartu() {
+    const d = window.siswaAktif;
+    // Logika pengaman jika foto_keluar tidak ter-load dari session login
+    let fotoM = d.foto_id;
+    let fotoK = d.foto_keluar || d.foto_id; 
+    tampilkanKartuKeModal(d.nama, d.nisn, (d.tmplahir||'-') + ', ' + (d.tgllahir_indo||'-'), d.jk === 'L' ? 'Laki-laki' : 'Perempuan', fotoM, fotoK, d.status_akhir);
+}
+
+function cetakKartuAdmin(nis) {
+    const d = globalSiswa.find(x => x[0] === nis); if(!d) return;
+    // d[35] = Foto Masuk, d[36] = Foto Keluar, d[31] = Status
+    tampilkanKartuKeModal(d[2], d[1], d[5] + ', ' + d[6], d[7] === 'L' ? 'Laki-laki' : 'Perempuan', d[35], d[36], d[31]);
+}
+
+function tampilkanKartuKeModal(nama, nisn, ttl, jk, fotoMasuk, fotoKeluar, status) {
+    $('#mdlKartu').modal('show');
+    
+    // 1. Logika Judul & Foto (Pelajar vs Alumni)
+    let isAlumni = (status === 'Lulus');
+    $('.txt-kartupelajar-center').text(isAlumni ? 'KARTU ALUMNI' : 'KARTU PELAJAR');
+    let fotoDipakai = isAlumni ? (fotoKeluar || fotoMasuk) : fotoMasuk;
+
+    // 2. Isi Teks
+    $('#card-instansi').text(globalConf.nama_instansi); $('#card-sekolah').text(globalConf.nama_sekolah); $('#card-alamat-sek').text(globalConf.alamat_sekolah);
+    $('#card-nama').text(nama); $('#card-nisn').text(nisn); $('#card-ttl').text(ttl); $('#card-jk').text(jk);
+    $('#card-link-validasi').text(globalConf.link_validasi || "https://sikapprofesi.my.id");
+    
+    // 3. QR Code 10 Digit (NISN)
+    $('#qrcode').empty(); 
+    new QRCode(document.getElementById("qrcode"), {text: String(nisn), width:70, height:70});
+    
+    $('#card-foto').attr('src', '');
+    
+    callAPI('getSemuaGambarKartu', {fotoId: fotoDipakai, bgDepan: globalConf.background_kartu, bgBelakang: "", logoInstansi: globalConf.logo_instansi, logoSekolah: globalConf.logo_sekolah}).then(res => {
+        if(res.foto) $('#card-foto').attr('src', res.foto);
+        if(res.logo1) $('#card-logo-instansi').attr('src', res.logo1).show(); else $('#card-logo-instansi').hide();
+        if(res.logo2) $('#card-logo-sekolah').attr('src', res.logo2).show(); else $('#card-logo-sekolah').hide();
+        if(res.bg1) { $('#card-bg-layer').css('background-image', `url(${res.bg1})`).show(); $('#card-bg-gradient').hide(); }
+        else { $('#card-bg-layer').hide(); $('#card-bg-gradient').show(); }
+    });
+    window.namaKartuCetak = nama; 
+}
+
+function cetakKartuMassal(tipe) {
+    let targetData = [];
+    if (tipe === 'alumni') targetData = globalSiswa.filter(r => r[31] === 'Lulus');
+    else targetData = globalSiswa.filter(r => r[31] !== 'Lulus' && r[31] !== 'Keluar');
+
+    if(targetData.length === 0) { Swal.fire('Kosong', 'Tidak ada data untuk dicetak', 'warning'); return; }
+
+    $('#loader').removeClass('hidden'); $('#loaderText').text('Menyiapkan format cetak A4...');
+
+    const bgDepan = globalConf.background_kartu || "";
+    const logo1 = globalConf.logo_instansi || "";
+    const logo2 = globalConf.logo_sekolah || "";
+
+    callAPI('getSemuaGambarKartu', { fotoId: "", bgDepan: bgDepan, bgBelakang: "", logoInstansi: logo1, logoSekolah: logo2 }).then(res => {
+        let html = ''; const cardsPerPage = 8; 
+        
+        for(let i = 0; i < targetData.length; i++) {
+            let s = targetData[i];
+            if(i % cardsPerPage === 0) html += `<div class="print-page">`;
+            
+            // Logika Pelajar vs Alumni untuk Cetak Massal
+            let isAlumni = (s[31] === 'Lulus');
+            let judulKartu = isAlumni ? 'KARTU ALUMNI' : 'KARTU PELAJAR';
+            let fotoIdDipakai = isAlumni ? (s[36] || s[35]) : s[35]; // s[36]=Keluar, s[35]=Masuk
+            
+            let fotoSrc = "";
+            if(fotoIdDipakai) fotoSrc = "https://drive.google.com/thumbnail?id=" + fotoIdDipakai + "&sz=w400-h600";
+            
+            // QR Code dari NISN (s[1])
+            let qrUrl = "https://api.qrserver.com/v1/create-qr-code/?size=100x100&margin=0&data=" + s[1];
+            
+            let bgStyle = res.bg1 ? `background-image: url('${res.bg1}'); display: block;` : `display: none;`;
+            let gradStyle = res.bg1 ? `display: none;` : `display: block;`;
+            let logo1Style = res.logo1 ? `display: block;` : `display: none;`;
+            let logo2Style = res.logo2 ? `display: block;` : `display: none;`;
+
+            html += `
+            <div class="print-card-wrapper">
+              <div class="id-card" style="-webkit-print-color-adjust: exact; print-color-adjust: exact;">
+                 <div class="card-bg-img" style="${bgStyle}"></div><div class="card-bg-gradient" style="${gradStyle}"></div>
+                 <div class="card-content-wrap">
+                    <div class="card-header-new">
+                       <img src="${res.logo1}" class="logo-kiri" style="${logo1Style}"><img src="${res.logo2}" class="logo-kanan" style="${logo2Style}">
+                       <div class="header-text-center">
+                          <div class="txt-instansi-center">${globalConf.nama_instansi}</div>
+                          <div class="txt-sekolah-center">${globalConf.nama_sekolah}</div>
+                          <div class="txt-alamat-center">${globalConf.alamat_sekolah}</div>
+                       </div>
+                    </div>
+                    <div class="header-line"></div>
+                    <div class="header-text-center"><div class="txt-kartupelajar-center">${judulKartu}</div></div>
+                    <div class="card-body-new">
+                       <div class="photo-area-new">
+                          ${fotoSrc ? `<img src="${fotoSrc}" class="student-photo" style="object-fit: cover;">` : `<div style="width:100%;height:100%;background:#eee;border:1px solid #ccc;"></div>`}
+                       </div>
+                       <div class="info-area-new">
+                          <table class="info-table-new">
+                             <tr><td class="lbl">Nama</td><td>:</td><td class="val">${s[2]}</td></tr>
+                             <tr><td class="lbl">NISN</td><td>:</td><td class="val">${s[1]}</td></tr>
+                             <tr><td class="lbl">Tmpt Lahir</td><td>:</td><td class="val">${s[5] || '-'}</td></tr>
+                             <tr><td class="lbl">Tgl Lahir</td><td>:</td><td class="val">${s[6] || '-'}</td></tr>
+                             <tr><td class="lbl">JK</td><td>:</td><td class="val">${s[7] === 'L' ? 'Laki-laki' : 'Perempuan'}</td></tr>
+                          </table>
+                          <div class="qr-area-new"><img src="${qrUrl}" style="width:70px; height:70px;"></div>
+                          <div class="txt-validasi-bawah">Scan QR untuk validasi:<br><b>${globalConf.link_validasi || "https://sikapprofesi.my.id"}</b></div>
+                       </div>
+                    </div>
+                 </div>
+              </div>
+            </div>`;
+
+            if((i + 1) % cardsPerPage === 0 || i === targetData.length - 1) html += `</div>`;
+        }
+        $('#print-area').html(html);
+        setTimeout(() => { $('#loader').addClass('hidden'); window.print(); }, 2000);
+    });
+}
+
+// ==========================================
+// FITUR SCANNER & VALIDASI (FULL SIKAP PROFESI STYLE)
+// ==========================================
+function openScannerPublic() { 
+    $('#mdlScanner').modal('show'); 
+    if (!scanner) scanner = new Html5QrcodeScanner("reader", { fps: 10, qrbox: {width: 250, height: 250} }, false); 
+    scanner.render(onScanSuccess, (e)=>{}); 
+}
+
+function closeScannerPublic() { 
+    $('#mdlScanner').modal('hide'); 
+    if (scanner) scanner.clear(); 
+}
+
+function onScanSuccess(decodedText) {
+    closeScannerPublic();
+    $('#loader').removeClass('hidden'); $('#loaderText').text('Memverifikasi ke Server...');
+    
+    callAPI('cekValidasiSiswa', { nisn: decodedText.trim() }).then(res => {
+        $('#loader').addClass('hidden');
+        if (res.status === 'success') {
+            const s = res.data;
+            
+            // Tampilkan Modal Hasil Scan
+            $('#mdlHasilScan').modal('show');
+            
+            // Set Logo & Kop
+            $('#val-instansi').text(globalConf.nama_instansi);
+            $('#val-sekolah').text(globalConf.nama_sekolah);
+            if(globalConf.logo_instansi) callAPI('getImage', {id: globalConf.logo_instansi}).then(b => { if(b) $('#val-logo-instansi').attr('src', b); });
+            if(globalConf.logo_sekolah) callAPI('getImage', {id: globalConf.logo_sekolah}).then(b => { if(b) $('#val-logo-sekolah').attr('src', b); });
+
+            // Set Data Biodata
+            $('#val-nama').text(s.nama);
+            $('#val-nisn').text(s.nisn);
+            $('#val-ttl').text((s.tmplahir || '-') + ', ' + (s.tgllahir_indo || '-'));
+            $('#val-jk').text(s.jk === 'L' ? 'Laki-laki' : 'Perempuan');
+            
+            let badge = s.status === 'Aktif' ? `<span class="badge bg-success px-3 py-2">AKTIF</span>` : `<span class="badge bg-danger px-3 py-2">${s.status.toUpperCase()}</span>`;
+            $('#val-status').html(badge);
+
+            // Set Foto
+            $('#val-foto').attr('src', '');
+            if(s.foto_url) callAPI('getImage', {id: s.foto_url}).then(b => { if(b) $('#val-foto').attr('src', b); });
+
+            // Fungsi Tombol Buka Kartu
+            $('#btn-buka-kartu-digital').off('click').on('click', function() {
+                $('#mdlHasilScan').modal('hide');
+                // Tampilkan kartu digital langsung dari scanner (seperti di sikapprofesi)
+                tampilkanKartuKeModal(s.nama, s.nisn, (s.tmplahir||'-') + ', ' + (s.tgllahir_indo||'-'), s.jk === 'L' ? 'Laki-laki' : 'Perempuan', s.foto_url, s.foto_url, s.status);
+            });
+
+        } else {
+            Swal.fire({ icon: 'error', title: 'Palsu / Tidak Valid', text: 'QR Code tidak ditemukan di database sekolah kami.' });
+        }
+    });
+}
+
+function downloadKartu() { 
+    html2canvas(document.getElementById('capture-area'), {
+        scale: 3, 
+        useCORS: true, 
+        allowTaint: true
+    }).then(canvas => { 
+        let a = document.createElement('a'); 
+        a.download = "KartuPelajar_" + (window.namaKartuCetak || "Siswa") + ".jpg"; 
+        a.href = canvas.toDataURL("image/jpeg", 0.9); 
+        a.click(); 
+    }).catch(err => {
+        Swal.fire('Error', 'Gagal memproses gambar kartu', 'error');
+    }); 
+}
 
 </script>
 </body>
