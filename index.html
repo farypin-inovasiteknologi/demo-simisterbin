@@ -429,9 +429,10 @@ input, button, select, textarea {
                                     <div class="col-md-6"><label class="fw-bold small">OPD / Dinas (Boleh dikosongkan)</label><input id="setOpd" class="form-control" placeholder="DINAS PENDIDIKAN........"></div>
                                     <div class="col-md-12"><label class="fw-bold small">Nama Sekolah</label><input id="setNama" class="form-control"></div>
                                     <div class="col-12"><label class="fw-bold small">Alamat Lengkap</label><textarea id="setAlamat" class="form-control" rows="2"></textarea></div>
-                                    <div class="col-md-4"><label class="fw-bold small">No. Telp Sekolah</label><input id="setTelp" class="form-control"></div>
-                                    <div class="col-md-4"><label class="fw-bold small">Email Sekolah</label><input id="setEmail" class="form-control" placeholder="contoh: email@gmail.com"></div>
-                                    <div class="col-md-4"><label class="fw-bold small">Website Sekolah</label><input id="setWeb" class="form-control" placeholder="contoh: sman19nusantara.sch.id"></div>
+                                    <div class="col-md-6"><label class="fw-bold small">No. Telp Sekolah</label><input id="setTelp" class="form-control"></div>
+                                    <div class="col-md-6"><label class="fw-bold small">Email Sekolah</label><input id="setEmail" class="form-control" placeholder="contoh: email@gmail.com"></div>
+                                    <div class="col-md-6"><label class="fw-bold small">Website Sekolah</label><input id="setWeb" class="form-control" placeholder="contoh: sman19nusantara.sch.id"></div>
+                                    <div class="col-md-6"><label class="fw-bold small">Link Validasi Kartu (Tujuan Scan QR)</label><input id="setLinkValidasi" class="form-control" placeholder="contoh: https://simisterbin.my.id"></div>
                                     <div class="col-md-6"><label class="fw-bold small">Kepala Sekolah</label><input id="setKepsek" class="form-control"></div>
                                     <div class="col-md-6"><label class="fw-bold small">NIP Kepala Sekolah</label><input id="setNip" class="form-control"></div>
                                     
@@ -690,10 +691,10 @@ input, button, select, textarea {
                                     <tr><td class="lbl">NISN</td><td>: </td><td class="val" id="card-nisn"></td></tr>
                                     <tr><td class="lbl">Tmpt Lahir</td><td>: </td><td class="val" id="card-tmp"></td></tr>
                                     <tr><td class="lbl">Tgl Lahir</td><td>: </td><td class="val" id="card-tgl"></td></tr>
-                                    <tr><td class="lbl">JK</td><td>:< /td><td class="val" id="card-jk"></td></tr>
+                                    <tr><td class="lbl">JK</td><td>: </td><td class="val" id="card-jk"></td></tr>
                                 </table>
                                 <div class="qr-area-new"><div id="qrcode"></div></div>
-                                <div class="txt-validasi-bawah">Scan QR untuk validasi:<br><b id="card-link-validasi"></b></div>
+                                <div class="txt-validasi-bawah">Untuk memvalidasi kartu ini, scan QR Code melalui alamat berikut:<br><b id="card-link-validasi"></b></div>
                             </div>
                         </div>
                     </div>
@@ -1454,7 +1455,7 @@ function loadSettings() {
         if(s.alamat_sekolah) { $('#dashAddr').text(s.alamat_sekolah); $('#setAlamat').val(s.alamat_sekolah); } 
         $('#setKepsek').val(s.nama_kepsek); $('#setNip').val(s.nip_kepsek); $('#setTheme').val(s.theme_color || '#4e73df'); 
         $('#setOpd').val(s.opd_dinas || ''); $('#setTelp').val(s.telp_sekolah || ''); $('#setEmail').val(s.email_sekolah || ''); $('#setWeb').val(s.web_sekolah || '');
-        
+        $('#setLinkValidasi').val(s.link_validasi || "https://simisterbin.my.id");
         if(s.logo_instansi) callAPI('getImage', {id: s.logo_instansi}).then(b=>{ if(b){ $('#loginLogoInstansi').attr('src',b).removeClass('hidden');$('#prevLogoInstansi').attr('src',b).removeClass('hidden'); } }); 
         $('#logo_instansi').val(s.logo_instansi); 
         
@@ -1486,7 +1487,8 @@ function saveSettings(e) {
         email_sekolah: $('#setEmail').val(),
         web_sekolah: $('#setWeb').val(),
         background_kartu: $('#background_kartu').val(),
-        background_belakang: $('#background_belakang').val()
+        background_belakang: $('#background_belakang').val(),
+        link_validasi: $('#setLinkValidasi').val()
     };
     callAPI('saveSettings', d).then(r => { 
         $('#loader').addClass('hidden'); 
