@@ -779,19 +779,35 @@ let globalSiswa=[], curSmt=1, cropper, cropTarget, curPage='dash';
 let globalMapel = []; // <--- KANTONG MAPEL
 let chartGender, chartStatus;
 
-// FUNGSI PUSAT PENGHUBUNG FRONTEND KE BACKEND (Pengganti google.script.run)
+// ==========================================
+// FUNGSI PUSAT PENGHUBUNG FRONTEND KE BACKEND (DIPERBAIKI)
+// ==========================================
 async function callAPI(actionName, payloadData = {}) {
     try {
         const response = await fetch(API_URL, {
             method: 'POST',
-            headers: { 'Content-Type': 'text/plain' }, // Pakai text/plain agar tidak ada masalah CORS
+            // Menghapus header khusus agar Google tidak memblokirnya dengan CORS Preflight
             body: JSON.stringify({ action: actionName, data: payloadData })
         });
-        const result = await response.json();
-        return result;
+        
+        // Ambil balasan sebagai teks mentah dulu (jangan langsung dijadikan JSON)
+        const responseText = await response.text();
+        
+        try {
+            // Coba ubah teks dari Google menjadi JSON
+            const result = JSON.parse(responseText);
+            return result;
+        } catch (jsonError) {
+            // Jika gagal, berarti Google mengirim halaman penolakan (HTML)
+            console.error("Balasan Google ditolak/bukan JSON:", responseText);
+            return { 
+                status: "error", 
+                message: "Akses diblokir oleh Google! Pastikan URL API sudah benar dan izin Web App di-set ke 'Siapa Saja' (Anyone)." 
+            };
+        }
     } catch (error) {
-        console.error("API Error:", error);
-        return { status: "error", message: "Gagal terhubung ke server database." };
+        console.error("API Error Asli:", error);
+        return { status: "error", message: "Koneksi terputus total. Cek internet atau link API_URL." };
     }
 }
 
