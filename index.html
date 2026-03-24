@@ -635,7 +635,11 @@ input, button, select, textarea {
                         </select>
                         </div><div class="col-md-3"><label class="form-label small fw-bold">Bahasa sehari-hari</label><input name="bahasa" class="form-control"></div><div class="col-12"><label class="form-label small fw-bold">Penyakit (kosongkan jika tidak ada)</label><input name="penyakit" class="form-control"></div></div></div>
                         <div class="tab-pane fade" id="t3"><div class="row g-3"><div class="col-md-6 border-end"><h6 class="text-primary fw-bold mb-3">DATA AYAH</h6><div class="mb-2"><label class="small fw-bold">Nama Ayah</label><input name="nama_ayah" class="form-control"></div><div class="mb-2"><label class="small fw-bold">Tgl. Lahir Ayah</label><input type="date" name="tgllahir_ayah" class="form-control"></div><div class="mb-2"><label class="small fw-bold">Pekerjaan</label><input name="kerja_ayah" class="form-control"></div></div><div class="col-md-6"><h6 class="text-primary fw-bold mb-3">DATA IBU</h6><div class="mb-2"><label class="small fw-bold">Nama Ibu</label><input name="nama_ibu" class="form-control"></div><div class="mb-2"><label class="small fw-bold">Tgl. Lahir Ibu</label><input type="date" name="tgllahir_ibu" class="form-control"></div><div class="mb-2"><label class="small fw-bold">Pekerjaan</label><input name="kerja_ibu" class="form-control"></div></div></div></div>
-                        <div class="tab-pane fade" id="t4"><div class="row g-3"><div class="col-md-6"><label class="small fw-bold mb-2">Foto Masuk (3:4)</label><input type="file" class="form-control mb-2" onchange="cropImage(this, 'masuk')"><input type="hidden" name="id_foto_masuk" id="id_foto_masuk"><div class="d-flex justify-content-center"><img id="prev_masuk" class="student-photo hidden" referrerpolicy="no-referrer"></div></div><div class="col-md-6"><label class="small fw-bold mb-2">Foto Keluar (3:4)</label><input type="file" class="form-control mb-2" onchange="cropImage(this, 'keluar')"><input type="hidden" name="id_foto_keluar" id="id_foto_keluar"><div class="d-flex justify-content-center"><img id="prev_keluar" class="student-photo hidden" referrerpolicy="no-referrer"></div></div><div class="col-md-4"><label class="small fw-bold">Kelas Masuk</label><input name="kls_masuk" class="form-control"></div><div class="col-md-4"><label class="small fw-bold">Tgl. Masuk</label><input type="date" name="tgl_masuk" class="form-control"></div><div class="col-md-4"><label class="small fw-bold">Pindahan dari</label><input name="pindahan" class="form-control"></div><div class="col-md-6"><label class="small fw-bold">Lulusan dari</label><input name="lulusan" class="form-control"></div><div class="col-md-6"><label class="small fw-bold">No. Ijazah SLTP</label><input name="noijazah_sltp" class="form-control"></div><div class="col-md-3"><label class="small fw-bold">Status Akhir</label><select name="status_akhir" class="form-select"><option value="Aktif">Aktif</option><option value="Lulus">Lulus</option><option value="Keluar">Keluar</option></select></div><div class="col-md-3"><label class="small fw-bold">Tgl. Keluar</label><input type="date" name="tgl_keluar" class="form-control"></div><div class="col-md-3"><label class="small fw-bold">Lanjut Ke</label><input name="lanjut_ke" class="form-control"></div><div class="col-md-3"><label class="small fw-bold">No. Ijazah SLTA</label><input name="noijazah_sma" class="form-control"></div></div></div>
+                        <div class="tab-pane fade" id="t4"><div class="row g-3"><div class="col-md-6"><label class="small fw-bold mb-2">Foto Masuk (3:4)</label><input type="file" class="form-control mb-2" onchange="cropImage(this, 'masuk')"><input type="hidden" name="id_foto_masuk" id="id_foto_masuk">
+                        
+                        <div class="d-flex justify-content-center"><img id="prev_masuk" class="student-photo hidden" style="width: 80px !important; height: 106px !important; border-radius: 6px;"></div></div><div class="col-md-6"><label class="small fw-bold mb-2">Foto Keluar (3:4)</label><input type="file" class="form-control mb-2" onchange="cropImage(this, 'keluar')"><input type="hidden" name="id_foto_keluar" id="id_foto_keluar"><div class="d-flex justify-content-center"><img id="prev_keluar" class="student-photo hidden" style="width: 80px !important; height: 106px !important; border-radius: 6px;"></div>
+                        </div>
+                        <div class="col-md-4"><label class="small fw-bold">Kelas Masuk</label><input name="kls_masuk" class="form-control"></div><div class="col-md-4"><label class="small fw-bold">Tgl. Masuk</label><input type="date" name="tgl_masuk" class="form-control"></div><div class="col-md-4"><label class="small fw-bold">Pindahan dari</label><input name="pindahan" class="form-control"></div><div class="col-md-6"><label class="small fw-bold">Lulusan dari</label><input name="lulusan" class="form-control"></div><div class="col-md-6"><label class="small fw-bold">No. Ijazah SLTP</label><input name="noijazah_sltp" class="form-control"></div><div class="col-md-3"><label class="small fw-bold">Status Akhir</label><select name="status_akhir" class="form-select"><option value="Aktif">Aktif</option><option value="Lulus">Lulus</option><option value="Keluar">Keluar</option></select></div><div class="col-md-3"><label class="small fw-bold">Tgl. Keluar</label><input type="date" name="tgl_keluar" class="form-control"></div><div class="col-md-3"><label class="small fw-bold">Lanjut Ke</label><input name="lanjut_ke" class="form-control"></div><div class="col-md-3"><label class="small fw-bold">No. Ijazah SLTA</label><input name="noijazah_sma" class="form-control"></div></div></div>
                     </div>
                 </div>
                 <div class="modal-footer bg-white">
@@ -702,8 +706,8 @@ input, button, select, textarea {
                 </div>
 
                 <div class="d-flex flex-column gap-2 mt-3">
-                    <button class="btn btn-primary fw-bold w-100 shadow-sm" onclick="downloadKartuDepan()"><i class="bi bi-download"></i> UNDUH KARTU (DEPAN)</button>
-                    <button class="btn btn-info fw-bold w-100 shadow-sm text-white" onclick="downloadKartuBelakang()"><i class="bi bi-download"></i> UNDUH KARTU (BELAKANG)</button>
+                    <button id="btn-unduh-depan" class="btn btn-secondary fw-bold w-100 shadow-sm" onclick="downloadKartuDepan()" disabled><i class="spinner-border spinner-border-sm"></i> Sedang Memproses...</button>
+                    <button id="btn-unduh-belakang" class="btn btn-secondary fw-bold w-100 shadow-sm text-white" onclick="downloadKartuBelakang()" disabled><i class="spinner-border spinner-border-sm"></i> Sedang Memproses...</button>
                 </div>
             </div>
         </div>
@@ -1843,35 +1847,32 @@ function cetakKartuAdmin(nis) {
 // === MENAMPILKAN KARTU KE POP-UP ===
 function tampilkanKartuKeModal(nama, nisn, ttl, jk, fotoId, status) {
     $('#mdlKartu').modal('show');
-    
-    // Logika Judul (Pelajar vs Alumni)
     let isAlumni = (status === 'Lulus');
     $('#judulKartuModal').text(isAlumni ? 'KARTU ALUMNI' : 'KARTU PELAJAR');
 
-    // Isi Teks
+    // Matikan tombol saat baru buka
+    $('#btn-unduh-depan').prop('disabled', true).removeClass('btn-primary').addClass('btn-secondary').html('<i class="spinner-border spinner-border-sm"></i> Sedang Memproses...');
+    $('#btn-unduh-belakang').prop('disabled', true).removeClass('btn-info').addClass('btn-secondary').html('<i class="spinner-border spinner-border-sm"></i> Sedang Memproses...');
+
     $('#card-instansi').text(globalConf.nama_instansi); 
     $('#card-sekolah').text(globalConf.nama_sekolah); 
     $('#card-alamat-sek').text(globalConf.alamat_sekolah);
     $('#card-nama').text(nama); 
     $('#card-nisn').text(nisn); 
     
-    // Pecah TTL jika formatnya gabung
     let tmpt = ttl.split(',')[0] || '-';
     let tgl = ttl.split(',')[1] || '-';
     $('#card-tmp').text(tmpt.trim()); 
     $('#card-tgl').text(tgl.trim()); 
-    
     $('#card-jk').text(jk);
     $('#card-link-validasi').text(globalConf.link_validasi || "https://sikapprofesi.my.id");
     
-    // QR Code 10 Digit (NISN)
     $('#qrcode').empty(); 
     new QRCode(document.getElementById("qrcode"), {text: String(nisn), width:75, height:75, correctLevel: QRCode.CorrectLevel.H});
     
     $('#card-foto').attr('src', 'https://via.placeholder.com/75x100?text=Loading...');
     $('#card-bg-back').attr('src', '');
     
-    // Ambil semua gambar
     callAPI('getSemuaGambarKartu', {fotoId: fotoId, bgDepan: globalConf.background_kartu, bgBelakang: globalConf.background_belakang, logoInstansi: globalConf.logo_instansi, logoSekolah: globalConf.logo_sekolah}).then(res => {
         if(res.foto) $('#card-foto').attr('src', res.foto);
         else $('#card-foto').attr('src', 'https://via.placeholder.com/75x100?text=Kosong');
@@ -1882,32 +1883,48 @@ function tampilkanKartuKeModal(nama, nisn, ttl, jk, fotoId, status) {
         if(res.bg1) { $('#card-bg-layer').css('background-image', `url(${res.bg1})`).show(); $('#card-bg-gradient').hide(); }
         else { $('#card-bg-layer').hide(); $('#card-bg-gradient').show(); }
         
-        // Atur Kartu Belakang
         if(res.bg2) {
             $('#card-bg-back').attr('src', res.bg2);
             $('#card-back-wrap').show();
         } else {
             $('#card-back-wrap').hide();
         }
+
+        // Trik Cerdas: Beri jeda 1 detik agar browser selesai menempelkan gambar ke layar
+        setTimeout(() => {
+            $('#btn-unduh-depan').prop('disabled', false).removeClass('btn-secondary').addClass('btn-primary').html('<i class="bi bi-download"></i> UNDUH KARTU (DEPAN)');
+            $('#btn-unduh-belakang').prop('disabled', false).removeClass('btn-secondary').addClass('btn-info').html('<i class="bi bi-download"></i> UNDUH KARTU (BELAKANG)');
+        }, 1000);
     });
-    
     window.namaKartuCetak = nama; 
 }
 
 // === UNDUH KARTU DEPAN ===
 function downloadKartuDepan() { 
-    html2canvas(document.getElementById('capture-area'), {scale:3, useCORS:true, allowTaint:true}).then(c => { 
-        let a = document.createElement('a'); a.download = "Kartu_Depan_" + window.namaKartuCetak + ".jpg"; a.href = c.toDataURL("image/jpeg", 0.95); a.click(); 
-    }); 
+    // Beri info loading agar user tidak panik
+    Swal.fire({ title: 'Menyiapkan Unduhan...', text: 'Mohon tunggu sebentar', allowOutsideClick: false, didOpen: () => { Swal.showLoading(); } });
+    
+    setTimeout(() => {
+        html2canvas(document.getElementById('capture-area'), {scale:3, useCORS:true}).then(c => { 
+            let a = document.createElement('a'); a.download = "Kartu_Depan_" + window.namaKartuCetak + ".jpg"; a.href = c.toDataURL("image/jpeg", 0.95); a.click(); 
+            Swal.close(); // Tutup loading
+        }); 
+    }, 500);
 }
 
 // === UNDUH KARTU BELAKANG ===
 function downloadKartuBelakang() { 
     let bgSrc = $('#card-bg-back').attr('src');
     if(!bgSrc || bgSrc === '') { Swal.fire('Info', 'Background belakang belum diatur oleh admin.', 'info'); return; }
-    html2canvas(document.getElementById('capture-area-back'), {scale:3, useCORS:true, allowTaint:true}).then(c => { 
-        let a = document.createElement('a'); a.download = "Kartu_Belakang_" + window.namaKartuCetak + ".jpg"; a.href = c.toDataURL("image/jpeg", 0.95); a.click(); 
-    }); 
+    
+    Swal.fire({ title: 'Menyiapkan Unduhan...', text: 'Mohon tunggu sebentar', allowOutsideClick: false, didOpen: () => { Swal.showLoading(); } });
+    
+    setTimeout(() => {
+        html2canvas(document.getElementById('capture-area-back'), {scale:3, useCORS:true}).then(c => { 
+            let a = document.createElement('a'); a.download = "Kartu_Belakang_" + window.namaKartuCetak + ".jpg"; a.href = c.toDataURL("image/jpeg", 0.95); a.click(); 
+            Swal.close();
+        }); 
+    }, 500);
 }
 
 // === CETAK MASSAL KERTAS A4 ===
