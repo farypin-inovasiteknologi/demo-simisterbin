@@ -5,8 +5,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, shrink-to-fit=no">
-    <title>Demo SiBuk InSTal</title>
-    <link rel="icon" type="image/png" href="./imgsibukinstal.png">
+    <title>Demo SiMISTerBin</title>
+    <link rel="icon" type="image/png" href="./imgsimisterbin.png">
 
 
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
@@ -202,7 +202,11 @@ input, button, select, textarea {
              <div id="uRole" class="badge bg-warning text-dark mt-1">Role</div>
         </div>
         <a href="javascript:void(0)" onclick="nav('dash', this)" class="active"><i class="bi bi-speedometer2 me-2"></i> Dashboard</a>
-        <a href="javascript:void(0)" onclick="nav('siswa', this)"><i class="bi bi-people-fill me-2"></i> Data Siswa</a>
+        
+        <a href="javascript:void(0)" onclick="nav('siswa', this)"><i class="bi bi-journal-bookmark-fill me-2"></i> Buku Induk</a>
+        <a href="javascript:void(0)" onclick="nav('datasiswa', this)"><i class="bi bi-people-fill me-2"></i> Data Siswa</a>
+        <a href="javascript:void(0)" onclick="nav('alumni', this)"><i class="bi bi-mortarboard-fill me-2"></i> Data Alumni</a>
+        
         <div class="admin-only">
              <a href="javascript:void(0)" onclick="nav('mapel', this)"><i class="bi bi-book-half me-2"></i> Data Mapel</a>
              <a href="javascript:void(0)" onclick="nav('settings', this)"><i class="bi bi-gear-fill me-2"></i> Pengaturan</a>
@@ -247,7 +251,7 @@ input, button, select, textarea {
 
             <div id="view-siswa" class="hidden">
                 <div class="d-flex flex-wrap justify-content-between align-items-center mb-4 gap-2">
-                    <h3 class="m-0 text-secondary fw-bold">Data Siswa</h3>
+                    <h3 class="m-0 text-secondary fw-bold">Buku Induk</h3>
                     <div class="admin-only d-flex flex-wrap gap-2">
                         <button class="btn btn-sm btn-outline-primary shadow-sm" onclick="downloadTemplate('siswa')"><i class="bi bi-file-earmark-spreadsheet"></i> Template</button>
                         <button class="btn btn-sm btn-info text-white shadow-sm" onclick="$('#fileImportSiswa').click()"><i class="bi bi-upload"></i> Import</button>
@@ -260,6 +264,36 @@ input, button, select, textarea {
                         <table id="tblSiswa" class="table table-hover w-100">
                             <thead class="table-light"><tr><th>NIS</th><th>Nama Lengkap</th><th>Tgl Lahir</th><th>L/P</th><th>Thn Masuk</th><th>Aksi</th></tr></thead>
                             <tbody id="tbodySiswa"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <div id="view-datasiswa" class="hidden">
+                <div class="d-flex flex-wrap justify-content-between align-items-center mb-4 gap-2">
+                    <h3 class="m-0 text-secondary fw-bold">Data Siswa</h3>
+                    <button class="btn btn-sm btn-success shadow-sm fw-bold" onclick="alert('Fitur Cetak Massal sedang disiapkan')"><i class="bi bi-printer"></i> Unduh Kartu Semua</button>
+                </div>
+                <div class="card p-4 bg-white">
+                    <div class="table-responsive">
+                        <table id="tblDataSiswa" class="table table-hover w-100">
+                            <thead class="table-light"><tr><th>NIS / NISN</th><th>Nama Lengkap</th><th>Tgl Lahir</th><th>L/P</th><th>Status</th><th>Aksi</th></tr></thead>
+                            <tbody id="tbodyDataSiswa"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <div id="view-alumni" class="hidden">
+                <div class="d-flex flex-wrap justify-content-between align-items-center mb-4 gap-2">
+                    <h3 class="m-0 text-secondary fw-bold">Data Alumni</h3>
+                    <button class="btn btn-sm btn-success shadow-sm fw-bold" onclick="alert('Fitur Cetak Massal sedang disiapkan')"><i class="bi bi-printer"></i> Unduh Kartu Semua</button>
+                </div>
+                <div class="card p-4 bg-white">
+                    <div class="table-responsive">
+                        <table id="tblAlumni" class="table table-hover w-100">
+                            <thead class="table-light"><tr><th>NIS / NISN</th><th>Nama Lengkap</th><th>L/P</th><th>Status</th><th>Thn Lulus</th><th>Aksi</th></tr></thead>
+                            <tbody id="tbodyAlumni"></tbody>
                         </table>
                     </div>
                 </div>
@@ -760,14 +794,14 @@ function nav(page, el, param) {
 }
 
 // --- OPTIMIZED LOAD SISWA VIA API ---
+// --- OPTIMIZED LOAD SISWA VIA API & PEMISAH TABEL ---
 function loadSiswa() { 
     callAPI('getStudents').then(data => { 
-        // Mengantisipasi jika format pengembalian dari GAS berupa {status: "success", data: [...]}
         const listSiswa = data.data ? data.data : data;
         globalSiswa = listSiswa; 
 
+        // Update Statistik Dashboard
         $('#totalSiswa').text(listSiswa.length);
-        
         const l = listSiswa.filter(r=>r[7]=='L').length; 
         const p = listSiswa.filter(r=>r[7]=='P').length;
         const aktif = listSiswa.filter(r=>r[31]=='Aktif').length; 
@@ -775,47 +809,59 @@ function loadSiswa() {
         const keluar = listSiswa.filter(r=>r[31]=='Keluar').length;
         
         if(chartGender) chartGender.destroy();
-        var optionsGender = {
-            series: [l, p],
-            labels: ['Laki-laki', 'Perempuan'],
-            colors: ['#4e73df', '#1cc88a'],
-            chart: { type: 'pie', height: 250 },
-            legend: { position: 'bottom' },
-            dataLabels: { enabled: true }
-        };
-        chartGender = new ApexCharts(document.querySelector("#chartGender"), optionsGender);
-        chartGender.render();
-
+        chartGender = new ApexCharts(document.querySelector("#chartGender"), { series: [l, p], labels: ['Laki-laki', 'Perempuan'], colors: ['#4e73df', '#1cc88a'], chart: { type: 'pie', height: 250 }, legend: { position: 'bottom' }, dataLabels: { enabled: true } }); chartGender.render();
+        
         if(chartStatus) chartStatus.destroy();
-        var optionsStatus = {
-            series: [aktif, lulus, keluar],
-            labels: ['Aktif', 'Lulus', 'Keluar'],
-            colors: ['#36b9cc', '#1cc88a', '#e74a3b'],
-            chart: { type: 'donut', height: 250 },
-            legend: { position: 'bottom' },
-            dataLabels: { enabled: false }
-        };
-        chartStatus = new ApexCharts(document.querySelector("#chartStatus"), optionsStatus);
-        chartStatus.render();
+        chartStatus = new ApexCharts(document.querySelector("#chartStatus"), { series: [aktif, lulus, keluar], labels: ['Aktif', 'Lulus', 'Keluar'], colors: ['#36b9cc', '#1cc88a', '#e74a3b'], chart: { type: 'donut', height: 250 }, legend: { position: 'bottom' }, dataLabels: { enabled: false } }); chartStatus.render();
 
         callAPI('getDashboardStats').then(res=>{ $('#totalMapel').text(res.mapel); $('#totalRombel').text(res.rombel); $('#totalUser').text(res.user); });
 
+        // Hancurkan tabel lama agar tidak error saat reload
         if($.fn.DataTable.isDataTable('#tblSiswa')) $('#tblSiswa').DataTable().destroy(); 
+        if($.fn.DataTable.isDataTable('#tblDataSiswa')) $('#tblDataSiswa').DataTable().destroy(); 
+        if($.fn.DataTable.isDataTable('#tblAlumni')) $('#tblAlumni').DataTable().destroy(); 
         
         const isAdmin = ($('#uRole').text() == 'ADMINISTRATOR' || $('#uRole').text() == 'ADMIN');
         
-        const rowsHtml = listSiswa.map(r => {
-            const thnMasuk = r[30] ? r[30].substring(0,4) : '-'; 
-            let btns = `<button class="btn btn-sm btn-info text-white me-1 shadow-sm" onclick="cetakPDF('${r[0]}')" title="PDF"><i class="bi bi-file-pdf"></i></button><button class="btn btn-sm btn-secondary me-1 shadow-sm" onclick="reviewSiswa('${r[0]}')" title="Detail"><i class="bi bi-eye"></i></button>`; 
-            if(isAdmin) { 
-                btns += `<button class="btn btn-sm btn-warning me-1 shadow-sm" onclick="editSiswa('${r[0]}')"><i class="bi bi-pencil"></i></button><button class="btn btn-sm btn-danger shadow-sm" onclick="delSiswa('${r[0]}')"><i class="bi bi-trash"></i></button>`; 
-            } 
-            return `<tr><td>${r[0]}</td><td>${r[2]}</td><td>${r[6]}</td><td>${r[7]}</td><td>${thnMasuk}</td><td>${btns}</td></tr>`;
-        }).join(''); 
+        let htmlInduk = "", htmlSiswa = "", htmlAlumni = "";
 
-        $('#tbodySiswa').html(rowsHtml); 
-        $('#tblSiswa').DataTable({ language: { search: "Cari:", lengthMenu: "_MENU_ data", info: "_START_-_END_ dari _TOTAL_" } }); 
-        
+        listSiswa.forEach(r => {
+            const nis = r[0], nisn = r[1], nama = r[2], tgllahir = r[6], jk = r[7];
+            const kls = r[29], thnMasuk = r[30] ? r[30].substring(0,4) : '-', status = r[31];
+            const thnKeluar = r[32] ? r[32].substring(0,4) : "-";
+            const nisGabung = nisn ? `${nis} / ${nisn}` : nis;
+
+            // Tombol Master Buku Induk
+            let btnInduk = `<button class="btn btn-sm btn-info text-white me-1 shadow-sm" onclick="cetakPDF('${nis}')" title="PDF"><i class="bi bi-file-pdf"></i></button><button class="btn btn-sm btn-secondary me-1 shadow-sm" onclick="reviewSiswa('${nis}')" title="Detail"><i class="bi bi-eye"></i></button>`; 
+            if(isAdmin) btnInduk += `<button class="btn btn-sm btn-warning me-1 shadow-sm" onclick="editSiswa('${nis}')"><i class="bi bi-pencil"></i></button><button class="btn btn-sm btn-danger shadow-sm" onclick="delSiswa('${nis}')"><i class="bi bi-trash"></i></button>`; 
+
+            // Tombol Data Siswa & Alumni
+            let btnData = `<button class="btn btn-sm btn-secondary me-1 shadow-sm" onclick="reviewSiswa('${nis}')" title="Lihat"><i class="bi bi-eye"></i></button> <button class="btn btn-sm btn-success me-1 shadow-sm" onclick="alert('Fitur Cetak Kartu segera hadir')" title="Unduh Kartu"><i class="bi bi-card-heading"></i></button>`;
+            if(isAdmin && status !== 'Lulus') btnData += `<button class="btn btn-sm btn-danger shadow-sm" onclick="alert('Fitur Reset Pass segera hadir')" title="Reset Password"><i class="bi bi-key"></i></button>`;
+
+            // 1. Masuk Buku Induk (Semua Data)
+            htmlInduk += `<tr><td>${nis}</td><td>${nama}</td><td>${tgllahir}</td><td>${jk}</td><td>${thnMasuk}</td><td>${btnInduk}</td></tr>`;
+
+            // 2. Masuk Data Siswa (Kecuali Lulus)
+            if (status !== 'Lulus') {
+                let badgeStatus = status === 'Aktif' ? `<span class="badge bg-success">Aktif</span>` : `<span class="badge bg-danger">${status}</span>`;
+                htmlSiswa += `<tr><td>${nisGabung}</td><td>${nama}</td><td>${tgllahir}</td><td>${jk}</td><td>${badgeStatus}</td><td>${btnData}</td></tr>`;
+            }
+
+            // 3. Masuk Data Alumni (Hanya Lulus)
+            if (status === 'Lulus') {
+                htmlAlumni += `<tr><td>${nisGabung}</td><td>${nama}</td><td>${jk}</td><td><span class="badge bg-primary">Lulus</span></td><td>${thnKeluar}</td><td>${btnData}</td></tr>`;
+            }
+        }); 
+
+        $('#tbodySiswa').html(htmlInduk); 
+        $('#tbodyDataSiswa').html(htmlSiswa); 
+        $('#tbodyAlumni').html(htmlAlumni); 
+
+        const dtConfig = { language: { search: "Cari:", lengthMenu: "_MENU_ data", info: "_START_-_END_ dari _TOTAL_" } };
+        $('#tblSiswa').DataTable(dtConfig); 
+        $('#tblDataSiswa').DataTable(dtConfig); 
+        $('#tblAlumni').DataTable(dtConfig); 
     }); 
 }
 
