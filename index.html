@@ -1851,29 +1851,38 @@ function cetakKartuMassal(tipe) {
 }
 
 // ==========================================
-// FITUR SCANNER & VALIDASI (FULL SIKAP PROFESI STYLE)
+// FITUR SCANNER & VALIDASI (DIPERBAIKI)
 // ==========================================
+let scanner = null;
+
 function openScannerPublic() { 
     $('#mdlScanner').modal('show'); 
-    if (!scanner) scanner = new Html5QrcodeScanner("reader", { fps: 10, qrbox: {width: 250, height: 250} }, false); 
-    scanner.render(onScanSuccess, (e)=>{}); 
 }
 
-function closeScannerPublic() { 
-    $('#mdlScanner').modal('hide'); 
-    if (scanner) scanner.clear(); 
-}
+// WAJIB: Nyalakan kamera HANYA setelah modal benar-benar terbuka di layar
+$('#mdlScanner').on('shown.bs.modal', function () {
+    if (!scanner) {
+        scanner = new Html5QrcodeScanner("reader", { fps: 10, qrbox: {width: 250, height: 250} }, false); 
+        scanner.render(onScanSuccess, function(error){ /* abaikan error pencarian */ }); 
+    }
+});
+
+// Matikan kamera saat modal ditutup
+$('#mdlScanner').on('hidden.bs.modal', function () {
+    if (scanner) {
+        scanner.clear();
+        scanner = null;
+    }
+});
 
 function onScanSuccess(decodedText) {
-    closeScannerPublic();
+    $('#mdlScanner').modal('hide');
     $('#loader').removeClass('hidden'); $('#loaderText').text('Memverifikasi ke Server...');
     
     callAPI('cekValidasiSiswa', { nisn: decodedText.trim() }).then(res => {
         $('#loader').addClass('hidden');
         if (res.status === 'success') {
             const s = res.data;
-            
-            // Tampilkan Modal Hasil Scan
             $('#mdlHasilScan').modal('show');
             
             // Set Logo & Kop
@@ -1895,30 +1904,39 @@ function onScanSuccess(decodedText) {
             $('#val-foto').attr('src', '');
             if(s.foto_url) callAPI('getImage', {id: s.foto_url}).then(b => { if(b) $('#val-foto').attr('src', b); });
 
-            // Fungsi Tombol Buka Kartu
             $('#btn-buka-kartu-digital').off('click').on('click', function() {
                 $('#mdlHasilScan').modal('hide');
-                // Tampilkan kartu digital langsung dari scanner (seperti di sikapprofesi)
                 tampilkanKartuKeModal(s.nama, s.nisn, (s.tmplahir||'-') + ', ' + (s.tgllahir_indo||'-'), s.jk === 'L' ? 'Laki-laki' : 'Perempuan', s.foto_url, s.foto_url, s.status);
             });
-
         } else {
             Swal.fire({ icon: 'error', title: 'Palsu / Tidak Valid', text: 'QR Code tidak ditemukan di database sekolah kami.' });
         }
     });
 }
 
+// ==========================================
+// PERBAIKAN UNDUH KARTU
+// ==========================================
 function downloadKartu() { 
-    html2canvas(document.getElementById('capture-area'), {
+    const element = document.getElementById('capture-area');
+    
+    // Matikan sementara border-radius agar hasil crop html2canvas tidak error/terpotong
+    element.style.borderRadius = '0px';
+
+    html2canvas(element, {
         scale: 3, 
-        useCORS: true, 
-        allowTaint: true
+        useCORS: true,
+        backgroundColor: '#ffffff'
     }).then(canvas => { 
         let a = document.createElement('a'); 
         a.download = "KartuPelajar_" + (window.namaKartuCetak || "Siswa") + ".jpg"; 
-        a.href = canvas.toDataURL("image/jpeg", 0.9); 
+        a.href = canvas.toDataURL("image/jpeg", 0.95); 
         a.click(); 
+        
+        // Kembalikan border-radius
+        element.style.borderRadius = '8px';
     }).catch(err => {
+        element.style.borderRadius = '8px';
         Swal.fire('Error', 'Gagal memproses gambar kartu', 'error');
     }); 
 }
