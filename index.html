@@ -156,7 +156,7 @@ input, button, select, textarea {
             <button type="button" class="btn btn-success w-100 rounded-pill py-2 fw-bold shadow-sm" onclick="openScannerPublic()"><i class="bi bi-qr-code-scan"></i> SCAN KARTU PELAJAR/ALUMNI</button>
         </form>
         <div class="text-center mt-4 small text-secondary">
-                &copy; <span id="yearApp"></span> SiBuk InSTal <span id="footSchoolName" class="fw-bold"></span>. All Rights Reserved. <br>
+                &copy; <span id="yearApp"></span> SiMISTerBIn <span id="footSchoolName" class="fw-bold"></span>. All Rights Reserved. <br>
                 <a href="javascript:void(0)" onclick="showPrivacy()">Kebijakan Privasi</a> &bull; Created by : <a href='https://www.farypin-inovasiteknologi.com' rel='dofollow' style='color:blue;'>PT Farypin Inovasi Teknologi</a>
             </div>
     </div>
@@ -168,7 +168,7 @@ input, button, select, textarea {
   <div class="row">
 
     <div id="mobileTopBar" class="d-md-none fixed-top bg-theme text-white shadow-sm px-3 d-flex justify-content-between align-items-center" style="height: 60px; z-index: 1030;">
-        <div class="fw-bold fs-5 text-truncate" style="max-width: 50%;"><i class="bi bi-book-half me-1"></i> SiBuk InSTal</div>
+        <div class="fw-bold fs-5 text-truncate" style="max-width: 50%;"><i class="bi bi-book-half me-1"></i> SiMISTerBIn</div>
         <div style="max-width: 45%;">
             <select id="mobileSemester" class="form-select form-select-sm fw-bold border-0 text-primary shadow-sm" style="border-radius: 20px;" onchange="nav('nilai', null, this.value)">
                 <option value="" disabled selected>Pilih Smt</option>
@@ -1856,19 +1856,22 @@ function cetakKartuMassal(tipe) {
 // ==========================================
 let scanner = null;
 
-function openScannerPublic() { 
-    $('#mdlScanner').modal('show'); 
+let scanner = null;
+
+function openScannerPublic() {
+    $('#mdlScanner').modal('show');
 }
 
-// WAJIB: Nyalakan kamera HANYA setelah modal benar-benar terbuka di layar
+// LOGIKA KUNCI: Nyalakan kamera HANYA saat modal sudah selesai muncul
 $('#mdlScanner').on('shown.bs.modal', function () {
     if (!scanner) {
-        scanner = new Html5QrcodeScanner("reader", { fps: 10, qrbox: {width: 250, height: 250} }, false); 
-        scanner.render(onScanSuccess, function(error){ /* abaikan error pencarian */ }); 
+        // Render kamera ke dalam div ber-ID "reader"
+        scanner = new Html5QrcodeScanner("reader", { fps: 10, qrbox: {width: 250, height: 250} }, false);
+        scanner.render(onScanSuccess, function(error){ /* Abaikan error pencarian frame */ });
     }
 });
 
-// Matikan kamera saat modal ditutup
+// Matikan kamera saat pop-up ditutup agar tidak berat
 $('#mdlScanner').on('hidden.bs.modal', function () {
     if (scanner) {
         scanner.clear();
@@ -1918,28 +1921,33 @@ function onScanSuccess(decodedText) {
 // ==========================================
 // PERBAIKAN UNDUH KARTU
 // ==========================================
-function downloadKartu() { 
+function downloadKartu() {
     const element = document.getElementById('capture-area');
     
-    // Matikan sementara border-radius agar hasil crop html2canvas tidak error/terpotong
-    element.style.borderRadius = '0px';
+    // Cegah error jika elemen tidak ditemukan
+    if(!element) {
+        Swal.fire('Error', 'Area kartu (capture-area) tidak ditemukan di HTML!', 'error');
+        return;
+    }
 
+    // Nama file otomatis
+    let namaFile = window.namaKartuCetak ? window.namaKartuCetak : "Pelajar";
+
+    // Proses render HTML ke Gambar
     html2canvas(element, {
-        scale: 3, 
-        useCORS: true,
+        scale: 3,
+        useCORS: true, // SANGAT PENTING: Agar foto dari Google Drive tidak diblokir
+        allowTaint: true,
         backgroundColor: '#ffffff'
-    }).then(canvas => { 
-        let a = document.createElement('a'); 
-        a.download = "KartuPelajar_" + (window.namaKartuCetak || "Siswa") + ".jpg"; 
-        a.href = canvas.toDataURL("image/jpeg", 0.95); 
-        a.click(); 
-        
-        // Kembalikan border-radius
-        element.style.borderRadius = '8px';
+    }).then(canvas => {
+        let a = document.createElement('a');
+        a.download = "Kartu_" + namaFile + ".jpg";
+        a.href = canvas.toDataURL("image/jpeg", 0.95);
+        a.click();
     }).catch(err => {
-        element.style.borderRadius = '8px';
-        Swal.fire('Error', 'Gagal memproses gambar kartu', 'error');
-    }); 
+        console.error("Error Cetak Kartu:", err);
+        Swal.fire('Error', 'Gagal memproses gambar kartu. Cek koneksi atau izin gambar.', 'error');
+    });
 }
 
 </script>
