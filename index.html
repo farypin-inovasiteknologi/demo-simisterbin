@@ -105,7 +105,7 @@ input, button, select, textarea {
  /* --- CARD ID & CETAK MASSAL (PRESISI) --- */
     .id-card, .id-card * { -webkit-text-size-adjust: 100% !important; text-size-adjust: 100% !important; }
     .info-table-new td { line-height: 1.1 !important; border: none !important; text-align: left; padding: 1px 0px; font-family: 'Oswald', sans-serif; font-size: 14px; font-weight: 400; color: #000; }
-    .info-table-new .lbl { width: 60px; }
+    .info-table-new .lbl { width: 65px; }
     .id-card { width: 400px; height: 250px; background: white; position: relative; overflow: hidden; border-radius: 8px; box-shadow: 0 4px 10px rgba(0,0,0,0.2); margin: 0 auto; font-family: Arial, sans-serif; }
     .card-bg-gradient { position: absolute; inset: 0; background: linear-gradient(120deg, var(--primary-color) 35%, #fff 35.5%); z-index: 1; }
     .card-bg-img { position: absolute; inset: 0; background-size: cover; background-position: center; z-index: 2; opacity: 1; }
@@ -120,7 +120,7 @@ input, button, select, textarea {
     .header-line { margin: 0 5px; height: 1px; border-top: 1px solid #000; border-bottom: 2px solid #000; margin-top: 4px; }
     .txt-kartupelajar-center { font-family: Arial, sans-serif; font-size: 18px; text-align: center; font-weight: 800; margin: 2px 0; color: #000; }
     .card-body-new { display: flex; padding: 3px 9px; margin-top: 0px; height: 100%; }
-    .photo-area-new { width: 75px; height: 100px; background: #ddd; border: 1px solid white; box-shadow: 0 2px 4px rgba(0,0,0,0.2); margin-right: 10px; overflow: hidden; }
+    .photo-area-new { width: 75px; height: 100px; background: #ddd; border: 0.5px solid white; box-shadow: 0 2px 4px rgba(0,0,0,0.2); margin-right: 10px; overflow: hidden; }
     .student-photo { width: 100%; height: 100%; object-fit: cover; }
     .info-area-new { flex: 1; position: relative; }
     .qr-area-new { position: absolute; bottom: 3px; right: 3px; background: white; padding: 1px; border: 0px solid #ccc; }
@@ -686,11 +686,11 @@ input, button, select, textarea {
                             </div>
                             <div class="info-area-new">
                                 <table class="info-table-new">
-                                    <tr><td class="lbl">Nama</td><td>:</td><td class="val" id="card-nama"></td></tr>
-                                    <tr><td class="lbl">NISN</td><td>:</td><td class="val" id="card-nisn"></td></tr>
-                                    <tr><td class="lbl">Tmpt Lahir</td><td>:</td><td class="val" id="card-tmp"></td></tr>
-                                    <tr><td class="lbl">Tgl Lahir</td><td>:</td><td class="val" id="card-tgl"></td></tr>
-                                    <tr><td class="lbl">JK</td><td>:</td><td class="val" id="card-jk"></td></tr>
+                                    <tr><td class="lbl">Nama</td><td>: </td><td class="val" id="card-nama"></td></tr>
+                                    <tr><td class="lbl">NISN</td><td>: </td><td class="val" id="card-nisn"></td></tr>
+                                    <tr><td class="lbl">Tmpt Lahir</td><td>: </td><td class="val" id="card-tmp"></td></tr>
+                                    <tr><td class="lbl">Tgl Lahir</td><td>: </td><td class="val" id="card-tgl"></td></tr>
+                                    <tr><td class="lbl">JK</td><td>:< /td><td class="val" id="card-jk"></td></tr>
                                 </table>
                                 <div class="qr-area-new"><div id="qrcode"></div></div>
                                 <div class="txt-validasi-bawah">Scan QR untuk validasi:<br><b id="card-link-validasi"></b></div>
@@ -1841,12 +1841,12 @@ function cetakKartuMassal(tipe) {
                 .header-line { margin: 0 5px; height: 1px; border-top: 1px solid #000; border-bottom: 2px solid #000; margin-top: 4px; }
                 .txt-kartupelajar-center { font-family: Arial, sans-serif; font-size: 18px; text-align: center; font-weight: 800; margin: 2px 0; color: #000; }
                 .card-body-new { display: flex; padding: 3px 9px; margin-top: 0px; height: 100%; }
-                .photo-area-new { width: 75px; height: 100px; background: #ddd; border: 1px solid white; box-shadow: 0 2px 4px rgba(0,0,0,0.2); margin-right: 10px; overflow: hidden; }
+                .photo-area-new { width: 75px; height: 100px; background: #ddd; border: 0.5px solid white; box-shadow: 0 2px 4px rgba(0,0,0,0.2); margin-right: 10px; overflow: hidden; }
                 .student-photo { width: 100%; height: 100%; object-fit: cover; }
                 .info-area-new { flex: 1; position: relative; }
                 .info-table-new { width: 100%; color: #000; border-collapse: collapse; }
                 .info-table-new td { padding: 1px 0px; vertical-align: top; font-family: 'Oswald', sans-serif; font-size: 14px; font-weight: 400; line-height: 1; text-align: left;}
-                .info-table-new .lbl { width: 60px; }
+                .info-table-new .lbl { width: 65px; }
                 .qr-area-new { position: absolute; bottom: 3px; right: 3px; background: white; padding: 1px; }
                 .txt-validasi-bawah { position: absolute; bottom: 4px; left: 10px; width: 260px; text-align: left; font-size: 5.5px; font-family: Arial, sans-serif; line-height: 1.2; color: #000; font-weight: 500;}
             </style>
@@ -1896,11 +1896,11 @@ function cetakKartuMassal(tipe) {
                        </div>
                        <div class="info-area-new">
                           <table class="info-table-new">
-                             <tr><td class="lbl">Nama</td><td>:</td><td class="val">${s[2]}</td></tr>
-                             <tr><td class="lbl">NISN</td><td>:</td><td class="val">${s[1]}</td></tr>
-                             <tr><td class="lbl">Tmpt Lahir</td><td>:</td><td class="val">${s[5] || '-'}</td></tr>
-                             <tr><td class="lbl">Tgl Lahir</td><td>:</td><td class="val">${s[6] || '-'}</td></tr>
-                             <tr><td class="lbl">JK</td><td>:</td><td class="val">${s[7] === 'L' ? 'Laki-laki' : 'Perempuan'}</td></tr>
+                             <tr><td class="lbl">Nama</td><td>: </td><td class="val">${s[2]}</td></tr>
+                             <tr><td class="lbl">NISN</td><td>: </td><td class="val">${s[1]}</td></tr>
+                             <tr><td class="lbl">Tmpt Lahir</td><td>: </td><td class="val">${s[5] || '-'}</td></tr>
+                             <tr><td class="lbl">Tgl Lahir</td><td>: </td><td class="val">${s[6] || '-'}</td></tr>
+                             <tr><td class="lbl">JK</td><td>: </td><td class="val">${s[7] === 'L' ? 'Laki-laki' : 'Perempuan'}</td></tr>
                           </table>
                           <div class="qr-area-new"><img src="${qrUrl}" crossorigin="anonymous" style="width:85px; height:85px; display:block;"></div>
                           <div class="txt-validasi-bawah">Scan QR untuk validasi:<br><b>${globalConf.link_validasi || "https://sikapprofesi.my.id"}</b></div>
