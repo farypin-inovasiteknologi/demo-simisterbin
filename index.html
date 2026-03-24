@@ -417,7 +417,22 @@ input, button, select, textarea {
         </div>
 
         <div id="view-profil_siswa" class="hidden">
-                <h3 class="mb-4 text-secondary fw-bold">Profil Elektronik Siswa</h3>
+                <div id="headerSiswa" class="card p-3 mb-4 shadow-sm border-0 bg-white" style="border-bottom: 4px solid var(--primary-color) !important;">
+                    <div class="d-flex align-items-center justify-content-center text-center gap-3">
+                        <img id="headerLogoInstansi" src="" style="height: 50px; object-fit: contain;" class="hidden">
+                        <div>
+                            <h6 class="m-0 fw-bold text-secondary" id="headerInstansi">DINAS PENDIDIKAN</h6>
+                            <h4 class="m-0 fw-bold text-dark text-uppercase" id="headerSekolah">NAMA SEKOLAH</h4>
+                        </div>
+                        <img id="headerLogoSekolah" src="" style="height: 50px; object-fit: contain;" class="hidden">
+                    </div>
+                </div>
+
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <h4 class="text-secondary fw-bold m-0">Profil Elektronik Siswa</h4>
+                    <button class="btn btn-danger btn-sm fw-bold shadow-sm" onclick="logout()"><i class="bi bi-box-arrow-left"></i> Keluar (Logout)</button>
+                </div>
+
                 <div class="row">
                     <div class="col-md-4 text-center mb-3">
                         <div class="card p-3 border-top border-primary border-4 shadow-sm">
@@ -425,7 +440,7 @@ input, button, select, textarea {
                             <h5 class="fw-bold mt-3 mb-1" id="profil_nama">Nama Siswa</h5>
                             <span class="badge bg-primary mb-3" id="profil_nisn">NISN</span>
                             <button class="btn btn-warning w-100 fw-bold mb-2 shadow-sm" onclick="lihatKartu()"><i class="bi bi-card-heading"></i> Kartu Pelajar Digital</button>
-                            <button class="btn btn-secondary w-100 fw-bold shadow-sm" onclick="$('#mdlGantiPassSiswa').modal('show')"><i class="bi bi-key"></i> Ganti Password</button>
+                            <button class="btn btn-secondary w-100 fw-bold shadow-sm" onclick="$('#mdlGantiPass').modal('show')"><i class="bi bi-key"></i> Ganti Password</button>
                         </div>
                     </div>
                     <div class="col-md-8">
@@ -586,7 +601,44 @@ input, button, select, textarea {
 
 <div class="modal fade" id="mdlMapel"><div class="modal-dialog"><div class="modal-content"><form id="formMapel" onsubmit="saveMapel(event)"><div class="modal-header"><h5 class="modal-title" id="lblModalMapel">Data Mata Pelajaran</h5></div><div class="modal-body"><input type="hidden" id="oldIdMapel"><div class="mb-3"><label class="fw-bold small">Kode Mapel</label><input id="idMapel" class="form-control" required></div><div class="mb-3"><label class="fw-bold small">Nama Mapel</label><input id="nmMapel" class="form-control" required></div></div><div class="modal-footer"><button type="submit" class="btn btn-primary fw-bold px-4">SIMPAN</button></div></form></div></div></div>
 
+<div class="modal fade" id="mdlKartu" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header bg-primary text-white"><h5 class="modal-title fw-bold">Kartu Pelajar</h5><button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button></div>
+            <div class="modal-body text-center p-3" style="overflow-x: auto;">
+                <div id="capture-area" class="id-card mb-3" style="text-align: left; margin: 0 auto;">
+                    <div class="card-bg-img" id="card-bg-layer"></div><div class="card-bg-gradient" id="card-bg-gradient"></div>
+                    <div class="card-content-wrap">
+                        <div class="card-header-new">
+                            <img id="card-logo-instansi" class="logo-kiri"><img id="card-logo-sekolah" class="logo-kanan">
+                            <div class="header-text-center"><div id="card-instansi" class="txt-instansi-center"></div><div id="card-sekolah" class="txt-sekolah-center"></div></div>
+                        </div>
+                        <div class="header-line"></div><div class="header-text-center"><div class="txt-kartupelajar-center">KARTU PELAJAR</div></div>
+                        <div class="card-body-new">
+                            <div class="photo-area-new"><img id="card-foto" class="student-photo"></div>
+                            <div class="info-area-new">
+                                <table class="info-table-new">
+                                    <tr><td width="35%">Nama</td><td width="5%">:</td><td id="card-nama"></td></tr>
+                                    <tr><td>NISN</td><td>:</td><td id="card-nisn"></td></tr>
+                                    <tr><td>TTL</td><td>:</td><td id="card-ttl"></td></tr>
+                                    <tr><td>JK</td><td>:</td><td id="card-jk"></td></tr>
+                                </table>
+                                <div class="qr-area-new" id="qrcode"></div>
+                                <div class="txt-validasi-bawah">Scan QR untuk validasi:<br><b id="card-link-validasi"></b></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <button class="btn btn-success fw-bold w-100 mt-2" onclick="downloadKartu()"><i class="bi bi-download"></i> Unduh Kartu (Gambar)</button>
+            </div>
+        </div>
+    </div>
+</div>
 
+<div class="modal fade" id="mdlGantiPass" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered"><div class="modal-content"><div class="modal-header bg-secondary text-white"><h5 class="modal-title">Ganti Password</h5><button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button></div>
+    <div class="modal-body"><input type="password" id="oldPass" class="form-control mb-2" placeholder="Password Lama"><input type="password" id="newPass" class="form-control mb-3" placeholder="Password Baru"><button class="btn btn-primary w-100 fw-bold" onclick="simpanPasswordSiswa()">SIMPAN PASSWORD</button></div></div></div>
+</div>
 
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
@@ -707,42 +759,51 @@ function doLogin(e) {
             
             // SARINGAN ROLE (ADMIN VS SISWA)
             if (res.role === 'siswa') {
-                // Sembunyikan menu admin, navigasikan ke profil siswa
-                $('.admin-only').addClass('hidden'); 
-                nav('profil_siswa', null); // Pindah ke layar profil
+                // 1. SEMBUNYIKAN MENU ADMIN & PERLEBAR HALAMAN
+                $('#mainSidebar').addClass('hidden'); // Sembunyikan sidebar kiri
+                $('#mainSidebar').next().removeClass('col-md-10').addClass('col-md-12'); // Bikin Full screen
+                $('.mobile-toggle').addClass('hidden'); // Sembunyikan tombol garis 3 di HP
+                $('.fab-refresh').addClass('hidden'); // Sembunyikan tombol refresh melayang
+
+                // 2. SET HEADER LOGO SEKOLAH
+                $('#headerInstansi').text(globalConf.nama_instansi);
+                $('#headerSekolah').text(globalConf.nama_sekolah);
+                if(globalConf.logo_instansi) callAPI('getImage', {id: globalConf.logo_instansi}).then(b => { if(b) $('#headerLogoInstansi').attr('src', b).removeClass('hidden'); });
+                if(globalConf.logo_sekolah) callAPI('getImage', {id: globalConf.logo_sekolah}).then(b => { if(b) $('#headerLogoSekolah').attr('src', b).removeClass('hidden'); });
+
+                // 3. MASUK KE PROFIL
+                nav('profil_siswa', null); 
                 
                 // Render data siswa ke layar
                 const d = res.data;
-                $('#profil_nama').text(d.nama);
-                $('#profil_nisn').text(d.nisn);
+                $('#profil_nama').text(d.nama); $('#profil_nisn').text(d.nisn);
                 $('#profil_nis_nisn').text(d.nis + ' / ' + d.nisn);
                 $('#profil_ttl').text((d.tmplahir || '-') + ', ' + (d.tgllahir_indo || '-'));
                 $('#profil_jk').text(d.jk === 'L' ? 'Laki-laki' : 'Perempuan');
                 $('#profil_agama').text(d.agama || '-');
                 $('#profil_kelas').text((d.kls_masuk || '-') + ' / ' + (d.thn_masuk || '-'));
-                $('#profil_alamat').text(d.alamat || '-');
-                $('#profil_hp').text(d.nohp || '-');
+                $('#profil_alamat').text(d.alamat || '-'); $('#profil_hp').text(d.nohp || '-');
                 $('#profil_ortu').text((d.ayah || '-') + ' / ' + (d.ibu || '-'));
                 $('#profil_status').text(d.status_akhir);
                 if(d.status_akhir === 'Aktif') $('#profil_status').removeClass('text-danger').addClass('text-success');
                 else $('#profil_status').removeClass('text-success').addClass('text-danger');
                 
-                // Ambil foto profil siswa
                 $('#profil_foto').attr('src', '');
-                if(d.foto_id) {
-                    callAPI('getImage', {id: d.foto_id}).then(b => { if(b) $('#profil_foto').attr('src', b); });
-                }
-
-                // Simpan data siswa global untuk cetak kartu nanti
-                window.siswaAktif = d;
+                if(d.foto_id) callAPI('getImage', {id: d.foto_id}).then(b => { if(b) $('#profil_foto').attr('src', b); });
+                window.siswaAktif = d; // Simpan data untuk cetak kartu
 
             } else {
-                // Jika Admin / Waka, jalankan fungsi normal Buku Induk
+                // Jika Admin: Pastikan layout normal (ada sidebar)
+                $('#mainSidebar').removeClass('hidden');
+                $('#mainSidebar').next().removeClass('col-md-12').addClass('col-md-10');
+                $('.mobile-toggle').removeClass('hidden');
+                $('.fab-refresh').removeClass('hidden');
+
                 if(res.role === 'wakakurikulum') $('.admin-only').addClass('hidden'); 
                 else $('.admin-only').removeClass('hidden');
                 
                 nav('dash', null);
-                loadSiswa(); // Panggil fungsi load data siswa untuk admin
+                loadSiswa();
             }
             
         } else {
@@ -836,8 +897,9 @@ function loadSiswa() {
             if(isAdmin) btnInduk += `<button class="btn btn-sm btn-warning me-1 shadow-sm" onclick="editSiswa('${nis}')"><i class="bi bi-pencil"></i></button><button class="btn btn-sm btn-danger shadow-sm" onclick="delSiswa('${nis}')"><i class="bi bi-trash"></i></button>`; 
 
             // Tombol Data Siswa & Alumni
-            let btnData = `<button class="btn btn-sm btn-secondary me-1 shadow-sm" onclick="reviewSiswa('${nis}')" title="Lihat"><i class="bi bi-eye"></i></button> <button class="btn btn-sm btn-success me-1 shadow-sm" onclick="alert('Fitur Cetak Kartu segera hadir')" title="Unduh Kartu"><i class="bi bi-card-heading"></i></button>`;
-            if(isAdmin && status !== 'Lulus') btnData += `<button class="btn btn-sm btn-danger shadow-sm" onclick="alert('Fitur Reset Pass segera hadir')" title="Reset Password"><i class="bi bi-key"></i></button>`;
+            // Tombol Data Siswa & Alumni (Sudah Aktif)
+            let btnData = `<button class="btn btn-sm btn-secondary me-1 shadow-sm" onclick="reviewSiswa('${nis}')" title="Lihat"><i class="bi bi-eye"></i></button> <button class="btn btn-sm btn-success me-1 shadow-sm" onclick="cetakKartuAdmin('${nis}')" title="Unduh Kartu"><i class="bi bi-card-heading"></i></button>`;
+            if(isAdmin && status !== 'Lulus') btnData += `<button class="btn btn-sm btn-danger shadow-sm" onclick="resetPassAdmin('${nis}')" title="Reset Password"><i class="bi bi-key"></i></button>`;
 
             // 1. Masuk Buku Induk (Semua Data)
             htmlInduk += `<tr><td>${nis}</td><td>${nama}</td><td>${tgllahir}</td><td>${jk}</td><td>${thnMasuk}</td><td>${btnInduk}</td></tr>`;
@@ -1422,6 +1484,61 @@ function doBackup() {
         }
     });
 }
+
+// --- FUNGSI KARTU & PASSWORD ---
+function resetPassAdmin(nis) {
+    Swal.fire({ title: 'Reset Password', input: 'text', inputLabel: 'Masukkan Password Baru', inputPlaceholder: 'Contoh: 123456', showCancelButton: true }).then((res) => {
+        if (res.isConfirmed && res.value) {
+            $('#loader').removeClass('hidden');
+            callAPI('resetPasswordSiswa', { nis: nis, newPass: res.value }).then(r => { $('#loader').addClass('hidden'); if(r.status === 'success') Swal.fire('Sukses', 'Password direset!', 'success'); else Swal.fire('Gagal', r.message, 'error'); });
+        }
+    });
+}
+
+function simpanPasswordSiswa() {
+    $('#loader').removeClass('hidden');
+    callAPI('changeOwnPassword', {nis: window.siswaAktif.nis, oldPass: $('#oldPass').val(), newPass: $('#newPass').val()}).then(r=>{
+        $('#loader').addClass('hidden');
+        if(r.status==='success') { $('#mdlGantiPass').modal('hide'); Swal.fire('Sukses','Password diubah','success'); } 
+        else Swal.fire('Gagal',r.message,'error');
+    });
+}
+
+function cetakKartuAdmin(nis) {
+    const d = globalSiswa.find(x => x[0] === nis); if(!d) return;
+    tampilkanKartuKeModal(d[2], d[1], d[5] + ', ' + d[6], d[7] === 'L' ? 'Laki-laki' : 'Perempuan', d[35]);
+}
+
+function lihatKartu() {
+    const d = window.siswaAktif;
+    tampilkanKartuKeModal(d.nama, d.nisn, (d.tmplahir||'-') + ', ' + (d.tgllahir_indo||'-'), d.jk === 'L' ? 'Laki-laki' : 'Perempuan', d.foto_id);
+}
+
+function tampilkanKartuKeModal(nama, nisn, ttl, jk, foto_id) {
+    $('#mdlKartu').modal('show');
+    $('#card-instansi').text(globalConf.nama_instansi); $('#card-sekolah').text(globalConf.nama_sekolah); $('#card-alamat-sek').text(globalConf.alamat_sekolah);
+    $('#card-nama').text(nama); $('#card-nisn').text(nisn); $('#card-ttl').text(ttl); $('#card-jk').text(jk);
+    $('#card-link-validasi').text(globalConf.link_validasi || "https://sikapprofesi.my.id");
+    
+    $('#qrcode').empty(); new QRCode(document.getElementById("qrcode"), {text: String(nisn), width:70, height:70});
+    $('#card-foto').attr('src', '');
+    
+    callAPI('getSemuaGambarKartu', {fotoId: foto_id, bgDepan: globalConf.background_kartu, bgBelakang: "", logoInstansi: globalConf.logo_instansi, logoSekolah: globalConf.logo_sekolah}).then(res => {
+        if(res.foto) $('#card-foto').attr('src', res.foto);
+        if(res.logo1) $('#card-logo-instansi').attr('src', res.logo1).show(); else $('#card-logo-instansi').hide();
+        if(res.logo2) $('#card-logo-sekolah').attr('src', res.logo2).show(); else $('#card-logo-sekolah').hide();
+        if(res.bg1) { $('#card-bg-layer').css('background-image', `url(${res.bg1})`).show(); $('#card-bg-gradient').hide(); }
+        else { $('#card-bg-layer').hide(); $('#card-bg-gradient').show(); }
+    });
+    window.namaKartuCetak = nama; // Simpan untuk nama file download
+}
+
+function downloadKartu() { 
+    html2canvas(document.getElementById('capture-area'), {scale:3, useCORS:true}).then(c => { 
+        let a = document.createElement('a'); a.download = "KartuPelajar_" + window.namaKartuCetak + ".jpg"; a.href = c.toDataURL("image/jpeg"); a.click(); 
+    }); 
+}
+
 
 // ==========================================
 // EFEK HITUNG MUNDUR (COUNTDOWN) PADA LOADER
