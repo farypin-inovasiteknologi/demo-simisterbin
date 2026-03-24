@@ -171,10 +171,10 @@ input, button, select, textarea {
                 <input id="u" class="form-control rounded-pill px-4" placeholder="Username / NISN" required>
                 <label class="px-4">Username / NISN</label>
             </div>
-            <div class="form-floating mb-4 pass-wrapper">
+            <div class="form-floating mb-4 position-relative">
                 <input type="password" id="p" class="form-control rounded-pill px-4" placeholder="Password" style="padding-right: 50px;" required>
                 <label class="px-4">Password</label>
-                <i class="bi bi-eye-slash pass-toggle-btn" onclick="togglePass('p', this)" style="position: absolute; right: 20px; top: 18px; cursor: pointer; font-size: 1.2rem;"></i>
+                <i class="bi bi-eye-slash" onclick="togglePass('p', this)" style="position: absolute; right: 20px; top: 50%; transform: translateY(-50%); cursor: pointer; font-size: 1.2rem; z-index: 10; color: #6c757d;"></i>
             </div>
             <button type="submit" class="btn btn-primary w-100 rounded-pill py-3 fw-bold shadow-sm bg-theme mb-2">MASUK APLIKASI</button>
             <button type="button" class="btn btn-success w-100 rounded-pill py-2 fw-bold shadow-sm" onclick="openScannerPublic()"><i class="bi bi-qr-code-scan"></i> SCAN KARTU PELAJAR/ALUMNI</button>
@@ -857,9 +857,104 @@ $(document).ready(function() {
     callAPI('setupDatabase').then(res => {
         $('#loader').addClass('hidden');
         if(res.status == 'error') Swal.fire('Error DB', res.message, 'error');
-        else { $('#loginPage').removeClass('hidden'); $('#yearLogin').text(new Date().getFullYear()); loadSettings(); }
+        else { 
+            loadSettings(); 
+            
+            // CEK SESI LOGIN SAAT RELOAD
+            let session = localStorage.getItem('simisterbin_session');
+            if (session) {
+                restoreSession(JSON.parse(session));
+            } else {
+                $('#loginPage').removeClass('hidden'); 
+                $('#yearLogin').text(new Date().getFullYear()); 
+            }
+        }
     }).catch(e => alert(e));
 });
+
+// FUNGSI UNTUK MENGEMBALIKAN SESI (RELOAD)
+function restoreSession(res) {
+    $('#loginPage').addClass('hidden'); 
+    $('#appPage').removeClass('hidden'); 
+    
+    $('#uName').text(res.nama); 
+    $('#uInit').text(res.nama.charAt(0)); 
+    $('#uRole').text(res.role.toUpperCase()); 
+    $('#yearApp').text(new Date().getFullYear()); 
+    
+    if (res.role === 'siswa') {
+        $('#mainSidebar').addClass('hidden'); 
+        $('#mainSidebar').next().removeClass('col-md-10').addClass('col-md-12'); 
+        $('.mobile-toggle').addClass('hidden'); 
+        $('.fab-refresh').addClass('hidden');
+
+        $('#headerInstansi').text(globalConf.nama_instansi);
+        $('#headerSekolah').text(globalConf.nama_sekolah);
+        if(globalConf.logo_instansi) callAPI('getImage', {id: globalConf.logo_instansi}).then(b => { if(b) $('#headerLogoInstansi').attr('src', b).removeClass('hidden'); });
+        if(globalConf.logo_sekolah) callAPI('getImage', {id: globalConf.logo_sekolah}).then(b => { if(b) $('#headerLogoSekolah').attr('src', b).removeClass('hidden'); });
+
+        nav('profil_siswa', null); 
+        
+        const d = res.data;
+        $('#profil_nama').text(d.nama); $('#profil_nisn').text(d.nisn);
+        $('#profil_nis_nisn').text(d.nis + ' / ' + d.nisn);
+        $('#profil_ttl').text((d.tmplahir || '-') + ', ' + (d.tgllahir_indo || '-'));
+        $('#profil_jk').text(d.jk === 'L' ? 'Laki-laki' : 'Perempuan');
+        $('#profil_agama').text(d.agama || '-');
+        $('#profil_kelas').text((d.kls_masuk || '-') + ' / ' + (d.thn_masuk || '-'));
+        $('#profil_alamat').text(d.alamat || '-'); $('#profil_hp').text(d.nohp || '-');
+        $('#profil_ortu').text((d.ayah || '-') + ' / ' + (d.ibu || '-'));
+        $('#profil_status').text(d.status_akhir);
+        if(d.status_akhir === 'Aktif') $('#profil_status').removeClass('text-danger').addClass('text-success');
+        else $('#profil_status').removeClass('text-success').addClass('text-danger');
+        
+        let isAlumni = (d.status_akhir === 'Lulus');
+        let fotoProfilTampil = isAlumni ? (d.foto_keluar || d.foto_id) : d.foto_id;
+
+        $('#profil_foto').attr('src', '');
+        if(fotoProfilTampil) callAPI('getImage', {id: fotoProfilTampil}).then(b => { if(b) $('#profil_foto').attr('src', b); });
+        
+        window.siswaAktif = d;
+    } else {
+        $('#mainSidebar').removeClass('hidden');
+        $('#mainSidebar').next().removeClass('col-md-12').addClass('col-md-10');
+        $('.mobile-toggle').removeClass('hidden');
+        $('.fab-refresh').removeClass('hidden');
+
+        if(res.role === 'wakakurikulum') $('.admin-only').addClass('hidden'); 
+        else $('.admin-only').removeClass('hidden');
+        
+        nav('dash', null);
+        loadSiswa();
+    }
+}
+
+// --- FUNGSI LOGIN VIA API ---
+function doLogin(e) { 
+    e.preventDefault(); 
+    $('#loader').removeClass('hidden'); 
+    
+    callAPI('login', { u: $('#u').val(), p: $('#p').val() }).then(res => {
+        $('#loader').addClass('hidden'); 
+        if(res.status === 'success') { 
+            // SIMPAN SESI KE LOCAL STORAGE
+            localStorage.setItem('simisterbin_session', JSON.stringify({ role: res.role, nama: res.nama, data: res.data || null }));
+            restoreSession(res);
+        } else {
+            showCoolAlert('Gagal Masuk', res.message, 'error'); 
+        }
+    }); 
+}
+
+function logout() { 
+    localStorage.removeItem('simisterbin_session'); // HAPUS SESI SAAT LOGOUT
+    $('#appPage').addClass('hidden'); 
+    $('#loginPage').removeClass('hidden').addClass('animate__animated animate__fadeIn'); 
+    $('#u').val(''); $('#p').val(''); 
+    globalSiswa = []; 
+}
+
+
 
 // --- PASSWORD TOGGLE ---
 function togglePass(id, icon) {
@@ -881,91 +976,7 @@ function toggleSidebar() {
     $('.sidebar-overlay').toggleClass('show');
 }
 
-// --- FUNGSI LOGIN VIA API ---
-// --- FUNGSI LOGIN VIA API YANG BARU ---
-function doLogin(e) { 
-    e.preventDefault(); 
-    $('#loader').removeClass('hidden'); 
-    
-    callAPI('login', { u: $('#u').val(), p: $('#p').val() }).then(res => {
-        $('#loader').addClass('hidden'); 
-        
-        if(res.status === 'success') { 
-            $('#loginPage').addClass('hidden'); 
-            $('#appPage').removeClass('hidden'); 
-            
-            // Isi nama di pojok kiri atas
-            $('#uName').text(res.nama); 
-            $('#uInit').text(res.nama.charAt(0)); 
-            $('#uRole').text(res.role.toUpperCase()); 
-            $('#yearApp').text(new Date().getFullYear()); 
-            
-            // SARINGAN ROLE (ADMIN VS SISWA)
-            if (res.role === 'siswa') {
-                // 1. SEMBUNYIKAN MENU ADMIN & PERLEBAR HALAMAN
-                $('#mainSidebar').addClass('hidden'); // Sembunyikan sidebar kiri
-                $('#mainSidebar').next().removeClass('col-md-10').addClass('col-md-12'); // Bikin Full screen
-                $('.mobile-toggle').addClass('hidden'); // Sembunyikan tombol garis 3 di HP
-                $('.fab-refresh').addClass('hidden'); // Sembunyikan tombol refresh melayang
 
-                // 2. SET HEADER LOGO SEKOLAH
-                $('#headerInstansi').text(globalConf.nama_instansi);
-                $('#headerSekolah').text(globalConf.nama_sekolah);
-                if(globalConf.logo_instansi) callAPI('getImage', {id: globalConf.logo_instansi}).then(b => { if(b) $('#headerLogoInstansi').attr('src', b).removeClass('hidden'); });
-                if(globalConf.logo_sekolah) callAPI('getImage', {id: globalConf.logo_sekolah}).then(b => { if(b) $('#headerLogoSekolah').attr('src', b).removeClass('hidden'); });
-
-                // 3. MASUK KE PROFIL
-                nav('profil_siswa', null); 
-                
-                // Render data siswa ke layar
-                const d = res.data;
-                $('#profil_nama').text(d.nama); $('#profil_nisn').text(d.nisn);
-                $('#profil_nis_nisn').text(d.nis + ' / ' + d.nisn);
-                $('#profil_ttl').text((d.tmplahir || '-') + ', ' + (d.tgllahir_indo || '-'));
-                $('#profil_jk').text(d.jk === 'L' ? 'Laki-laki' : 'Perempuan');
-                $('#profil_agama').text(d.agama || '-');
-                $('#profil_kelas').text((d.kls_masuk || '-') + ' / ' + (d.thn_masuk || '-'));
-                $('#profil_alamat').text(d.alamat || '-'); $('#profil_hp').text(d.nohp || '-');
-                $('#profil_ortu').text((d.ayah || '-') + ' / ' + (d.ibu || '-'));
-                $('#profil_status').text(d.status_akhir);
-                if(d.status_akhir === 'Aktif') $('#profil_status').removeClass('text-danger').addClass('text-success');
-                else $('#profil_status').removeClass('text-success').addClass('text-danger');
-                
-                // === LOGIKA FOTO (ALUMNI VS PELAJAR AKTIF) ===
-                let isAlumni = (d.status_akhir === 'Lulus');
-                // Jika alumni, pakai foto keluar (jika ada). Jika tidak ada/belum lulus, pakai foto masuk (foto_id)
-                let fotoProfilTampil = isAlumni ? (d.foto_keluar || d.foto_id) : d.foto_id;
-
-                $('#profil_foto').attr('src', '');
-                if(fotoProfilTampil) {
-                    callAPI('getImage', {id: fotoProfilTampil}).then(b => { 
-                        if(b) $('#profil_foto').attr('src', b); 
-                    });
-                }
-                
-                window.siswaAktif = d; // Simpan data untuk cetak kartu
-
-            } else {
-                // Jika Admin: Pastikan layout normal (ada sidebar)
-                $('#mainSidebar').removeClass('hidden');
-                $('#mainSidebar').next().removeClass('col-md-12').addClass('col-md-10');
-                $('.mobile-toggle').removeClass('hidden');
-                $('.fab-refresh').removeClass('hidden');
-
-                if(res.role === 'wakakurikulum') $('.admin-only').addClass('hidden'); 
-                else $('.admin-only').removeClass('hidden');
-                
-                nav('dash', null);
-                loadSiswa();
-            }
-            
-        } else {
-            showCoolAlert('Gagal Masuk', res.message, 'error'); 
-        }
-    }); 
-}
-
-function logout() { $('#appPage').addClass('hidden'); $('#loginPage').removeClass('hidden').addClass('animate__animated animate__fadeIn'); $('#u').val(''); $('#p').val(''); globalSiswa = []; }
 function showPrivacy() { $('#mdlPrivacy').modal('show'); }
 function showCoolAlert(title, text, icon) { Swal.fire({ title: title, text: text, icon: icon, showClass: { popup: 'animate__animated animate__fadeInDown' }, hideClass: { popup: 'animate__animated animate__fadeOutUp' }, confirmButtonColor: '#4e73df', backdrop: `rgba(0,0,123,0.4)` }); }
 function validateInput(el) { let val = parseFloat(el.value); if(val > 100) { showCoolAlert('Nilai Invalid', 'Maksimal 100!', 'warning'); el.value = 100; return false; } if(val < 0) { showCoolAlert('Nilai Invalid', 'Minimal 0!', 'warning'); el.value = 0; return false; } if(el.value.includes('.')) { if(el.value.split('.')[1].length > 2) { showCoolAlert('Format Salah', 'Maks 2 desimal', 'warning'); el.value = parseFloat(val).toFixed(2); return false; } } return true; }
@@ -1704,14 +1715,14 @@ function lihatKartu() {
 
 // === MENAMPILKAN KARTU KE POP-UP ===
 function tampilkanKartuKeModal(nama, nisn, ttl, jk, fotoId, status) {
-    // 1. Munculkan loading utama DULU, jangan buka pop-up kartunya
+    // 1. Nyalakan Loading Full Screen DULU. Jangan buka modal kartunya!
     $('#loader').removeClass('hidden');
-    $('#loaderText').text('Memproses Kartu Digital...');
+    $('#loaderText').text('Memuat Desain Kartu...');
 
     let isAlumni = (status === 'Lulus');
     $('#judulKartuModal').text(isAlumni ? 'KARTU ALUMNI' : 'KARTU PELAJAR');
 
-    // 2. Tulis teksnya di background (tidak terlihat user karena tertutup loading)
+    // 2. Pasang data teks
     $('#card-instansi').text(globalConf.nama_instansi); 
     $('#card-sekolah').text(globalConf.nama_sekolah); 
     $('#card-alamat-sek').text(globalConf.alamat_sekolah);
@@ -1725,10 +1736,14 @@ function tampilkanKartuKeModal(nama, nisn, ttl, jk, fotoId, status) {
     $('#card-jk').text(jk);
     $('#card-link-validasi').text(globalConf.link_validasi || "https://sikapprofesi.my.id");
     
+    // QR Code
     $('#qrcode').empty(); 
     new QRCode(document.getElementById("qrcode"), {text: String(nisn), width:75, height:75, correctLevel: QRCode.CorrectLevel.H});
     
-    // 3. Tarik gambar dari server
+    $('#card-foto').attr('src', '');
+    $('#card-bg-back').attr('src', '');
+    
+    // 3. Tarik gambar Base64
     callAPI('getSemuaGambarKartu', {
         fotoId: fotoId, 
         bgDepan: globalConf.background_kartu, 
@@ -1736,15 +1751,21 @@ function tampilkanKartuKeModal(nama, nisn, ttl, jk, fotoId, status) {
         logoInstansi: globalConf.logo_instansi, 
         logoSekolah: globalConf.logo_sekolah
     }).then(res => {
-        // Pasang semua gambar yang sudah didapat ke dalam elemen HTML
+        
+        // 4. Tempelkan gambar
         if(res.foto) $('#card-foto').attr('src', res.foto);
         else $('#card-foto').attr('src', 'https://via.placeholder.com/75x100?text=Kosong');
         
         if(res.logo1) $('#card-logo-instansi').attr('src', res.logo1).show(); else $('#card-logo-instansi').hide();
         if(res.logo2) $('#card-logo-sekolah').attr('src', res.logo2).show(); else $('#card-logo-sekolah').hide();
         
-        if(res.bg1) { $('#card-bg-layer').css('background-image', `url(${res.bg1})`).show(); $('#card-bg-gradient').hide(); }
-        else { $('#card-bg-layer').hide(); $('#card-bg-gradient').show(); }
+        if(res.bg1) { 
+            $('#card-bg-layer').css('background-image', `url(${res.bg1})`).show(); 
+            $('#card-bg-gradient').hide(); 
+        } else { 
+            $('#card-bg-layer').hide(); 
+            $('#card-bg-gradient').show(); 
+        }
         
         if(res.bg2) {
             $('#card-bg-back').attr('src', res.bg2);
@@ -1753,14 +1774,14 @@ function tampilkanKartuKeModal(nama, nisn, ttl, jk, fotoId, status) {
             $('#card-back-wrap').hide();
         }
 
-        // 4. SETELAH GAMBAR NEMPEL SEMUA, matikan loading dan BUKA modal kartunya!
+        window.namaKartuCetak = nama; 
+
+        // 5. JIKA GAMBAR SUDAH NEMPEL, MATIKAN LOADING & BUKA MODAL FIX
         setTimeout(() => {
-            $('#loader').addClass('hidden'); // Matikan layar loading utama
-            $('#mdlKartu').modal('show');    // Tampilkan kartu yang sudah FIX 100%
-        }, 500); // Jeda 0.5 detik biar browser memastikan gambarnya ter-render sempurna
+            $('#loader').addClass('hidden');
+            $('#mdlKartu').modal('show');
+        }, 800); 
     });
-    
-    window.namaKartuCetak = nama; 
 }
 
 // === UNDUH KARTU DEPAN ===
