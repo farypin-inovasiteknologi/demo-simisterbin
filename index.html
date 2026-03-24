@@ -1702,27 +1702,17 @@ function simpanPasswordSiswa() {
     });
 }
 
-function cetakKartuAdmin(nis) {
-    const d = globalSiswa.find(x => x[0] === nis); if(!d) return;
-    tampilkanKartuKeModal(d[2], d[1], d[5] + ', ' + d[6], d[7] === 'L' ? 'Laki-laki' : 'Perempuan', d[35]);
-}
 
-function lihatKartu() {
-    const d = window.siswaAktif;
-    tampilkanKartuKeModal(d.nama, d.nisn, (d.tmplahir||'-') + ', ' + (d.tgllahir_indo||'-'), d.jk === 'L' ? 'Laki-laki' : 'Perempuan', d.foto_id);
-}
-
-
-// === MENAMPILKAN KARTU KE POP-UP ===
+// === MENAMPILKAN KARTU KE POP-UP ===baru
 function tampilkanKartuKeModal(nama, nisn, ttl, jk, fotoId, status) {
-    // 1. Nyalakan Loading Full Screen DULU. Jangan buka modal kartunya!
+    // 1. MUNCULKAN LOADING DULU! JANGAN BUKA MODAL KARTU!
     $('#loader').removeClass('hidden');
-    $('#loaderText').text('Memuat Desain Kartu...');
+    $('#loaderText').text('Memproses Desain Kartu...');
 
     let isAlumni = (status === 'Lulus');
     $('#judulKartuModal').text(isAlumni ? 'KARTU ALUMNI' : 'KARTU PELAJAR');
 
-    // 2. Pasang data teks
+    // 2. Isi Teks
     $('#card-instansi').text(globalConf.nama_instansi); 
     $('#card-sekolah').text(globalConf.nama_sekolah); 
     $('#card-alamat-sek').text(globalConf.alamat_sekolah);
@@ -1736,14 +1726,14 @@ function tampilkanKartuKeModal(nama, nisn, ttl, jk, fotoId, status) {
     $('#card-jk').text(jk);
     $('#card-link-validasi').text(globalConf.link_validasi || "https://sikapprofesi.my.id");
     
-    // QR Code
-    $('#qrcode').empty(); 
-    new QRCode(document.getElementById("qrcode"), {text: String(nisn), width:75, height:75, correctLevel: QRCode.CorrectLevel.H});
+    // 3. QR Code pakai API luar agar terbaca sebagai gambar (Aman untuk didownload)
+    $('#qrcode').html(`<img src="https://api.qrserver.com/v1/create-qr-code/?size=100x100&margin=0&data=${nisn}" crossorigin="anonymous" style="width:75px; height:75px; display:block;">`);
     
+    // Kosongkan gambar lama
     $('#card-foto').attr('src', '');
     $('#card-bg-back').attr('src', '');
     
-    // 3. Tarik gambar Base64
+    // 4. Tarik Base64 dari Server
     callAPI('getSemuaGambarKartu', {
         fotoId: fotoId, 
         bgDepan: globalConf.background_kartu, 
@@ -1752,7 +1742,7 @@ function tampilkanKartuKeModal(nama, nisn, ttl, jk, fotoId, status) {
         logoSekolah: globalConf.logo_sekolah
     }).then(res => {
         
-        // 4. Tempelkan gambar
+        // 5. Tempelkan ke HTML
         if(res.foto) $('#card-foto').attr('src', res.foto);
         else $('#card-foto').attr('src', 'https://via.placeholder.com/75x100?text=Kosong');
         
@@ -1776,30 +1766,169 @@ function tampilkanKartuKeModal(nama, nisn, ttl, jk, fotoId, status) {
 
         window.namaKartuCetak = nama; 
 
-        // 5. JIKA GAMBAR SUDAH NEMPEL, MATIKAN LOADING & BUKA MODAL FIX
+        // 6. SETELAH GAMBAR NEMPEL SEMUA, TUNGGU 1 DETIK, BARU BUKA MODAL FIX!
         setTimeout(() => {
-            $('#loader').addClass('hidden');
-            $('#mdlKartu').modal('show');
-        }, 800); 
+            $('#loader').addClass('hidden'); // Matikan Layar Loading Hitam
+            $('#mdlKartu').modal('show');    // Buka Modal Kartu
+        }, 1000); 
     });
 }
 
 // === UNDUH KARTU DEPAN ===
 function downloadKartuDepan() { 
-    html2canvas(document.getElementById('capture-area'), {scale:3, useCORS:true}).then(c => { 
-        let a = document.createElement('a'); a.download = "Kartu_Depan_" + window.namaKartuCetak + ".jpg"; a.href = c.toDataURL("image/jpeg", 0.95); a.click(); 
-    }); 
+    Swal.fire({ title: 'Menyiapkan Unduhan...', text: 'Mohon tunggu...', allowOutsideClick: false, didOpen: () => { Swal.showLoading(); } });
+    setTimeout(() => {
+        html2canvas(document.getElementById('capture-area'), {scale:3, useCORS:true}).then(c => { 
+            let a = document.createElement('a'); a.download = "Kartu_Depan_" + window.namaKartuCetak + ".jpg"; a.href = c.toDataURL("image/jpeg", 0.95); a.click(); 
+            Swal.close();
+        }); 
+    }, 500);
 }
 
 // === UNDUH KARTU BELAKANG ===
 function downloadKartuBelakang() { 
     let bgSrc = $('#card-bg-back').attr('src');
     if(!bgSrc || bgSrc === '') { Swal.fire('Info', 'Background belakang belum diatur oleh admin.', 'info'); return; }
-    html2canvas(document.getElementById('capture-area-back'), {scale:3, useCORS:true}).then(c => { 
-        let a = document.createElement('a'); a.download = "Kartu_Belakang_" + window.namaKartuCetak + ".jpg"; a.href = c.toDataURL("image/jpeg", 0.95); a.click(); 
-    }); 
+    Swal.fire({ title: 'Menyiapkan Unduhan...', text: 'Mohon tunggu...', allowOutsideClick: false, didOpen: () => { Swal.showLoading(); } });
+    setTimeout(() => {
+        html2canvas(document.getElementById('capture-area-back'), {scale:3, useCORS:true}).then(c => { 
+            let a = document.createElement('a'); a.download = "Kartu_Belakang_" + window.namaKartuCetak + ".jpg"; a.href = c.toDataURL("image/jpeg", 0.95); a.click(); 
+            Swal.close();
+        }); 
+    }, 500);
 }
 
+// === CETAK MASSAL KERTAS A4 (DIPERBAIKI DENGAN TAB BARU) ===
+function cetakKartuMassal(tipe) {
+    let targetData = [];
+    if (tipe === 'alumni') targetData = globalSiswa.filter(r => r[31] === 'Lulus');
+    else targetData = globalSiswa.filter(r => r[31] !== 'Lulus' && r[31] !== 'Keluar');
+
+    if(targetData.length === 0) { Swal.fire('Kosong', 'Tidak ada data untuk dicetak', 'warning'); return; }
+
+    $('#loader').removeClass('hidden'); 
+    $('#loaderText').text('Menyiapkan file cetak A4...');
+
+    const bgDepan = globalConf.background_kartu || "";
+    const logo1 = globalConf.logo_instansi || "";
+    const logo2 = globalConf.logo_sekolah || "";
+
+    callAPI('getSemuaGambarKartu', { fotoId: "", bgDepan: bgDepan, bgBelakang: "", logoInstansi: logo1, logoSekolah: logo2 }).then(res => {
+        
+        // Rancang HTML Penuh untuk ditaruh di Tab Baru
+        let html = `
+        <html>
+        <head>
+            <title>Cetak Kartu Massal</title>
+            <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@400;500;600;700&display=swap" rel="stylesheet">
+            <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
+            <style>
+                body { background: #fff; font-family: Arial, sans-serif; margin: 0; padding: 0; -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
+                @page { size: A4 portrait; margin: 25mm 10mm 10mm 10mm !important; }
+                .print-page { display: grid; grid-template-columns: 85mm 85mm; grid-template-rows: repeat(4, 55mm); gap: 5mm; justify-content: center; align-content: start; width: 100%; page-break-after: always; padding-top: 5mm; }
+                .print-card-wrapper { width: 85mm; height: 55mm; overflow: hidden; position: relative; border: 1px dashed #cbd5e1; border-radius: 8px; }
+                .id-card { width: 400px; height: 250px; background: white; position: relative; overflow: hidden; transform-origin: top left; transform: scale(0.805); margin: 0; }
+                .card-bg-gradient { position: absolute; inset: 0; background: linear-gradient(120deg, #4e73df 35%, #fff 35.5%); z-index: 1; }
+                .card-bg-img { position: absolute; inset: 0; background-size: cover; background-position: center; z-index: 2; opacity: 1; }
+                .card-content-wrap { position: relative; z-index: 10; height: 100%; display: flex; flex-direction: column; }
+                .card-header-new { position: relative; height: 70px; padding-top: 5px; text-align: center; }
+                .logo-kiri { position: absolute; top: 7px; left: 10px; width: 40px; height: 40px; object-fit: contain; }
+                .logo-kanan { position: absolute; top: 7px; right: 10px; width: 40px; height: 40px; object-fit: contain; }
+                .header-text-center { margin: 0 50px; }
+                .txt-instansi-center { font-family: 'Oswald', sans-serif; font-size: 12px; font-weight: 550; text-transform: uppercase; color: #000; letter-spacing: 0.5px; }
+                .txt-sekolah-center { font-family: 'Oswald', sans-serif; font-size: 16px; font-weight: 650; text-transform: uppercase; margin: 1px 0; color: #000; line-height: 1; letter-spacing: 0.5px; }
+                .txt-alamat-center { font-family: 'Roboto', sans-serif; font-size: 8px; font-weight: 400; color: #000; margin-top: 2px; }
+                .header-line { margin: 0 5px; height: 1px; border-top: 1px solid #000; border-bottom: 2px solid #000; margin-top: 4px; }
+                .txt-kartupelajar-center { font-family: Arial, sans-serif; font-size: 18px; text-align: center; font-weight: 800; margin: 2px 0; color: #000; }
+                .card-body-new { display: flex; padding: 3px 9px; margin-top: 0px; height: 100%; }
+                .photo-area-new { width: 75px; height: 100px; background: #ddd; border: 2px solid white; box-shadow: 0 2px 4px rgba(0,0,0,0.2); margin-right: 10px; overflow: hidden; }
+                .student-photo { width: 100%; height: 100%; object-fit: cover; }
+                .info-area-new { flex: 1; position: relative; }
+                .info-table-new { width: 100%; color: #000; border-collapse: collapse; }
+                .info-table-new td { padding: 1px 0px; vertical-align: top; font-family: 'Oswald', sans-serif; font-size: 14px; font-weight: 400; line-height: 1; text-align: left;}
+                .info-table-new .lbl { width: 60px; }
+                .qr-area-new { position: absolute; bottom: 3px; right: 3px; background: white; padding: 1px; }
+                .txt-validasi-bawah { position: absolute; bottom: 4px; left: 10px; width: 260px; text-align: left; font-size: 5.5px; font-family: Arial, sans-serif; line-height: 1.2; color: #000; font-weight: 500;}
+            </style>
+        </head>
+        <body>`; 
+        
+        const cardsPerPage = 8; 
+        
+        for(let i = 0; i < targetData.length; i++) {
+            let s = targetData[i];
+            if(i % cardsPerPage === 0) html += `<div class="print-page">`;
+            
+            let isAlumni = (s[31] === 'Lulus');
+            let judulKartu = isAlumni ? 'KARTU ALUMNI' : 'KARTU PELAJAR';
+            let fotoIdDipakai = isAlumni ? (s[36] || s[35]) : s[35];
+            
+            let fotoSrc = "";
+            if(fotoIdDipakai) fotoSrc = "https://drive.google.com/thumbnail?id=" + fotoIdDipakai + "&sz=w400-h600";
+            
+            let qrUrl = "https://api.qrserver.com/v1/create-qr-code/?size=100x100&margin=0&data=" + s[1];
+            
+            let bgStyle = res.bg1 ? `background-image: url('${res.bg1}'); display: block;` : `display: none;`;
+            let gradStyle = res.bg1 ? `display: none;` : `display: block;`;
+            let logo1Style = res.logo1 ? `display: block;` : `display: none;`;
+            let logo2Style = res.logo2 ? `display: block;` : `display: none;`;
+
+            html += `
+            <div class="print-card-wrapper">
+              <div class="id-card">
+                 <div class="card-bg-img" style="${bgStyle}"></div>
+                 <div class="card-bg-gradient" style="${gradStyle}"></div>
+                 <div class="card-content-wrap">
+                    <div class="card-header-new">
+                       <img src="${res.logo1}" class="logo-kiri" style="${logo1Style}">
+                       <img src="${res.logo2}" class="logo-kanan" style="${logo2Style}">
+                       <div class="header-text-center">
+                          <div class="txt-instansi-center">${globalConf.nama_instansi}</div>
+                          <div class="txt-sekolah-center">${globalConf.nama_sekolah}</div>
+                          <div class="txt-alamat-center">${globalConf.alamat_sekolah}</div>
+                       </div>
+                    </div>
+                    <div class="header-line"></div>
+                    <div class="header-text-center"><div class="txt-kartupelajar-center">${judulKartu}</div></div>
+                    <div class="card-body-new">
+                       <div class="photo-area-new">
+                          ${fotoSrc ? `<img src="${fotoSrc}" class="student-photo" style="object-fit: cover;">` : `<div style="width:100%;height:100%;background:#eee;border:1px solid #ccc;"></div>`}
+                       </div>
+                       <div class="info-area-new">
+                          <table class="info-table-new">
+                             <tr><td class="lbl">Nama</td><td>:</td><td class="val">${s[2]}</td></tr>
+                             <tr><td class="lbl">NISN</td><td>:</td><td class="val">${s[1]}</td></tr>
+                             <tr><td class="lbl">Tmpt Lahir</td><td>:</td><td class="val">${s[5] || '-'}</td></tr>
+                             <tr><td class="lbl">Tgl Lahir</td><td>:</td><td class="val">${s[6] || '-'}</td></tr>
+                             <tr><td class="lbl">JK</td><td>:</td><td class="val">${s[7] === 'L' ? 'Laki-laki' : 'Perempuan'}</td></tr>
+                          </table>
+                          <div class="qr-area-new"><img src="${qrUrl}" crossorigin="anonymous" style="width:85px; height:85px; display:block;"></div>
+                          <div class="txt-validasi-bawah">Scan QR untuk validasi:<br><b>${globalConf.link_validasi || "https://sikapprofesi.my.id"}</b></div>
+                       </div>
+                    </div>
+                 </div>
+              </div>
+            </div>`;
+
+            if((i + 1) % cardsPerPage === 0 || i === targetData.length - 1) html += `</div>`;
+        }
+        
+        html += `</body></html>`;
+        
+        $('#loader').addClass('hidden'); // Matikan Loading di tab asli
+        
+        // BUKA DI TAB BARU (Mencegah "Kosong Melompong")
+        let printWindow = window.open('', '_blank');
+        printWindow.document.open();
+        printWindow.document.write(html);
+        printWindow.document.close();
+        
+        // Beri waktu 4 detik di tab baru agar browser men-download semua foto dari Google Drive sebelum memunculkan jendela Print
+        setTimeout(() => { 
+            printWindow.print(); 
+        }, 4000); 
+    });
+}
 
 // ==========================================
 // EFEK HITUNG MUNDUR (COUNTDOWN) PADA LOADER
@@ -1880,175 +2009,6 @@ function cetakKartuAdmin(nis) {
     tampilkanKartuKeModal(d[2], d[1], d[5] + ', ' + d[6], d[7] === 'L' ? 'Laki-laki' : 'Perempuan', fotoDipakai, d[31]);
 }
 
-// === MENAMPILKAN KARTU KE POP-UP ===
-function tampilkanKartuKeModal(nama, nisn, ttl, jk, fotoId, status) {
-    $('#mdlKartu').modal('show');
-    let isAlumni = (status === 'Lulus');
-    $('#judulKartuModal').text(isAlumni ? 'KARTU ALUMNI' : 'KARTU PELAJAR');
-
-    // Matikan tombol saat baru buka
-    $('#btn-unduh-depan').prop('disabled', true).removeClass('btn-primary').addClass('btn-secondary').html('<i class="spinner-border spinner-border-sm"></i> Sedang Memproses...');
-    $('#btn-unduh-belakang').prop('disabled', true).removeClass('btn-info').addClass('btn-secondary').html('<i class="spinner-border spinner-border-sm"></i> Sedang Memproses...');
-
-    $('#card-instansi').text(globalConf.nama_instansi); 
-    $('#card-sekolah').text(globalConf.nama_sekolah); 
-    $('#card-alamat-sek').text(globalConf.alamat_sekolah);
-    $('#card-nama').text(nama); 
-    $('#card-nisn').text(nisn); 
-    
-    let tmpt = ttl.split(',')[0] || '-';
-    let tgl = ttl.split(',')[1] || '-';
-    $('#card-tmp').text(tmpt.trim()); 
-    $('#card-tgl').text(tgl.trim()); 
-    $('#card-jk').text(jk);
-    $('#card-link-validasi').text(globalConf.link_validasi || "https://sikapprofesi.my.id");
-    
-    $('#qrcode').empty(); 
-    new QRCode(document.getElementById("qrcode"), {text: String(nisn), width:75, height:75, correctLevel: QRCode.CorrectLevel.H});
-    
-    $('#card-foto').attr('src', 'https://via.placeholder.com/75x100?text=Loading...');
-    $('#card-bg-back').attr('src', '');
-    
-    callAPI('getSemuaGambarKartu', {fotoId: fotoId, bgDepan: globalConf.background_kartu, bgBelakang: globalConf.background_belakang, logoInstansi: globalConf.logo_instansi, logoSekolah: globalConf.logo_sekolah}).then(res => {
-        if(res.foto) $('#card-foto').attr('src', res.foto);
-        else $('#card-foto').attr('src', 'https://via.placeholder.com/75x100?text=Kosong');
-        
-        if(res.logo1) $('#card-logo-instansi').attr('src', res.logo1).show(); else $('#card-logo-instansi').hide();
-        if(res.logo2) $('#card-logo-sekolah').attr('src', res.logo2).show(); else $('#card-logo-sekolah').hide();
-        
-        if(res.bg1) { $('#card-bg-layer').css('background-image', `url(${res.bg1})`).show(); $('#card-bg-gradient').hide(); }
-        else { $('#card-bg-layer').hide(); $('#card-bg-gradient').show(); }
-        
-        if(res.bg2) {
-            $('#card-bg-back').attr('src', res.bg2);
-            $('#card-back-wrap').show();
-        } else {
-            $('#card-back-wrap').hide();
-        }
-
-        // Trik Cerdas: Beri jeda 1 detik agar browser selesai menempelkan gambar ke layar
-        setTimeout(() => {
-            $('#btn-unduh-depan').prop('disabled', false).removeClass('btn-secondary').addClass('btn-primary').html('<i class="bi bi-download"></i> UNDUH KARTU (DEPAN)');
-            $('#btn-unduh-belakang').prop('disabled', false).removeClass('btn-secondary').addClass('btn-info').html('<i class="bi bi-download"></i> UNDUH KARTU (BELAKANG)');
-        }, 1000);
-    });
-    window.namaKartuCetak = nama; 
-}
-
-// === UNDUH KARTU DEPAN ===
-function downloadKartuDepan() { 
-    // Beri info loading agar user tidak panik
-    Swal.fire({ title: 'Menyiapkan Unduhan...', text: 'Mohon tunggu sebentar', allowOutsideClick: false, didOpen: () => { Swal.showLoading(); } });
-    
-    setTimeout(() => {
-        html2canvas(document.getElementById('capture-area'), {scale:3, useCORS:true}).then(c => { 
-            let a = document.createElement('a'); a.download = "Kartu_Depan_" + window.namaKartuCetak + ".jpg"; a.href = c.toDataURL("image/jpeg", 0.95); a.click(); 
-            Swal.close(); // Tutup loading
-        }); 
-    }, 500);
-}
-
-// === UNDUH KARTU BELAKANG ===
-function downloadKartuBelakang() { 
-    let bgSrc = $('#card-bg-back').attr('src');
-    if(!bgSrc || bgSrc === '') { Swal.fire('Info', 'Background belakang belum diatur oleh admin.', 'info'); return; }
-    
-    Swal.fire({ title: 'Menyiapkan Unduhan...', text: 'Mohon tunggu sebentar', allowOutsideClick: false, didOpen: () => { Swal.showLoading(); } });
-    
-    setTimeout(() => {
-        html2canvas(document.getElementById('capture-area-back'), {scale:3, useCORS:true}).then(c => { 
-            let a = document.createElement('a'); a.download = "Kartu_Belakang_" + window.namaKartuCetak + ".jpg"; a.href = c.toDataURL("image/jpeg", 0.95); a.click(); 
-            Swal.close();
-        }); 
-    }, 500);
-}
-
-// === CETAK MASSAL KERTAS A4 ===
-function cetakKartuMassal(tipe) {
-    let targetData = [];
-    if (tipe === 'alumni') targetData = globalSiswa.filter(r => r[31] === 'Lulus');
-    else targetData = globalSiswa.filter(r => r[31] !== 'Lulus' && r[31] !== 'Keluar');
-
-    if(targetData.length === 0) { Swal.fire('Kosong', 'Tidak ada data untuk dicetak', 'warning'); return; }
-
-    $('#loader').removeClass('hidden'); 
-    $('#loaderText').text('Menyiapkan file cetak A4...');
-
-    const bgDepan = globalConf.background_kartu || "";
-    const logo1 = globalConf.logo_instansi || "";
-    const logo2 = globalConf.logo_sekolah || "";
-
-    callAPI('getSemuaGambarKartu', { fotoId: "", bgDepan: bgDepan, bgBelakang: "", logoInstansi: logo1, logoSekolah: logo2 }).then(res => {
-        let html = ''; 
-        const cardsPerPage = 8; 
-        
-        for(let i = 0; i < targetData.length; i++) {
-            let s = targetData[i];
-            if(i % cardsPerPage === 0) html += `<div class="print-page">`;
-            
-            // Logika Pelajar vs Alumni
-            let isAlumni = (s[31] === 'Lulus');
-            let judulKartu = isAlumni ? 'KARTU ALUMNI' : 'KARTU PELAJAR';
-            let fotoIdDipakai = isAlumni ? (s[36] || s[35]) : s[35]; // Foto Keluar atau Foto Masuk
-            
-            let fotoSrc = "";
-            if(fotoIdDipakai) fotoSrc = "https://drive.google.com/thumbnail?id=" + fotoIdDipakai + "&sz=w400-h600";
-            
-            let qrUrl = "https://api.qrserver.com/v1/create-qr-code/?size=100x100&margin=0&data=" + s[1];
-            
-            let bgStyle = res.bg1 ? `background-image: url('${res.bg1}'); display: block;` : `display: none;`;
-            let gradStyle = res.bg1 ? `display: none;` : `display: block;`;
-            let logo1Style = res.logo1 ? `display: block;` : `display: none;`;
-            let logo2Style = res.logo2 ? `display: block;` : `display: none;`;
-
-            html += `
-            <div class="print-card-wrapper">
-              <div class="id-card" style="-webkit-print-color-adjust: exact; print-color-adjust: exact;">
-                 <div class="card-bg-img" style="${bgStyle}"></div>
-                 <div class="card-bg-gradient" style="${gradStyle}"></div>
-                 <div class="card-content-wrap">
-                    <div class="card-header-new">
-                       <img src="${res.logo1}" class="logo-kiri" style="${logo1Style}">
-                       <img src="${res.logo2}" class="logo-kanan" style="${logo2Style}">
-                       <div class="header-text-center">
-                          <div class="txt-instansi-center">${globalConf.nama_instansi}</div>
-                          <div class="txt-sekolah-center">${globalConf.nama_sekolah}</div>
-                          <div class="txt-alamat-center">${globalConf.alamat_sekolah}</div>
-                       </div>
-                    </div>
-                    <div class="header-line"></div>
-                    <div class="header-text-center"><div class="txt-kartupelajar-center">${judulKartu}</div></div>
-                    <div class="card-body-new">
-                       <div class="photo-area-new">
-                          ${fotoSrc ? `<img src="${fotoSrc}" class="student-photo" style="object-fit: cover;">` : `<div style="width:100%;height:100%;background:#eee;border:1px solid #ccc;"></div>`}
-                       </div>
-                       <div class="info-area-new">
-                          <table class="info-table-new">
-                             <tr><td class="lbl">Nama</td><td>:</td><td class="val">${s[2]}</td></tr>
-                             <tr><td class="lbl">NISN</td><td>:</td><td class="val">${s[1]}</td></tr>
-                             <tr><td class="lbl">Tmpt Lahir</td><td>:</td><td class="val">${s[5] || '-'}</td></tr>
-                             <tr><td class="lbl">Tgl Lahir</td><td>:</td><td class="val">${s[6] || '-'}</td></tr>
-                             <tr><td class="lbl">JK</td><td>:</td><td class="val">${s[7] === 'L' ? 'Laki-laki' : 'Perempuan'}</td></tr>
-                          </table>
-                          <div class="qr-area-new"><img src="${qrUrl}" crossorigin="anonymous" style="width:85px; height:85px;"></div>
-                          <div class="txt-validasi-bawah">Scan QR untuk validasi:<br><b>${globalConf.link_validasi || "https://sikapprofesi.my.id"}</b></div>
-                       </div>
-                    </div>
-                 </div>
-              </div>
-            </div>`;
-
-            if((i + 1) % cardsPerPage === 0 || i === targetData.length - 1) html += `</div>`;
-        }
-        
-        $('#print-area').html(html);
-        
-        setTimeout(() => { 
-            $('#loader').addClass('hidden'); 
-            window.print(); 
-        }, 3000); // Tunggu foto dari drive merender
-    });
-}
 
 // ==========================================
 // FITUR SCANNER & VALIDASI (DIPERBAIKI)
