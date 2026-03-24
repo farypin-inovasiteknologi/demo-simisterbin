@@ -447,6 +447,20 @@ input, button, select, textarea {
                                         <img id="prevLogoSekolah" class="settings-preview hidden">
                                         <input type="hidden" id="logo_sekolah">
                                     </div>
+
+                                    <div class="col-md-6 mt-3">
+                                        <label class="fw-bold small text-muted">Background Depan (8.5 x 5.5)</label>
+                                        <input type="file" class="form-control form-control-sm mt-1" onchange="cropImage(this, 'background_kartu')">
+                                        <img id="prev_bg_depan" class="settings-preview hidden">
+                                        <input type="hidden" id="background_kartu">
+                                    </div>
+                                    <div class="col-md-6 mt-3">
+                                        <label class="fw-bold small text-muted">Background Belakang (8.5 x 5.5)</label>
+                                        <input type="file" class="form-control form-control-sm mt-1" onchange="cropImage(this, 'background_belakang')">
+                                        <img id="prev_bg_belakang" class="settings-preview hidden">
+                                        <input type="hidden" id="background_belakang">
+                                    </div>
+
                                     <div class="col-12 mt-3">
                                         <label class="fw-bold small">Warna Tema Aplikasi</label>
                                         <input type="color" id="setTheme" class="form-control form-control-color w-100" title="Pilih Warna Tema">
@@ -650,8 +664,8 @@ input, button, select, textarea {
                     <div class="card-bg-gradient" id="card-bg-gradient"></div>
                     <div class="card-content-wrap">
                         <div class="card-header-new">
-                            <img id="card-logo-instansi" class="logo-kiri" crossorigin="anonymous">
-                            <img id="card-logo-sekolah" class="logo-kanan" crossorigin="anonymous">
+                            <img id="card-logo-instansi" class="logo-kiri">
+                            <img id="card-logo-sekolah" class="logo-kanan">
                             <div class="header-text-center">
                                 <div id="card-instansi" class="txt-instansi-center"></div>
                                 <div id="card-sekolah" class="txt-sekolah-center"></div>
@@ -664,7 +678,7 @@ input, button, select, textarea {
                         </div>
                         <div class="card-body-new">
                             <div class="photo-area-new">
-                                <img id="card-foto" class="student-photo" crossorigin="anonymous">
+                                <img id="card-foto" class="student-photo">
                             </div>
                             <div class="info-area-new">
                                 <table class="info-table-new">
@@ -683,7 +697,7 @@ input, button, select, textarea {
 
                 <div id="card-back-wrap" class="mb-3" style="display:none;">
                     <div id="capture-area-back" class="id-card">
-                        <img id="card-bg-back" style="width:100%; height:100%; object-fit:cover;" crossorigin="anonymous">
+                        <img id="card-bg-back" style="width:100%; height:100%; object-fit:cover;">
                     </div>
                 </div>
 
@@ -1432,6 +1446,12 @@ function loadSettings() {
         
         if(s.logo_sekolah) callAPI('getImage', {id: s.logo_sekolah}).then(b=>{ if(b){ $('#loginLogoSekolah').attr('src',b).removeClass('hidden');$('#prevLogoSekolah').attr('src',b).removeClass('hidden'); } }); 
         $('#logo_sekolah').val(s.logo_sekolah); 
+
+        $('#background_kartu').val(s.background_kartu); 
+        if(s.background_kartu) callAPI('getImage', {id: s.background_kartu}).then(b=>{ if(b){ $('#prev_bg_depan').attr('src',b).removeClass('hidden'); } }); 
+        
+        $('#background_belakang').val(s.background_belakang); 
+        if(s.background_belakang) callAPI('getImage', {id: s.background_belakang}).then(b=>{ if(b){ $('#prev_bg_belakang').attr('src',b).removeClass('hidden'); } });
     }); 
 }
 
@@ -1451,6 +1471,8 @@ function saveSettings(e) {
         telp_sekolah: $('#setTelp').val(),
         email_sekolah: $('#setEmail').val(),
         web_sekolah: $('#setWeb').val()
+        background_kartu: $('#background_kartu').val(),
+        background_belakang: $('#background_belakang').val(),
     };
     callAPI('saveSettings', d).then(r => { 
         $('#loader').addClass('hidden'); 
@@ -1552,7 +1574,9 @@ $('#btnCrop').click(() => {
                 if(cropTarget=='masuk') { $('#id_foto_masuk').val(imgId); $('#prev_masuk').attr('src',b64).removeClass('hidden'); } 
                 if(cropTarget=='keluar') { $('#id_foto_keluar').val(imgId); $('#prev_keluar').attr('src',b64).removeClass('hidden'); } 
                 if(cropTarget=='logo_instansi') { $('#logo_instansi').val(imgId); $('#prevLogoInstansi').attr('src',b64).removeClass('hidden'); } 
-                if(cropTarget=='logo_sekolah') { $('#logo_sekolah').val(imgId); $('#prevLogoSekolah').attr('src',b64).removeClass('hidden'); } 
+                if(cropTarget=='logo_sekolah') { $('#logo_sekolah').val(imgId); $('#prevLogoSekolah').attr('src',b64).removeClass('hidden'); }
+                if(cropTarget=='background_kartu') { $('#background_kartu').val(imgId); $('#prev_bg_depan').attr('src',b64).removeClass('hidden'); } 
+                if(cropTarget=='background_belakang') { $('#background_belakang').val(imgId); $('#prev_bg_belakang').attr('src',b64).removeClass('hidden'); } 
             }); 
         } else {
             $('#loader').addClass('hidden');
@@ -1674,47 +1698,65 @@ function lihatKartu() {
     tampilkanKartuKeModal(d.nama, d.nisn, (d.tmplahir||'-') + ', ' + (d.tgllahir_indo||'-'), d.jk === 'L' ? 'Laki-laki' : 'Perempuan', d.foto_id);
 }
 
+// === MENAMPILKAN KARTU KE POP-UP ===
 function tampilkanKartuKeModal(nama, nisn, ttl, jk, fotoId, status) {
     $('#mdlKartu').modal('show');
-    
-    // Logika Judul (Pelajar vs Alumni)
     let isAlumni = (status === 'Lulus');
     $('#judulKartuModal').text(isAlumni ? 'KARTU ALUMNI' : 'KARTU PELAJAR');
 
-    // Isi Teks
     $('#card-instansi').text(globalConf.nama_instansi); 
     $('#card-sekolah').text(globalConf.nama_sekolah); 
     $('#card-alamat-sek').text(globalConf.alamat_sekolah);
     $('#card-nama').text(nama); 
     $('#card-nisn').text(nisn); 
-    $('#card-ttl').text(ttl); 
+    
+    let tmpt = ttl.split(',')[0] || '-';
+    let tgl = ttl.split(',')[1] || '-';
+    $('#card-tmp').text(tmpt.trim()); 
+    $('#card-tgl').text(tgl.trim()); 
     $('#card-jk').text(jk);
     $('#card-link-validasi').text(globalConf.link_validasi || "https://sikapprofesi.my.id");
     
-    // QR Code 10 Digit (NISN)
-    $('#qrcode').empty(); 
-    new QRCode(document.getElementById("qrcode"), {text: String(nisn), width:70, height:70, correctLevel: QRCode.CorrectLevel.H});
+    // PERBAIKAN: Gunakan API Eksternal agar QR berbentuk Image dan mudah di-download
+    $('#qrcode').html(`<img src="https://api.qrserver.com/v1/create-qr-code/?size=100x100&margin=0&data=${nisn}" crossorigin="anonymous" style="width:75px;height:75px;">`);
     
-    // Beri gambar Loading sementara
-    $('#card-foto').attr('src', 'https://via.placeholder.com/120x160?text=Loading...');
+    $('#card-foto').attr('src', 'https://via.placeholder.com/75x100?text=Loading...');
+    $('#card-bg-back').attr('src', '');
     
-    // Ambil semua gambar pendukung dari server
-    callAPI('getSemuaGambarKartu', {fotoId: fotoId, bgDepan: globalConf.background_kartu, bgBelakang: "", logoInstansi: globalConf.logo_instansi, logoSekolah: globalConf.logo_sekolah}).then(res => {
-        // Jika sukses dapat foto, pasang fotonya. Jika gagal, pasang tulisan gagal.
-        if(res.foto) {
-            $('#card-foto').attr('src', res.foto);
-        } else {
-            $('#card-foto').attr('src', 'https://via.placeholder.com/120x160?text=Foto+Gagal');
-        }
+    callAPI('getSemuaGambarKartu', {fotoId: fotoId, bgDepan: globalConf.background_kartu, bgBelakang: globalConf.background_belakang, logoInstansi: globalConf.logo_instansi, logoSekolah: globalConf.logo_sekolah}).then(res => {
+        if(res.foto) $('#card-foto').attr('src', res.foto);
+        else $('#card-foto').attr('src', 'https://via.placeholder.com/75x100?text=Kosong');
         
         if(res.logo1) $('#card-logo-instansi').attr('src', res.logo1).show(); else $('#card-logo-instansi').hide();
         if(res.logo2) $('#card-logo-sekolah').attr('src', res.logo2).show(); else $('#card-logo-sekolah').hide();
         
         if(res.bg1) { $('#card-bg-layer').css('background-image', `url(${res.bg1})`).show(); $('#card-bg-gradient').hide(); }
         else { $('#card-bg-layer').hide(); $('#card-bg-gradient').show(); }
+        
+        if(res.bg2) {
+            $('#card-bg-back').attr('src', res.bg2);
+            $('#card-back-wrap').show();
+        } else {
+            $('#card-back-wrap').hide();
+        }
     });
-    
     window.namaKartuCetak = nama; 
+}
+
+// === UNDUH KARTU DEPAN (Tanpa allowTaint agar foto base64 tembus) ===
+function downloadKartuDepan() { 
+    html2canvas(document.getElementById('capture-area'), {scale:3, useCORS:true}).then(c => { 
+        let a = document.createElement('a'); a.download = "Kartu_Depan_" + window.namaKartuCetak + ".jpg"; a.href = c.toDataURL("image/jpeg", 0.95); a.click(); 
+    }); 
+}
+
+// === UNDUH KARTU BELAKANG ===
+function downloadKartuBelakang() { 
+    let bgSrc = $('#card-bg-back').attr('src');
+    if(!bgSrc || bgSrc === '') { Swal.fire('Info', 'Background belakang belum diatur oleh admin.', 'info'); return; }
+    html2canvas(document.getElementById('capture-area-back'), {scale:3, useCORS:true}).then(c => { 
+        let a = document.createElement('a'); a.download = "Kartu_Belakang_" + window.namaKartuCetak + ".jpg"; a.href = c.toDataURL("image/jpeg", 0.95); a.click(); 
+    }); 
 }
 
 
