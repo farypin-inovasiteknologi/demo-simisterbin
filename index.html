@@ -156,7 +156,7 @@ input, button, select, textarea {
             <button type="button" class="btn btn-success w-100 rounded-pill py-2 fw-bold shadow-sm" onclick="openScannerPublic()"><i class="bi bi-qr-code-scan"></i> SCAN KARTU PELAJAR/ALUMNI</button>
         </form>
         <div class="text-center mt-4 small text-secondary">
-                &copy; <span id="yearApp"></span> SiMISTerBIn <span id="footSchoolName" class="fw-bold"></span>. All Rights Reserved. <br>
+                &copy; <span id="yearApp"></span> SiMISTerBin <span id="footSchoolName" class="fw-bold"></span>. All Rights Reserved. <br>
                 <a href="javascript:void(0)" onclick="showPrivacy()">Kebijakan Privasi</a> &bull; Created by : <a href='https://www.farypin-inovasiteknologi.com' rel='dofollow' style='color:blue;'>PT Farypin Inovasi Teknologi</a>
             </div>
     </div>
@@ -205,7 +205,7 @@ input, button, select, textarea {
 
     <div class="col-md-2 sidebar p-0 d-flex flex-column" id="mainSidebar">
         <div class="brand d-flex justify-content-between align-items-center">
-            <span><i class="bi bi-book-half me-2"></i>SIBUK INSTAL</span>
+            <span><i class="bi bi-book-half me-2"></i>SIMISTERBIN</span>
             <i class="bi bi-x-lg d-md-none" style="cursor:pointer" onclick="toggleSidebar()"></i>
         </div>
         <div class="p-4 text-center">
@@ -475,7 +475,7 @@ input, button, select, textarea {
         
         <footer class="app-footer">
             <div class="container small">
-                &copy; <span id="yearApp"></span> SiBuk InSTal <span id="footSchoolName" class="fw-bold"></span>. All Rights Reserved. <br>
+                &copy; <span id="yearApp"></span> SiMISTerBIn <span id="footSchoolName" class="fw-bold"></span>. All Rights Reserved. <br>
                 <a href="javascript:void(0)" onclick="showPrivacy()">Kebijakan Privasi</a> &bull; Created by : <a href='https://www.farypin-inovasiteknologi.com' rel='dofollow' style='color:blue;'>PT Farypin Inovasi Teknologi</a>
             </div>
         </footer>
@@ -725,11 +725,13 @@ input, button, select, textarea {
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+<script src="https://unpkg.com/html5-qrcode"></script>
 
 <script>
 // ==========================================
 // KONFIGURASI MULTI-TENANT (BANYAK SEKOLAH)
 // ==========================================
+
 
 // 1. Buat "Buku Alamat" untuk masing-masing sekolah
 const tenantConfig = {
@@ -740,15 +742,19 @@ const tenantConfig = {
 };
 
 
-// 2. Baca ID dari URL (contoh: https://namamu.github.io/sibukinstal/?id=demo01)
+// 2. Baca ID dari URL (contoh: https://namamu.github.io/sibukinstal/?id=demo)
 const urlParams = new URLSearchParams(window.location.search);
-const tenantId = urlParams.get('id');
+let tenantId = urlParams.get('id');
+
+// PERBAIKAN: Jika tidak ada id di link, otomatis pakai 'demo' agar aplikasi tetap bisa jalan
+if (!tenantId) {
+    tenantId = 'demo'; 
+}
 
 let API_URL = "";
 
 // 3. Validasi: Pastikan ID ada dan terdaftar di tenantConfig
 if (tenantId && tenantConfig[tenantId]) {
-    API_URL = tenantConfig[tenantId];
 } else {
     // Jika ID salah atau tidak ada, hancurkan halaman dan tampilkan error
     document.addEventListener("DOMContentLoaded", function() {
@@ -1616,12 +1622,6 @@ function tampilkanKartuKeModal(nama, nisn, ttl, jk, foto_id) {
     window.namaKartuCetak = nama; // Simpan untuk nama file download
 }
 
-function downloadKartu() { 
-    html2canvas(document.getElementById('capture-area'), {scale:3, useCORS:true}).then(c => { 
-        let a = document.createElement('a'); a.download = "KartuPelajar_" + window.namaKartuCetak + ".jpg"; a.href = c.toDataURL("image/jpeg"); a.click(); 
-    }); 
-}
-
 
 // ==========================================
 // EFEK HITUNG MUNDUR (COUNTDOWN) PADA LOADER
@@ -1739,24 +1739,6 @@ function tampilkanKartuKeModal(nama, nisn, ttl, jk, fotoId, status) {
     window.namaKartuCetak = nama; 
 }
 
-function downloadKartu() { 
-    // Mencegah blur saat download dengan menambahkan bgcolor putih dan scale yang lebih baik
-    html2canvas(document.getElementById('capture-area'), {
-        scale: 3, 
-        useCORS: true, 
-        allowTaint: true,
-        backgroundColor: '#ffffff'
-    }).then(canvas => { 
-        let a = document.createElement('a'); 
-        a.download = "Kartu_" + (window.namaKartuCetak || "Pelajar") + ".jpg"; 
-        a.href = canvas.toDataURL("image/jpeg", 0.95); 
-        a.click(); 
-    }).catch(err => {
-        console.error("Gagal cetak gambar", err);
-        Swal.fire('Error', 'Gagal memproses gambar kartu', 'error');
-    }); 
-}
-
 function cetakKartuMassal(tipe) {
     let targetData = [];
     if (tipe === 'alumni') targetData = globalSiswa.filter(r => r[31] === 'Lulus');
@@ -1854,8 +1836,6 @@ function cetakKartuMassal(tipe) {
 // ==========================================
 // FITUR SCANNER & VALIDASI (DIPERBAIKI)
 // ==========================================
-let scanner = null;
-
 let scanner = null;
 
 function openScannerPublic() {
