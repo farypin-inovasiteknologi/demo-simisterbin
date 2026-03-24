@@ -1470,9 +1470,9 @@ function saveSettings(e) {
         opd_dinas: $('#setOpd').val(),
         telp_sekolah: $('#setTelp').val(),
         email_sekolah: $('#setEmail').val(),
-        web_sekolah: $('#setWeb').val()
+        web_sekolah: $('#setWeb').val(),
         background_kartu: $('#background_kartu').val(),
-        background_belakang: $('#background_belakang').val(),
+        background_belakang: $('#background_belakang').val()
     };
     callAPI('saveSettings', d).then(r => { 
         $('#loader').addClass('hidden'); 
@@ -1717,8 +1717,9 @@ function tampilkanKartuKeModal(nama, nisn, ttl, jk, fotoId, status) {
     $('#card-jk').text(jk);
     $('#card-link-validasi').text(globalConf.link_validasi || "https://sikapprofesi.my.id");
     
-    // PERBAIKAN: Gunakan API Eksternal agar QR berbentuk Image dan mudah di-download
-    $('#qrcode').html(`<img src="https://api.qrserver.com/v1/create-qr-code/?size=100x100&margin=0&data=${nisn}" crossorigin="anonymous" style="width:75px;height:75px;">`);
+    // KEMBALIKAN KE MODE LOKAL: Lebih aman untuk didownload html2canvas
+    $('#qrcode').empty(); 
+    new QRCode(document.getElementById("qrcode"), {text: String(nisn), width:75, height:75, correctLevel: QRCode.CorrectLevel.H});
     
     $('#card-foto').attr('src', 'https://via.placeholder.com/75x100?text=Loading...');
     $('#card-bg-back').attr('src', '');
@@ -1743,7 +1744,7 @@ function tampilkanKartuKeModal(nama, nisn, ttl, jk, fotoId, status) {
     window.namaKartuCetak = nama; 
 }
 
-// === UNDUH KARTU DEPAN (Tanpa allowTaint agar foto base64 tembus) ===
+// === UNDUH KARTU DEPAN ===
 function downloadKartuDepan() { 
     html2canvas(document.getElementById('capture-area'), {scale:3, useCORS:true}).then(c => { 
         let a = document.createElement('a'); a.download = "Kartu_Depan_" + window.namaKartuCetak + ".jpg"; a.href = c.toDataURL("image/jpeg", 0.95); a.click(); 
@@ -2067,30 +2068,6 @@ function onScanSuccess(decodedText) {
 function downloadKartu() {
     const element = document.getElementById('capture-area');
     
-    // Cegah error jika elemen tidak ditemukan
-    if(!element) {
-        Swal.fire('Error', 'Area kartu (capture-area) tidak ditemukan di HTML!', 'error');
-        return;
-    }
-
-    // Nama file otomatis
-    let namaFile = window.namaKartuCetak ? window.namaKartuCetak : "Pelajar";
-
-    // Proses render HTML ke Gambar
-    html2canvas(element, {
-        scale: 3,
-        useCORS: true, // SANGAT PENTING: Agar foto dari Google Drive tidak diblokir
-        allowTaint: true,
-        backgroundColor: '#ffffff'
-    }).then(canvas => {
-        let a = document.createElement('a');
-        a.download = "Kartu_" + namaFile + ".jpg";
-        a.href = canvas.toDataURL("image/jpeg", 0.95);
-        a.click();
-    }).catch(err => {
-        console.error("Error Cetak Kartu:", err);
-        Swal.fire('Error', 'Gagal memproses gambar kartu. Cek koneksi atau izin gambar.', 'error');
-    });
 }
 
 </script>
