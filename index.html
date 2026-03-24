@@ -120,7 +120,7 @@ input, button, select, textarea {
     .header-line { margin: 0 5px; height: 1px; border-top: 1px solid #000; border-bottom: 2px solid #000; margin-top: 4px; }
     .txt-kartupelajar-center { font-family: Arial, sans-serif; font-size: 18px; text-align: center; font-weight: 800; margin: 2px 0; color: #000; }
     .card-body-new { display: flex; padding: 3px 9px; margin-top: 0px; height: 100%; }
-    .photo-area-new { width: 75px; height: 100px; background: #ddd; border: 2px solid white; box-shadow: 0 2px 4px rgba(0,0,0,0.2); margin-right: 10px; overflow: hidden; }
+    .photo-area-new { width: 75px; height: 100px; background: #ddd; border: 1px solid white; box-shadow: 0 2px 4px rgba(0,0,0,0.2); margin-right: 10px; overflow: hidden; }
     .student-photo { width: 100%; height: 100%; object-fit: cover; }
     .info-area-new { flex: 1; position: relative; }
     .qr-area-new { position: absolute; bottom: 3px; right: 3px; background: white; padding: 1px; border: 0px solid #ccc; }
@@ -1724,10 +1724,10 @@ function tampilkanKartuKeModal(nama, nisn, ttl, jk, fotoId, status) {
     $('#card-tmp').text(tmpt.trim()); 
     $('#card-tgl').text(tgl.trim()); 
     $('#card-jk').text(jk);
-    $('#card-link-validasi').text(globalConf.link_validasi || "https://sikapprofesi.my.id");
+    $('#card-link-validasi').text(globalConf.link_validasi || "https://simisterbin.my.id");
     
     // 3. QR Code pakai API luar agar terbaca sebagai gambar (Aman untuk didownload)
-    $('#qrcode').html(`<img src="https://api.qrserver.com/v1/create-qr-code/?size=100x100&margin=0&data=${nisn}" crossorigin="anonymous" style="width:75px; height:75px; display:block;">`);
+    $('#qrcode').html(`<img src="https://api.qrserver.com/v1/create-qr-code/?size=100x100&margin=0&data=${nisn}" crossorigin="anonymous" style="width:85px; height:85px; display:block;">`);
     
     // Kosongkan gambar lama
     $('#card-foto').attr('src', '');
@@ -1841,7 +1841,7 @@ function cetakKartuMassal(tipe) {
                 .header-line { margin: 0 5px; height: 1px; border-top: 1px solid #000; border-bottom: 2px solid #000; margin-top: 4px; }
                 .txt-kartupelajar-center { font-family: Arial, sans-serif; font-size: 18px; text-align: center; font-weight: 800; margin: 2px 0; color: #000; }
                 .card-body-new { display: flex; padding: 3px 9px; margin-top: 0px; height: 100%; }
-                .photo-area-new { width: 75px; height: 100px; background: #ddd; border: 2px solid white; box-shadow: 0 2px 4px rgba(0,0,0,0.2); margin-right: 10px; overflow: hidden; }
+                .photo-area-new { width: 75px; height: 100px; background: #ddd; border: 1px solid white; box-shadow: 0 2px 4px rgba(0,0,0,0.2); margin-right: 10px; overflow: hidden; }
                 .student-photo { width: 100%; height: 100%; object-fit: cover; }
                 .info-area-new { flex: 1; position: relative; }
                 .info-table-new { width: 100%; color: #000; border-collapse: collapse; }
