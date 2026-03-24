@@ -704,10 +704,9 @@ input, button, select, textarea {
                         <img id="card-bg-back" style="width:100%; height:100%; object-fit:cover;">
                     </div>
                 </div>
-
-                <div class="d-flex flex-column gap-2 mt-3">
-                    <button id="btn-unduh-depan" class="btn btn-secondary fw-bold w-100 shadow-sm" onclick="downloadKartuDepan()" disabled><i class="spinner-border spinner-border-sm"></i> Sedang Memproses...</button>
-                    <button id="btn-unduh-belakang" class="btn btn-secondary fw-bold w-100 shadow-sm text-white" onclick="downloadKartuBelakang()" disabled><i class="spinner-border spinner-border-sm"></i> Sedang Memproses...</button>
+                  <div class="d-flex flex-column gap-2 mt-3">
+                    <button class="btn btn-primary fw-bold w-100 shadow-sm" onclick="downloadKartuDepan()"><i class="bi bi-download"></i> UNDUH KARTU (DEPAN)</button>
+                    <button class="btn btn-info fw-bold w-100 shadow-sm text-white" onclick="downloadKartuBelakang()"><i class="bi bi-download"></i> UNDUH KARTU (BELAKANG)</button>
                 </div>
             </div>
         </div>
@@ -1702,12 +1701,17 @@ function lihatKartu() {
     tampilkanKartuKeModal(d.nama, d.nisn, (d.tmplahir||'-') + ', ' + (d.tgllahir_indo||'-'), d.jk === 'L' ? 'Laki-laki' : 'Perempuan', d.foto_id);
 }
 
+
 // === MENAMPILKAN KARTU KE POP-UP ===
 function tampilkanKartuKeModal(nama, nisn, ttl, jk, fotoId, status) {
-    $('#mdlKartu').modal('show');
+    // 1. Munculkan loading utama DULU, jangan buka pop-up kartunya
+    $('#loader').removeClass('hidden');
+    $('#loaderText').text('Memproses Kartu Digital...');
+
     let isAlumni = (status === 'Lulus');
     $('#judulKartuModal').text(isAlumni ? 'KARTU ALUMNI' : 'KARTU PELAJAR');
 
+    // 2. Tulis teksnya di background (tidak terlihat user karena tertutup loading)
     $('#card-instansi').text(globalConf.nama_instansi); 
     $('#card-sekolah').text(globalConf.nama_sekolah); 
     $('#card-alamat-sek').text(globalConf.alamat_sekolah);
@@ -1721,14 +1725,18 @@ function tampilkanKartuKeModal(nama, nisn, ttl, jk, fotoId, status) {
     $('#card-jk').text(jk);
     $('#card-link-validasi').text(globalConf.link_validasi || "https://sikapprofesi.my.id");
     
-    // KEMBALIKAN KE MODE LOKAL: Lebih aman untuk didownload html2canvas
     $('#qrcode').empty(); 
     new QRCode(document.getElementById("qrcode"), {text: String(nisn), width:75, height:75, correctLevel: QRCode.CorrectLevel.H});
     
-    $('#card-foto').attr('src', 'https://via.placeholder.com/75x100?text=Loading...');
-    $('#card-bg-back').attr('src', '');
-    
-    callAPI('getSemuaGambarKartu', {fotoId: fotoId, bgDepan: globalConf.background_kartu, bgBelakang: globalConf.background_belakang, logoInstansi: globalConf.logo_instansi, logoSekolah: globalConf.logo_sekolah}).then(res => {
+    // 3. Tarik gambar dari server
+    callAPI('getSemuaGambarKartu', {
+        fotoId: fotoId, 
+        bgDepan: globalConf.background_kartu, 
+        bgBelakang: globalConf.background_belakang, 
+        logoInstansi: globalConf.logo_instansi, 
+        logoSekolah: globalConf.logo_sekolah
+    }).then(res => {
+        // Pasang semua gambar yang sudah didapat ke dalam elemen HTML
         if(res.foto) $('#card-foto').attr('src', res.foto);
         else $('#card-foto').attr('src', 'https://via.placeholder.com/75x100?text=Kosong');
         
@@ -1744,7 +1752,14 @@ function tampilkanKartuKeModal(nama, nisn, ttl, jk, fotoId, status) {
         } else {
             $('#card-back-wrap').hide();
         }
+
+        // 4. SETELAH GAMBAR NEMPEL SEMUA, matikan loading dan BUKA modal kartunya!
+        setTimeout(() => {
+            $('#loader').addClass('hidden'); // Matikan layar loading utama
+            $('#mdlKartu').modal('show');    // Tampilkan kartu yang sudah FIX 100%
+        }, 500); // Jeda 0.5 detik biar browser memastikan gambarnya ter-render sempurna
     });
+    
     window.namaKartuCetak = nama; 
 }
 
