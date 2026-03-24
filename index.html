@@ -735,7 +735,7 @@ input, button, select, textarea {
 
 // 1. Buat "Buku Alamat" untuk masing-masing sekolah
 const tenantConfig = {
-    "demo": "https://script.google.com/macros/s/AKfycbyWqgd4ljTpI-m5qoIAHwnV9RnE3b6PbG_YWw_qvCe5bdeWlz2ecLoqQtr6woJeO7OJ/exec",
+    "demo": "https://script.google.com/macros/s/AKfycbyj_YycMV2PMh_5RdUbEHyA6fo_JkAlLRXjDKQETuk1GHqEwNHlAKJC4pcguYnFvc0U/exec",
     "sekolah-b": "https://script.google.com/macros/s/ID_API_SEKOLAH_2/exec",
     "sma-merdeka": "https://script.google.com/macros/s/ID_API_SEKOLAH_3/exec"
     // Tambahkan sekolah lain di sini sesuai kebutuhan
@@ -755,6 +755,7 @@ let API_URL = "";
 
 // 3. Validasi: Pastikan ID ada dan terdaftar di tenantConfig
 if (tenantId && tenantConfig[tenantId]) {
+    API_URL = tenantConfig[tenantId]; // <--- BARIS INI WAJIB ADA!
 } else {
     // Jika ID salah atau tidak ada, hancurkan halaman dan tampilkan error
     document.addEventListener("DOMContentLoaded", function() {
@@ -780,34 +781,21 @@ let globalMapel = []; // <--- KANTONG MAPEL
 let chartGender, chartStatus;
 
 // ==========================================
-// FUNGSI PUSAT PENGHUBUNG FRONTEND KE BACKEND (DIPERBAIKI)
 // ==========================================
-/// ==========================================
-// FUNGSI PUSAT PENGHUBUNG FRONTEND KE BACKEND (METODE FORM)
+// FUNGSI PUSAT PENGHUBUNG FRONTEND KE BACKEND
 // ==========================================
 async function callAPI(actionName, payloadData = {}) {
     try {
-        // Kita bungkus data menjadi format Form agar kebal dari blokir Redirect Google
-        const formData = new URLSearchParams();
-        formData.append('action', actionName);
-        formData.append('data', JSON.stringify(payloadData));
-
         const response = await fetch(API_URL, {
             method: 'POST',
-            body: formData // Kirim sebagai form, bukan JSON text/plain
+            headers: { 'Content-Type': 'text/plain' },
+            body: JSON.stringify({ action: actionName, data: payloadData })
         });
-
-        const responseText = await response.text();
-        
-        try {
-            // Ubah balasan server menjadi JSON
-            return JSON.parse(responseText);
-        } catch (jsonError) {
-            console.error("Balasan Google:", responseText);
-            return { status: "error", message: "Server gagal merespons dengan benar. Pastikan format URL API sudah diubah ke /macros/s/" };
-        }
+        const result = await response.json();
+        return result;
     } catch (error) {
-        return { status: "error", message: "Koneksi terputus: " + error.toString() };
+        console.error("API Error:", error);
+        return { status: "error", message: "Gagal terhubung ke server database." };
     }
 }
 
