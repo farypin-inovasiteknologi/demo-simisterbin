@@ -726,6 +726,7 @@ input, button, select, textarea {
 <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
 <script src="https://unpkg.com/html5-qrcode"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 
 <script>
 // ==========================================
@@ -877,8 +878,18 @@ function doLogin(e) {
                 if(d.status_akhir === 'Aktif') $('#profil_status').removeClass('text-danger').addClass('text-success');
                 else $('#profil_status').removeClass('text-success').addClass('text-danger');
                 
+                // === LOGIKA FOTO (ALUMNI VS PELAJAR AKTIF) ===
+                let isAlumni = (d.status_akhir === 'Lulus');
+                // Jika alumni, pakai foto keluar (jika ada). Jika tidak ada/belum lulus, pakai foto masuk (foto_id)
+                let fotoProfilTampil = isAlumni ? (d.foto_keluar || d.foto_id) : d.foto_id;
+
                 $('#profil_foto').attr('src', '');
-                if(d.foto_id) callAPI('getImage', {id: d.foto_id}).then(b => { if(b) $('#profil_foto').attr('src', b); });
+                if(fotoProfilTampil) {
+                    callAPI('getImage', {id: fotoProfilTampil}).then(b => { 
+                        if(b) $('#profil_foto').attr('src', b); 
+                    });
+                }
+                
                 window.siswaAktif = d; // Simpan data untuk cetak kartu
 
             } else {
@@ -1607,23 +1618,47 @@ function lihatKartu() {
     tampilkanKartuKeModal(d.nama, d.nisn, (d.tmplahir||'-') + ', ' + (d.tgllahir_indo||'-'), d.jk === 'L' ? 'Laki-laki' : 'Perempuan', d.foto_id);
 }
 
-function tampilkanKartuKeModal(nama, nisn, ttl, jk, foto_id) {
+function tampilkanKartuKeModal(nama, nisn, ttl, jk, fotoId, status) {
     $('#mdlKartu').modal('show');
-    $('#card-instansi').text(globalConf.nama_instansi); $('#card-sekolah').text(globalConf.nama_sekolah); $('#card-alamat-sek').text(globalConf.alamat_sekolah);
-    $('#card-nama').text(nama); $('#card-nisn').text(nisn); $('#card-ttl').text(ttl); $('#card-jk').text(jk);
+    
+    // Logika Judul (Pelajar vs Alumni)
+    let isAlumni = (status === 'Lulus');
+    $('#judulKartuModal').text(isAlumni ? 'KARTU ALUMNI' : 'KARTU PELAJAR');
+
+    // Isi Teks
+    $('#card-instansi').text(globalConf.nama_instansi); 
+    $('#card-sekolah').text(globalConf.nama_sekolah); 
+    $('#card-alamat-sek').text(globalConf.alamat_sekolah);
+    $('#card-nama').text(nama); 
+    $('#card-nisn').text(nisn); 
+    $('#card-ttl').text(ttl); 
+    $('#card-jk').text(jk);
     $('#card-link-validasi').text(globalConf.link_validasi || "https://sikapprofesi.my.id");
     
-    $('#qrcode').empty(); new QRCode(document.getElementById("qrcode"), {text: String(nisn), width:70, height:70});
-    $('#card-foto').attr('src', '');
+    // QR Code 10 Digit (NISN)
+    $('#qrcode').empty(); 
+    new QRCode(document.getElementById("qrcode"), {text: String(nisn), width:70, height:70, correctLevel: QRCode.CorrectLevel.H});
     
-    callAPI('getSemuaGambarKartu', {fotoId: foto_id, bgDepan: globalConf.background_kartu, bgBelakang: "", logoInstansi: globalConf.logo_instansi, logoSekolah: globalConf.logo_sekolah}).then(res => {
-        if(res.foto) $('#card-foto').attr('src', res.foto);
+    // Beri gambar Loading sementara
+    $('#card-foto').attr('src', 'https://via.placeholder.com/120x160?text=Loading...');
+    
+    // Ambil semua gambar pendukung dari server
+    callAPI('getSemuaGambarKartu', {fotoId: fotoId, bgDepan: globalConf.background_kartu, bgBelakang: "", logoInstansi: globalConf.logo_instansi, logoSekolah: globalConf.logo_sekolah}).then(res => {
+        // Jika sukses dapat foto, pasang fotonya. Jika gagal, pasang tulisan gagal.
+        if(res.foto) {
+            $('#card-foto').attr('src', res.foto);
+        } else {
+            $('#card-foto').attr('src', 'https://via.placeholder.com/120x160?text=Foto+Gagal');
+        }
+        
         if(res.logo1) $('#card-logo-instansi').attr('src', res.logo1).show(); else $('#card-logo-instansi').hide();
         if(res.logo2) $('#card-logo-sekolah').attr('src', res.logo2).show(); else $('#card-logo-sekolah').hide();
+        
         if(res.bg1) { $('#card-bg-layer').css('background-image', `url(${res.bg1})`).show(); $('#card-bg-gradient').hide(); }
         else { $('#card-bg-layer').hide(); $('#card-bg-gradient').show(); }
     });
-    window.namaKartuCetak = nama; // Simpan untuk nama file download
+    
+    window.namaKartuCetak = nama; 
 }
 
 
