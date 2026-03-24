@@ -735,7 +735,7 @@ input, button, select, textarea {
 
 // 1. Buat "Buku Alamat" untuk masing-masing sekolah
 const tenantConfig = {
-    "demo": "https://script.google.com/a/macros/admin.sma.belajar.id/s/AKfycbwlk1K7xDviJv-wJxAT6fGmM9oWxe6gBR90AbCRhPXAz4k27XGtWteI2EFr_hJvHMq3/exec",
+    "demo": "https://script.google.com/macros/s/AKfycbxYtqtx5c8QNG0MfmkkzFZwvdjugQYMMLseu9MDW14XLHdT1sh9CQxRJwJrPEWR5_Qg/exec",
     "sekolah-b": "https://script.google.com/macros/s/ID_API_SEKOLAH_2/exec",
     "sma-merdeka": "https://script.google.com/macros/s/ID_API_SEKOLAH_3/exec"
     // Tambahkan sekolah lain di sini sesuai kebutuhan
@@ -782,32 +782,32 @@ let chartGender, chartStatus;
 // ==========================================
 // FUNGSI PUSAT PENGHUBUNG FRONTEND KE BACKEND (DIPERBAIKI)
 // ==========================================
+/// ==========================================
+// FUNGSI PUSAT PENGHUBUNG FRONTEND KE BACKEND (METODE FORM)
+// ==========================================
 async function callAPI(actionName, payloadData = {}) {
     try {
+        // Kita bungkus data menjadi format Form agar kebal dari blokir Redirect Google
+        const formData = new URLSearchParams();
+        formData.append('action', actionName);
+        formData.append('data', JSON.stringify(payloadData));
+
         const response = await fetch(API_URL, {
             method: 'POST',
-            // Menghapus header khusus agar Google tidak memblokirnya dengan CORS Preflight
-            body: JSON.stringify({ action: actionName, data: payloadData })
+            body: formData // Kirim sebagai form, bukan JSON text/plain
         });
-        
-        // Ambil balasan sebagai teks mentah dulu (jangan langsung dijadikan JSON)
+
         const responseText = await response.text();
         
         try {
-            // Coba ubah teks dari Google menjadi JSON
-            const result = JSON.parse(responseText);
-            return result;
+            // Ubah balasan server menjadi JSON
+            return JSON.parse(responseText);
         } catch (jsonError) {
-            // Jika gagal, berarti Google mengirim halaman penolakan (HTML)
-            console.error("Balasan Google ditolak/bukan JSON:", responseText);
-            return { 
-                status: "error", 
-                message: "Akses diblokir oleh Google! Pastikan URL API sudah benar dan izin Web App di-set ke 'Siapa Saja' (Anyone)." 
-            };
+            console.error("Balasan Google:", responseText);
+            return { status: "error", message: "Server gagal merespons dengan benar. Pastikan format URL API sudah diubah ke /macros/s/" };
         }
     } catch (error) {
-        console.error("API Error Asli:", error);
-        return { status: "error", message: "Koneksi terputus total. Cek internet atau link API_URL." };
+        return { status: "error", message: "Koneksi terputus: " + error.toString() };
     }
 }
 
