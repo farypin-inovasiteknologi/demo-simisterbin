@@ -1388,10 +1388,9 @@ async function cetakTranskrip() {
         </div>
     `;
 
-    // --- PENGATURAN MARGIN TRANSKRIP (Landscape) ---
     // --- PENGATURAN MARGIN TRANSKRIP (Landscape FIX) ---
     var opt = { 
-        margin: [0.6, 1.5, 1.5, 1.5], // [Atas, Kanan, Bawah, Kiri]
+        margin: [0.5, 1.5, 1.5, 1.5], // [Atas, Kanan, Bawah, Kiri]
         filename: 'Transkrip_' + namaSiswa + '.pdf', 
         image: { type: 'jpeg', quality: 0.98 }, 
         html2canvas: { scale: 2, scrollY: 0, windowY: 0 }, // <--- TAMBAHAN KUNCI SCROLL
