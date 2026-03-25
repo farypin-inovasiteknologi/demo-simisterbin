@@ -928,8 +928,8 @@ function restoreSession(res) {
         $('#profil_ttl').text((d.tmplahir || '-') + ', ' + (d.tgllahir_indo || '-'));
         $('#profil_jk').text(d.jk === 'L' ? 'Laki-laki' : 'Perempuan');
         $('#profil_agama').text(d.agama || '-');
-        // Ambil 8 angka pertama saja untuk Tahun Masuk
-        let thnMasukStr = d.thn_masuk ? String(d.thn_masuk).substring(0,8) : '-';
+        // Ambil 10 angka pertama saja untuk Tahun Masuk
+        let thnMasukStr = d.thn_masuk ? String(d.thn_masuk).substring(0,10) : '-';
         $('#profil_kelas').text((d.kls_masuk || '-') + ' / ' + thnMasukStr);
         $('#profil_alamat').text(d.alamat || '-'); $('#profil_hp').text(d.nohp || '-');
         $('#profil_ortu').text((d.ayah || '-') + ' / ' + (d.ibu || '-'));
@@ -1765,7 +1765,7 @@ function simpanPasswordSiswa() {
 
 // === MENAMPILKAN KARTU KE POP-UP ===baru
 function tampilkanKartuKeModal(nama, nisn, ttl, jk, fotoId, status) {
-    // 1. MUNCULKAN LOADING DULU! JANGAN BUKA MODAL KARTU!
+    // 1. LOADING DULU (Jangan ada perintah show modal di sini)
     $('#loader').removeClass('hidden');
     $('#loaderText').text('Memproses Desain Kartu...');
 
@@ -1829,7 +1829,7 @@ function tampilkanKartuKeModal(nama, nisn, ttl, jk, fotoId, status) {
         // 6. SETELAH GAMBAR NEMPEL SEMUA, TUNGGU 1 DETIK, BARU BUKA MODAL FIX!
         setTimeout(() => {
             $('#loader').addClass('hidden'); // Matikan Layar Loading Hitam
-            $('#mdlKartu').modal('show');    // Buka Modal Kartu
+            $('#mdlKartu').modal('show');    // <--- MODAL BARU BOLEH DIBUKA DI SINI
         }, 1000); 
     });
 }
