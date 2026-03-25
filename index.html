@@ -893,7 +893,7 @@ input, button, select, textarea {
 
 // 1. Buat "Buku Alamat" untuk masing-masing sekolah
 const tenantConfig = {
-    "demo": "https://script.google.com/macros/s/AKfycbzyKSIEEOTA-uowYYKTPWlRhQPhTrkabtt-RQBoUoQ-lVEvQpRGLZLeLcwEaRDcmWGk/exec",
+    "demo": "https://script.google.com/macros/s/AKfycbwXW8_h3VOFXfPguJIHHI5vqoa2a2XLWv6VvN_MeEBP-5n6B86wunCnvoqAu4xN-rJB/exec",
     "sekolah-b": "https://script.google.com/macros/s/ID_API_SEKOLAH_2/exec",
     "sma-merdeka": "https://script.google.com/macros/s/ID_API_SEKOLAH_3/exec"
     // Tambahkan sekolah lain di sini sesuai kebutuhan
@@ -1097,21 +1097,76 @@ function kembaliKeLanding() {
     $('#viewLanding').removeClass('hidden').addClass('animate__animated animate__fadeInLeft');
 }
 
-// --- FITUR CEK DATA ALUMNI PUBLIK ---
+// --- FITUR CEK DATA ALUMNI (HALAMAN DEPAN - 2 KOLOM) ---
 function cariDataAlumni() {
     Swal.fire({
-        title: 'Cek Data Alumni',
-        text: 'Masukkan NISN untuk memverifikasi data kelulusan.',
-        input: 'text',
-        inputPlaceholder: 'Ketik NISN...',
+        title: 'Cek Data Alumni / Keluar',
+        html: `
+            <p class="text-muted small">Masukkan <b>salah satu</b> data di bawah ini:</p>
+            <input id="swal-input-nisn" class="swal2-input" placeholder="Masukkan NISN (10 Digit)">
+            <div class="text-muted fw-bold my-2" style="font-size: 14px;">ATAU</div>
+            <input id="swal-input-nis" class="swal2-input" placeholder="Masukkan NIS (Bebas)">
+        `,
         showCancelButton: true,
         confirmButtonText: '<i class="bi bi-search"></i> Cari Data',
         cancelButtonText: 'Batal',
-        confirmButtonColor: '#4e73df'
+        confirmButtonColor: '#4e73df',
+        preConfirm: () => {
+            const nisn = document.getElementById('swal-input-nisn').value.trim();
+            const nis = document.getElementById('swal-input-nis').value.trim();
+            if (!nisn && !nis) {
+                Swal.showValidationMessage('Harap isi minimal NISN atau NIS!');
+            }
+            return { nisn: nisn, nis: nis };
+        }
     }).then((result) => {
-        if (result.isConfirmed && result.value) {
-            // Gunakan fungsi scanner yang sudah ada, fungsinya persis sama!
-            onScanSuccess(result.value); 
+        if(result.isConfirmed && result.value) {
+            $('#loader').removeClass('hidden'); $('#loaderText').text('Mencari Data di Buku Induk...');
+            callAPI('cariDataAlumniPublic', result.value).then(res => {
+                $('#loader').addClass('hidden');
+                
+                if(res.status === 'success') {
+                    let d = res.data;
+                    let statusTeks = d.isLengkap ? '<span class="badge bg-success">Data Lengkap</span>' : '<span class="badge bg-warning text-dark">Belum Lengkap</span>';
+                    let statusPendidikan = d.status === 'Lulus' ? '<span class="badge bg-primary">LULUS</span>' : `<span class="badge bg-danger">${d.status.toUpperCase()}</span>`;
+                    
+                    // Logika Pesan Petunjuk
+                    let petunjukHtml = "";
+                    if(d.status === 'Keluar' || d.status === 'Pindah') {
+                        petunjukHtml = `<div class="alert alert-danger small text-start m-0"><b>Peringatan:</b><br>Maaf, Anda tidak bisa login karena berstatus <b>${d.status}</b>.</div>`;
+                    } else {
+                        petunjukHtml = `<div class="alert alert-info small text-start m-0"><b>Petunjuk:</b><br>Silakan kembali dan login menggunakan <b>NISN</b> / <b>NIS</b> (jika tidak punya NISN) dan password standar <b>123456</b>. Demi keamanan, harap langsung mengganti password Anda!</div>`;
+                    }
+                    
+                    Swal.fire({
+                        title: 'Data Ditemukan!',
+                        html: `
+                            <div class="text-start mb-3" style="font-size: 14px;">
+                                <b>NISN:</b> ${d.nisn || '-'}<br>
+                                <b>NIS:</b> ${d.nis || '-'}<br>
+                                <b>Nama:</b> ${d.nama}<br>
+                                <b>Tahun Lulus/Keluar:</b> ${d.thn_lulus}<br>
+                                <b>Status:</b> ${statusPendidikan}<br>
+                                <b>Kelengkapan Data:</b> ${statusTeks}
+                            </div>
+                            ${petunjukHtml}
+                        `,
+                        icon: 'success'
+                    });
+                } else if (res.status === 'not_found') {
+                    let noWA = globalConf.telp_sekolah ? String(globalConf.telp_sekolah).replace(/\D/g,'').replace(/^0/,'62') : '';
+                    let teksWA = `Halo Admin, saya alumni ${globalConf.nama_sekolah}, butuh bantuan utk cek data di aplikasi SiMISTerBIN ${globalConf.nama_sekolah}.`;
+                    let waLink = noWA ? `<button class="btn btn-success mt-3 fw-bold w-100" onclick="window.open('https://wa.me/${noWA}?text=${encodeURIComponent(teksWA)}', '_blank')"><i class="bi bi-whatsapp"></i> Lapor via WhatsApp Admin</button>` : '';
+                    
+                    Swal.fire({
+                        title: 'Tidak Ditemukan',
+                        html: `Data tidak ditemukan di database Alumni.<br>Harap lapor dengan menghubungi Admin di WA.<br>${waLink}`,
+                        icon: 'error'
+                    });
+                } else {
+                    Swal.fire('Error', res.message, 'error');
+                }
+            });
         }
     });
 }
@@ -1283,11 +1338,14 @@ function saveSiswa(e) {
     $.each($('#frmSiswa').serializeArray(),(_,k)=>d[k.name]=k.value); 
     callAPI('saveStudent', d).then(r=>{ 
         $('#loader').addClass('hidden'); 
-        if(r.status=='success') { 
+        if(r.status === 'success') { 
             bootstrap.Modal.getInstance(document.getElementById('mdlSiswa')).hide(); 
-            showCoolAlert('Sukses', 'Data disimpan', 'success'); 
+            showCoolAlert('Sukses', 'Data berhasil disimpan', 'success'); 
             loadSiswa(); 
-        } 
+        } else {
+            // JIKA DITOLAK KARENA KURANG DIGIT/DUPLIKAT, MUNCULKAN PESAN INI:
+            showCoolAlert('Peringatan!', r.message, 'warning'); 
+        }
     }); 
 }
 
