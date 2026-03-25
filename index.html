@@ -192,36 +192,42 @@ input, button, select, textarea {
   <div class="row">
 
     <div id="mobileTopBar" class="d-md-none fixed-top bg-theme text-white shadow-sm px-3 d-flex justify-content-between align-items-center" style="height: 60px; z-index: 1030;">
-        <div class="fw-bold fs-5 text-truncate" style="max-width: 50%;"><i class="bi bi-book-half me-1"></i> SiMISTerBIn</div>
-        <div style="max-width: 45%;">
-            <select id="mobileSemester" class="form-select form-select-sm fw-bold border-0 text-primary shadow-sm" style="border-radius: 20px;" onchange="nav('nilai', null, this.value)">
-                <option value="" disabled selected>Pilih Smt</option>
-                <option value="1">Semester 1</option>
-                <option value="2">Semester 2</option>
-                <option value="3">Semester 3</option>
-                <option value="4">Semester 4</option>
-                <option value="5">Semester 5</option>
-                <option value="6">Semester 6</option>
+        <div class="fw-bold fs-5 text-truncate"><i class="bi bi-book-half me-1"></i> SiMISTerBIn</div>
+        <div class="d-flex align-items-center gap-3">
+            <i id="mobTopSetting" class="bi bi-gear-fill fs-5" onclick="nav('settings', null)" style="cursor:pointer; display:none;"></i>
+            <select id="mobileSemester" class="form-select form-select-sm fw-bold border-0 text-primary shadow-sm" style="border-radius: 20px; width: auto;" onchange="nav('nilai', null, this.value)">
+                <option value="1">Smt 1</option><option value="2">Smt 2</option><option value="3">Smt 3</option><option value="4">Smt 4</option><option value="5">Smt 5</option><option value="6">Smt 6</option>
             </select>
+            <i id="mobTopLogout" class="bi bi-power fs-5 text-danger bg-white rounded-circle shadow-sm" onclick="logout()" style="cursor:pointer; padding: 2px 6px; display:none;"></i>
         </div>
     </div>
 
-    <div id="mobileBottomBar" class="d-md-none fixed-bottom bg-white shadow-lg d-flex justify-content-around align-items-center pb-2 pt-1" style="height: 70px; z-index: 1030; border-top: 1px solid #e3e6f0;">
-        <a href="javascript:void(0)" onclick="nav('dash', this)" class="text-center text-decoration-none m-nav-item active" data-target="dash">
-            <i class="bi bi-speedometer2 fs-4 d-block mb-1" style="line-height: 1;"></i><span style="font-size: 10px; font-weight: bold;">Dashboard</span>
-        </a>
-        <a href="javascript:void(0)" onclick="nav('siswa', this)" class="text-center text-decoration-none m-nav-item" data-target="siswa">
-            <i class="bi bi-people-fill fs-4 d-block mb-1" style="line-height: 1;"></i><span style="font-size: 10px; font-weight: bold;">Siswa</span>
-        </a>
-        <a href="javascript:void(0)" onclick="nav('mapel', this)" class="text-center text-decoration-none m-nav-item admin-only" data-target="mapel">
-            <i class="bi bi-book-half fs-4 d-block mb-1" style="line-height: 1;"></i><span style="font-size: 10px; font-weight: bold;">Mapel</span>
-        </a>
-        <a href="javascript:void(0)" onclick="nav('settings', this)" class="text-center text-decoration-none m-nav-item admin-only" data-target="settings">
-            <i class="bi bi-gear-fill fs-4 d-block mb-1" style="line-height: 1;"></i><span style="font-size: 10px; font-weight: bold;">Pengaturan</span>
-        </a>
-        <a href="javascript:void(0)" onclick="logout()" class="text-center text-decoration-none text-danger m-nav-item">
-            <i class="bi bi-box-arrow-right fs-4 d-block mb-1" style="line-height: 1;"></i><span style="font-size: 10px; font-weight: bold;">Logout</span>
-        </a>
+    <div id="mobileBottomBar" class="d-md-none fixed-bottom bg-white shadow-lg pb-2 pt-1" style="height: 70px; z-index: 1030; border-top: 1px solid #e3e6f0;">
+        
+        <div id="botAdmin" class="d-none justify-content-around align-items-center h-100 w-100">
+            <a href="javascript:void(0)" onclick="nav('siswa', this)" class="m-nav-item text-center text-decoration-none"><i class="bi bi-journal-bookmark-fill fs-4 d-block mb-1" style="line-height: 1;"></i><span style="font-size: 10px; font-weight: bold;">Induk</span></a>
+            <a href="javascript:void(0)" onclick="nav('datasiswa', this)" class="m-nav-item text-center text-decoration-none"><i class="bi bi-people-fill fs-4 d-block mb-1" style="line-height: 1;"></i><span style="font-size: 10px; font-weight: bold;">Siswa</span></a>
+            <a href="javascript:void(0)" onclick="nav('dash', this)" class="m-nav-item text-center text-decoration-none active text-primary" style="transform: translateY(-15px);"><div class="bg-primary text-white rounded-circle d-flex align-items-center justify-content-center mx-auto shadow-lg border border-3 border-white" style="width:50px; height:50px;"><i class="bi bi-speedometer2 fs-3"></i></div><span class="mt-1" style="font-size: 10px; font-weight: bold;">Dash</span></a>
+            <a href="javascript:void(0)" onclick="nav('alumni', this)" class="m-nav-item text-center text-decoration-none"><i class="bi bi-mortarboard-fill fs-4 d-block mb-1" style="line-height: 1;"></i><span style="font-size: 10px; font-weight: bold;">Alumni</span></a>
+            <a href="javascript:void(0)" onclick="nav('mapel', this)" class="m-nav-item text-center text-decoration-none"><i class="bi bi-book-half fs-4 d-block mb-1" style="line-height: 1;"></i><span style="font-size: 10px; font-weight: bold;">Mapel</span></a>
+        </div>
+
+        <div id="botWaka" class="d-none justify-content-around align-items-center h-100 w-100">
+            <a href="javascript:void(0)" onclick="nav('siswa', this)" class="m-nav-item text-center text-decoration-none"><i class="bi bi-journal-bookmark-fill fs-4 d-block mb-1" style="line-height: 1;"></i><span style="font-size: 10px; font-weight: bold;">Induk</span></a>
+            <a href="javascript:void(0)" onclick="nav('datasiswa', this)" class="m-nav-item text-center text-decoration-none"><i class="bi bi-people-fill fs-4 d-block mb-1" style="line-height: 1;"></i><span style="font-size: 10px; font-weight: bold;">Siswa</span></a>
+            <a href="javascript:void(0)" onclick="nav('dash', this)" class="m-nav-item text-center text-decoration-none active text-primary" style="transform: translateY(-15px);"><div class="bg-primary text-white rounded-circle d-flex align-items-center justify-content-center mx-auto shadow-lg border border-3 border-white" style="width:50px; height:50px;"><i class="bi bi-speedometer2 fs-3"></i></div><span class="mt-1" style="font-size: 10px; font-weight: bold;">Dash</span></a>
+            <a href="javascript:void(0)" onclick="nav('mapel', this)" class="m-nav-item text-center text-decoration-none"><i class="bi bi-book-half fs-4 d-block mb-1" style="line-height: 1;"></i><span style="font-size: 10px; font-weight: bold;">Mapel</span></a>
+            <a href="javascript:void(0)" onclick="logout()" class="m-nav-item text-center text-decoration-none text-danger"><i class="bi bi-box-arrow-right fs-4 d-block mb-1" style="line-height: 1;"></i><span style="font-size: 10px; font-weight: bold;">Keluar</span></a>
+        </div>
+
+        <div id="botSiswa" class="d-none justify-content-around align-items-center h-100 w-100">
+            <a href="javascript:void(0)" onclick="nav('profil_siswa', this)" class="m-nav-item text-center text-decoration-none active text-primary"><i class="bi bi-person-fill fs-4 d-block mb-1" style="line-height: 1;"></i><span style="font-size: 10px; font-weight: bold;">Profil</span></a>
+            <a href="javascript:void(0)" onclick="$('#mdlGantiPass').modal('show')" class="m-nav-item text-center text-decoration-none"><i class="bi bi-key-fill fs-4 d-block mb-1" style="line-height: 1;"></i><span style="font-size: 10px; font-weight: bold;">Sandi</span></a>
+            <a href="javascript:void(0)" onclick="lihatKartu()" class="m-nav-item text-center text-decoration-none text-primary" style="transform: translateY(-15px);"><div class="bg-primary text-white rounded-circle d-flex align-items-center justify-content-center mx-auto shadow-lg border border-3 border-white" style="width:50px; height:50px;"><i class="bi bi-card-heading fs-3"></i></div><span class="mt-1" style="font-size: 10px; font-weight: bold;">Kartu</span></a>
+            <a href="javascript:void(0)" onclick="$('#mdlBantuan').modal('show')" class="m-nav-item text-center text-decoration-none"><i class="bi bi-headset fs-4 d-block mb-1" style="line-height: 1;"></i><span style="font-size: 10px; font-weight: bold;">Bantuan</span></a>
+            <a href="javascript:void(0)" onclick="logout()" class="m-nav-item text-center text-decoration-none text-danger"><i class="bi bi-box-arrow-right fs-4 d-block mb-1" style="line-height: 1;"></i><span style="font-size: 10px; font-weight: bold;">Keluar</span></a>
+        </div>
+
     </div>
     
     <button id="btnScrollTop" onclick="window.scrollTo({top: 0, behavior: 'smooth'})"><i class="bi bi-arrow-up"></i></button>
@@ -373,8 +379,11 @@ input, button, select, textarea {
                         <tr><td class="fw-bold text-muted">Kelas / Thn Masuk</td><td id="profil_kelas"></td></tr>
                         <tr><td class="fw-bold text-muted">Alamat Lengkap</td><td id="profil_alamat"></td></tr>
                         <tr><td class="fw-bold text-muted">No HP / WA</td><td id="profil_hp"></td></tr>
-                        <tr><td class="fw-bold text-muted">Nama Ayah / Ibu</td><td id="profil_ortu"></td></tr>
+                        <tr><td class="fw-bold text-muted">Nama Ayah / Ibu</td><td id="profil_ortu"></td></tr>                      
                         <tr><td class="fw-bold text-muted">Status Siswa</td><td id="profil_status" class="fw-bold"></td></tr>
+                        <tr><td></td><td></td></tr>
+                        <tr id="row-alumni-lulus" class="hidden"><td class="fw-bold text-muted">Tahun Lulus</td><td id="profil_thn_lulus" class="text-primary fw-bold"></td></tr>
+                        <tr id="row-alumni-ijazah" class="hidden"><td class="fw-bold text-muted">No. Ijazah</td><td id="profil_no_ijazah" class="text-primary fw-bold"></td></tr>
                     </table>
                 </div>
             </div>
@@ -714,6 +723,19 @@ input, button, select, textarea {
     </div>
 </div>
 
+<div class="modal fade" id="mdlBantuan" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered modal-sm">
+        <div class="modal-content border-0 shadow">
+            <div class="modal-header bg-primary text-white"><h5 class="modal-title fw-bold">Kontak Admin</h5><button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button></div>
+            <div class="modal-body text-center p-4">
+                <p class="text-muted small mb-3">Butuh bantuan? Hubungi admin melalui:</p>
+                <a id="btnBantuanWA" href="#" target="_blank" class="btn btn-success w-100 mb-2 fw-bold shadow-sm"><i class="bi bi-whatsapp"></i> WhatsApp</a>
+                <a id="btnBantuanEmail" href="#" class="btn btn-danger w-100 fw-bold shadow-sm"><i class="bi bi-envelope"></i> Email</a>
+            </div>
+        </div>
+    </div>
+</div>
+
 <div class="modal fade" id="mdlGantiPass" tabindex="-1">
     <div class="modal-dialog modal-dialog-centered"><div class="modal-content"><div class="modal-header bg-secondary text-white"><h5 class="modal-title">Ganti Password</h5><button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button></div>
     <div class="modal-body"><input type="password" id="oldPass" class="form-control mb-2" placeholder="Password Lama"><input type="password" id="newPass" class="form-control mb-3" placeholder="Password Baru"><button class="btn btn-primary w-100 fw-bold" onclick="simpanPasswordSiswa()">SIMPAN PASSWORD</button></div></div></div>
@@ -884,6 +906,10 @@ function restoreSession(res) {
     $('#yearApp').text(new Date().getFullYear()); 
     
     if (res.role === 'siswa') {
+      // Tampilan khusus Siswa
+        $('#mobileTopBar').addClass('d-none'); // Hilangkan bar atas untuk siswa
+        $('#botSiswa').removeClass('d-none').addClass('d-flex');
+        $('#botAdmin, #botWaka').removeClass('d-flex').addClass('d-none');
         $('#mainSidebar').addClass('hidden'); 
         $('#mainSidebar').next().removeClass('col-md-10').addClass('col-md-12'); 
         $('.mobile-toggle').addClass('hidden'); 
@@ -909,7 +935,16 @@ function restoreSession(res) {
         if(d.status_akhir === 'Aktif') $('#profil_status').removeClass('text-danger').addClass('text-success');
         else $('#profil_status').removeClass('text-success').addClass('text-danger');
         
-        let isAlumni = (d.status_akhir === 'Lulus');
+       let isAlumni = (d.status_akhir === 'Lulus');
+        
+        // MUNCULKAN DATA ALUMNI JIKA LULUS
+        if(isAlumni) {
+            $('#row-alumni-lulus, #row-alumni-ijazah').removeClass('hidden');
+            $('#profil_thn_lulus').text(d.tgl_keluar ? d.tgl_keluar.substring(0,4) : '-');
+            $('#profil_no_ijazah').text(d.noijazah_sma || '-');
+        } else {
+            $('#row-alumni-lulus, #row-alumni-ijazah').addClass('hidden');
+        }
         let fotoProfilTampil = isAlumni ? (d.foto_keluar || d.foto_id) : d.foto_id;
 
         $('#profil_foto').attr('src', '');
@@ -917,6 +952,17 @@ function restoreSession(res) {
         
         window.siswaAktif = d;
     } else {
+      $('#mobileTopBar').removeClass('d-none'); // Munculkan bar atas
+        if(res.role === 'admin') {
+            $('#botAdmin').removeClass('d-none').addClass('d-flex');
+            $('#botSiswa, #botWaka').removeClass('d-flex').addClass('d-none');
+            $('#mobTopSetting, #mobTopLogout').show(); // Tampilkan Icon Setting & Logout
+        } else if (res.role === 'wakakurikulum') {
+            $('#botWaka').removeClass('d-none').addClass('d-flex');
+            $('#botAdmin, #botSiswa').removeClass('d-flex').addClass('d-none');
+            $('#mobTopSetting, #mobTopLogout').hide(); // Sembunyikan Icon Setting & Logout
+        }
+
         $('#mainSidebar').removeClass('hidden');
         $('#mainSidebar').next().removeClass('col-md-12').addClass('col-md-10');
         $('.mobile-toggle').removeClass('hidden');
@@ -1258,16 +1304,17 @@ async function cetakPDF(nis) {
     `;
 
     // --- PENGATURAN MARGIN ADA DI SINI ---
-    // margin: [Atas, Kanan, Bawah, Kiri] (Semua dalam satuan CM)
+   // --- PENGATURAN MARGIN & SCROLL (FIX) ---
     var opt = { 
-        margin: [0.5, 1.4, 1, 1.4], // <--- Silakan ubah angka ini sesuai keinginanmu
+        margin: [0.8, 1.4, 1, 1.4], 
         filename: 'Biodata_' + s[2] + '.pdf', 
         image: { type: 'jpeg', quality: 0.98 }, 
-        html2canvas: { scale: 2 }, 
+        html2canvas: { scale: 2, scrollY: 0, windowY: 0 }, // <--- TAMBAHAN KUNCI SCROLL
         jsPDF: { unit: 'cm', format: 'a4', orientation: 'portrait' } 
     };
     
     html2pdf().set(opt).from(html).save().then(() => { $('#loader').addClass('hidden'); });
+
 }
 
 
@@ -1342,15 +1389,17 @@ async function cetakTranskrip() {
     `;
 
     // --- PENGATURAN MARGIN TRANSKRIP (Landscape) ---
+    // --- PENGATURAN MARGIN TRANSKRIP (Landscape FIX) ---
     var opt = { 
-        margin: [1.5, 1.5, 1.5, 1.5], // [Atas, Kanan, Bawah, Kiri]
+        margin: [0.6, 1.5, 1.5, 1.5], // [Atas, Kanan, Bawah, Kiri]
         filename: 'Transkrip_' + namaSiswa + '.pdf', 
         image: { type: 'jpeg', quality: 0.98 }, 
-        html2canvas: { scale: 2 }, 
+        html2canvas: { scale: 2, scrollY: 0, windowY: 0 }, // <--- TAMBAHAN KUNCI SCROLL
         jsPDF: { unit: 'cm', format: 'A4', orientation: 'landscape' } 
     };
     
     html2pdf().set(opt).from(html).save().then(() => { $('#loader').addClass('hidden'); });
+    
 }
 
 function loadMapel() { 
@@ -1461,6 +1510,10 @@ function loadSettings() {
         
         if(s.logo_sekolah) callAPI('getImage', {id: s.logo_sekolah}).then(b=>{ if(b){ $('#loginLogoSekolah').attr('src',b).removeClass('hidden');$('#prevLogoSekolah').attr('src',b).removeClass('hidden'); } }); 
         $('#logo_sekolah').val(s.logo_sekolah); 
+
+        // Isi link bantuan admin
+        if(s.telp_sekolah) $('#btnBantuanWA').attr('href', 'https://wa.me/' + s.telp_sekolah.replace(/\D/g,'').replace(/^0/,'62'));
+        if(s.email_sekolah) $('#btnBantuanEmail').attr('href', 'mailto:' + s.email_sekolah);
 
         $('#background_kartu').val(s.background_kartu); 
         if(s.background_kartu) callAPI('getImage', {id: s.background_kartu}).then(b=>{ if(b){ $('#prev_bg_depan').attr('src',b).removeClass('hidden'); } }); 
@@ -2077,13 +2130,6 @@ function onScanSuccess(decodedText) {
     });
 }
 
-// ==========================================
-// PERBAIKAN UNDUH KARTU
-// ==========================================
-function downloadKartu() {
-    const element = document.getElementById('capture-area');
-    
-}
 
 </script>
 </body>
