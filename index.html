@@ -31,10 +31,38 @@ input, button, select, textarea {
     font-size: 16px !important; }
 
     
-    /* LOGIN & THEME */
-    #loginPage { min-height: 100vh; background: var(--primary-color); background-image: linear-gradient(135deg, var(--primary-color) 0%, #000 100%); display:flex; align-items:center; justify-content:center; padding: 20px; }
+    /* LOGIN & THEME (BIRU BERGERAK & BAYANGAN) */
+    #loginPage { 
+        min-height: 100vh; 
+        /* Gradien dasar warna biru elegan */
+        background: linear-gradient(135deg, #1e3a8a 0%, #3b82f6 50%, #1e40af 100%); 
+        background-size: 200% 200%;
+        animation: gradientMove 15s ease infinite;
+        display:flex; align-items:center; justify-content:center; padding: 20px; 
+        position: relative; overflow: hidden;
+    }
+    
+    /* Animasi background dasar berjalan */
+    @keyframes gradientMove { 0% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } 100% { background-position: 0% 50%; } }
+    
+    /* Efek bayangan bulat melayang di belakang */
+    .bg-shadow { position: absolute; border-radius: 50%; filter: blur(60px); opacity: 0.6; z-index: 0; animation: floatShadow 20s infinite alternate ease-in-out; }
+    .shadow1 { width: 350px; height: 350px; background: #60a5fa; top: -10%; left: -10%; }
+    .shadow2 { width: 450px; height: 450px; background: #93c5fd; bottom: -20%; right: -10%; animation-delay: -5s; }
+    @keyframes floatShadow { 0% { transform: translate(0, 0) scale(1); } 100% { transform: translate(60px, 60px) scale(1.3); } }
+
     .sidebar { min-height: 100vh; background: var(--primary-color); color: #fff; background-image: linear-gradient(180deg, var(--primary-color) 10%, #000 100%); transition: left 0.3s ease-in-out; }
     .bg-theme { background: var(--primary-color) !important; }
+    
+    /* Animasi Tombol Melayang */
+    .btn-melayang { animation: floatBtn 2s infinite ease-in-out; }
+    @keyframes floatBtn { 0% { transform: translateY(0); } 50% { transform: translateY(-8px); } 100% { transform: translateY(0); } }
+    
+    /* Garis pemisah ATAU */
+    .divider-text { display: flex; align-items: center; text-align: center; margin: 20px 0; color: #94a3b8; font-size: 12px; font-weight: bold;}
+    .divider-text::before, .divider-text::after { content: ''; flex: 1; border-bottom: 1px solid #cbd5e1; }
+    .divider-text:not(:empty)::before { margin-right: .5em; }
+    .divider-text:not(:empty)::after { margin-left: .5em; }
     
     /* COMPONENTS */
     .sidebar .brand { padding: 20px; font-weight: 700; text-align: center; border-bottom: 1px solid rgba(255,255,255,0.2); }
@@ -135,8 +163,8 @@ input, button, select, textarea {
         #print-area, #print-area * { visibility: visible; }
         #print-area { position: absolute; left: 0; top: 0; width: 100%; display: block; }
         @page { size: A4 portrait; margin: 25mm 10mm 10mm 10mm !important; }
-        .print-page { display: grid; grid-template-columns: 85mm 85mm; grid-template-rows: repeat(4, 55mm); gap: 5mm; justify-content: center; align-content: start; width: 100%; page-break-after: always; padding-top: 5mm; }
-        .print-card-wrapper { width: 85mm; height: 55mm; overflow: hidden; position: relative; border: 1px dashed #cbd5e1; border-radius: 8px; -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
+        .print-page { display: grid; grid-template-columns: 85.2mm 85.2mm; grid-template-rows: repeat(4, 53.3mm); gap: 5mm; justify-content: center; align-content: start; width: 100%; page-break-after: always; padding-top: 5mm; }
+        .print-card-wrapper { width: 85.2mm; height: 53.3mm; overflow: hidden; position: relative; border: 1px dashed #cbd5e1; border-radius: 8px; -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
         .print-card-wrapper .id-card { transform-origin: top left; transform: scale(0.805); margin: 0; box-shadow: none; border-radius: 0; }
     }
 
@@ -153,38 +181,70 @@ input, button, select, textarea {
 </div>
 
 <div id="loginPage" class="hidden animate__animated animate__fadeIn">
-    <div class="login-card">
+    <div class="bg-shadow shadow1"></div>
+    <div class="bg-shadow shadow2"></div>
+
+    <div class="login-card animate__animated animate__zoomIn" id="viewLanding">
         <div class="text-center mb-4">
             <div class="d-flex justify-content-center gap-3 mb-3">
-                <img id="loginLogoInstansi" class="floating-logo hidden">
-                <img id="loginLogoSekolah" class="floating-logo hidden" style="animation-delay: 0.5s;">
+                <img id="landingLogoInstansi" class="floating-logo hidden">
+                <img id="landingLogoSekolah" class="floating-logo hidden" style="animation-delay: 0.5s;">
             </div>
-            <h6 class="text-uppercase fw-bold text-secondary mb-0 small" id="lblInstansi">PEMERINTAH...LOADING...</h6>
-            <h6 class="text-uppercase fw-bold text-secondary mb-0 small" id="lblOpdLogin">LOADING...</h6>
-            <h5 class="text-uppercase fw-bold text-dark mb-2" id="lblSekolah">NAMA SEKOLAH</h5>
-             <center>
-                <img src="https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEgpnOpoQv4zKvXKWgVq_tFB5gKYVbjd8i-fgApUH-b36SrMAaqRX8V7ZFU3bU60gt8I8d77wlTeRI_F8UdMGaZl26EvQw6bBiwtFAygUMiaXSM7tDN-xiPl6r3RguMlwQ3N4BQ-fWaJ62_b318672r9c-iPiGHLhd9y4QHDPBc9SoFpTPwdDp0rkgLf6B4E/s100/Logo%20SiBuk%20InSTal.png" class="width:50px">
-             </center>
-            <span class="text-muted small">Sistem Buku Induk Siswa Digital</span><br>
-            <span class="text-muted small">Versi Baru: Dilengkapi Fitur AI</span>
+            <h6 class="text-uppercase fw-bold text-secondary mb-0 small" id="lblInstansiLanding">PEMERINTAH...</h6>
+            <h5 class="text-uppercase fw-bold text-dark mb-4" id="lblSekolahLanding">NAMA SEKOLAH</h5>
+            
+            <img src="https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEgpnOpoQv4zKvXKWgVq_tFB5gKYVbjd8i-fgApUH-b36SrMAaqRX8V7ZFU3bU60gt8I8d77wlTeRI_F8UdMGaZl26EvQw6bBiwtFAygUMiaXSM7tDN-xiPl6r3RguMlwQ3N4BQ-fWaJ62_b318672r9c-iPiGHLhd9y4QHDPBc9SoFpTPwdDp0rkgLf6B4E/s100/Logo%20SiBuk%20InSTal.png" style="height: 70px;" class="mb-2">
+            <h4 class="fw-bold text-primary mb-1">SiMISTerBIn</h4>
+            <span class="text-muted small d-block mb-4">Sistem Buku Induk & Kartu Digital</span>
+            
+            <button class="btn btn-primary w-100 rounded-pill py-3 fw-bold shadow-lg btn-melayang bg-theme" onclick="pindahKeLogin()">
+                MASUK SISTEM <i class="bi bi-arrow-right-circle ms-1"></i>
+            </button>
         </div>
-       <form onsubmit="doLogin(event)">
+        <div class="text-center mt-5 small text-secondary">
+            &copy; <span id="yearAppLanding"></span> SiMISTerBin <span id="footSchoolLanding" class="fw-bold"></span>.<br>
+            Created by: <a href='https://www.farypin-inovasiteknologi.com' rel='dofollow' style='color:blue;'>PT Farypin Inovasi Teknologi</a>
+        </div>
+    </div>
+
+    <div class="login-card hidden" id="viewLogin">
+        <button class="btn btn-sm btn-light border shadow-sm position-absolute" style="top: 15px; left: 15px;" onclick="kembaliKeLanding()">
+            <i class="bi bi-arrow-left"></i> Kembali
+        </button>
+
+        <div class="text-center mb-4 mt-4">
+            <img src="https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEgpnOpoQv4zKvXKWgVq_tFB5gKYVbjd8i-fgApUH-b36SrMAaqRX8V7ZFU3bU60gt8I8d77wlTeRI_F8UdMGaZl26EvQw6bBiwtFAygUMiaXSM7tDN-xiPl6r3RguMlwQ3N4BQ-fWaJ62_b318672r9c-iPiGHLhd9y4QHDPBc9SoFpTPwdDp0rkgLf6B4E/s100/Logo%20SiBuk%20InSTal.png" style="height: 50px;" class="mb-2">
+            <h5 class="text-uppercase fw-bold text-dark mb-0">Silakan Login</h5>
+            <span class="text-muted small">Masukkan Username/NISN Anda</span>
+        </div>
+        
+        <form onsubmit="doLogin(event)">
             <div class="form-floating mb-3">
                 <input id="u" class="form-control rounded-pill px-4" placeholder="Username / NISN" required>
                 <label class="px-4">Username / NISN</label>
             </div>
-            <div class="form-floating mb-4 position-relative">
+            <div class="form-floating mb-1 position-relative">
                 <input type="password" id="p" class="form-control rounded-pill px-4" placeholder="Password" style="padding-right: 50px;" required>
                 <label class="px-4">Password</label>
                 <i class="bi bi-eye-slash" onclick="togglePass('p', this)" style="position: absolute; right: 20px; top: 50%; transform: translateY(-50%); cursor: pointer; font-size: 1.2rem; z-index: 10; color: #6c757d;"></i>
             </div>
-            <button type="submit" class="btn btn-primary w-100 rounded-pill py-3 fw-bold shadow-sm bg-theme mb-2">MASUK APLIKASI</button>
-            <button type="button" class="btn btn-success w-100 rounded-pill py-2 fw-bold shadow-sm" onclick="openScannerPublic()"><i class="bi bi-qr-code-scan"></i> SCAN KARTU PELAJAR/ALUMNI</button>
-        </form>
-        <div class="text-center mt-4 small text-secondary">
-                &copy; <span id="yearApp"></span> SiMISTerBin <span id="footSchoolName" class="fw-bold"></span>. All Rights Reserved. <br>
-                <a href="javascript:void(0)" onclick="showPrivacy()">Kebijakan Privasi</a> &bull; Created by : <a href='https://www.farypin-inovasiteknologi.com' rel='dofollow' style='color:blue;'>PT Farypin Inovasi Teknologi</a>
+            
+            <div class="text-end mb-3 px-2">
+                <a href="javascript:void(0)" class="small text-decoration-none" onclick="$('#mdlLupaPass').modal('show')">Lupa Password?</a>
             </div>
+
+            <button type="submit" class="btn btn-primary w-100 rounded-pill py-3 fw-bold shadow-sm bg-theme mb-2">MASUK APLIKASI</button>
+            
+            <div class="divider-text">LAYANAN PUBLIK</div>
+            
+            <button type="button" class="btn btn-success w-100 rounded-pill py-2 fw-bold shadow-sm mb-2" onclick="openScannerPublic()">
+                <i class="bi bi-qr-code-scan"></i> SCAN VALIDASI KARTU
+            </button>
+            
+            <button type="button" class="btn btn-outline-primary w-100 rounded-pill py-2 fw-bold shadow-sm bg-white" onclick="cariDataAlumni()">
+                <i class="bi bi-search"></i> CEK DATA ALUMNI
+            </button>
+        </form>
     </div>
 </div>
 
@@ -738,6 +798,24 @@ input, button, select, textarea {
     </div>
 </div>
 
+<div class="modal fade" id="mdlLupaPass" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered modal-sm">
+        <div class="modal-content border-0 shadow">
+            <div class="modal-header bg-danger text-white">
+                <h5 class="modal-title fw-bold">Lupa Password?</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body text-center p-4">
+                <i class="bi bi-exclamation-circle text-warning mb-2" style="font-size: 3rem;"></i>
+                <p class="text-muted small mb-3">Untuk alasan keamanan, reset password hanya bisa dilakukan oleh Admin Sekolah. Silakan hubungi admin untuk meminta password baru.</p>
+                <a id="btnWAAdminLupaPass" href="#" target="_blank" class="btn btn-success w-100 fw-bold shadow-sm rounded-pill">
+                    <i class="bi bi-whatsapp"></i> Hubungi Admin
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
 <div class="modal fade" id="mdlGantiPass" tabindex="-1">
     <div class="modal-dialog modal-dialog-centered"><div class="modal-content"><div class="modal-header bg-secondary text-white"><h5 class="modal-title">Ganti Password</h5><button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button></div>
     <div class="modal-body"><input type="password" id="oldPass" class="form-control mb-2" placeholder="Password Lama"><input type="password" id="newPass" class="form-control mb-3" placeholder="Password Baru"><button class="btn btn-primary w-100 fw-bold" onclick="simpanPasswordSiswa()">SIMPAN PASSWORD</button></div></div></div>
@@ -1008,7 +1086,34 @@ function logout() {
     globalSiswa = []; 
 }
 
+// --- NAVIGASI HALAMAN LOGIN ---
+function pindahKeLogin() {
+    $('#viewLanding').addClass('hidden').removeClass('animate__animated animate__zoomIn animate__fadeInLeft');
+    $('#viewLogin').removeClass('hidden').addClass('animate__animated animate__fadeInRight');
+}
+function kembaliKeLanding() {
+    $('#viewLogin').addClass('hidden').removeClass('animate__animated animate__fadeInRight');
+    $('#viewLanding').removeClass('hidden').addClass('animate__animated animate__fadeInLeft');
+}
 
+// --- FITUR CEK DATA ALUMNI PUBLIK ---
+function cariDataAlumni() {
+    Swal.fire({
+        title: 'Cek Data Alumni',
+        text: 'Masukkan NISN untuk memverifikasi data kelulusan.',
+        input: 'text',
+        inputPlaceholder: 'Ketik NISN...',
+        showCancelButton: true,
+        confirmButtonText: '<i class="bi bi-search"></i> Cari Data',
+        cancelButtonText: 'Batal',
+        confirmButtonColor: '#4e73df'
+    }).then((result) => {
+        if (result.isConfirmed && result.value) {
+            // Gunakan fungsi scanner yang sudah ada, fungsinya persis sama!
+            onScanSuccess(result.value); 
+        }
+    });
+}
 
 // --- PASSWORD TOGGLE ---
 function togglePass(id, icon) {
@@ -1527,6 +1632,21 @@ function loadSettings() {
         
         $('#background_belakang').val(s.background_belakang); 
         if(s.background_belakang) callAPI('getImage', {id: s.background_belakang}).then(b=>{ if(b){ $('#prev_bg_belakang').attr('src',b).removeClass('hidden'); } });
+
+        // Sinkronisasi teks ke Halaman Landing & Lupa Password
+        $('#lblInstansiLanding').text(s.nama_instansi || '');
+        $('#lblSekolahLanding').text(s.nama_sekolah || '');
+        $('#footSchoolLanding').text(s.nama_sekolah || '');
+        $('#yearAppLanding').text(new Date().getFullYear());
+        
+        if(s.logo_instansi) callAPI('getImage', {id: s.logo_instansi}).then(b=>{ if(b){ $('#landingLogoInstansi').attr('src',b).removeClass('hidden'); } });
+        if(s.logo_sekolah) callAPI('getImage', {id: s.logo_sekolah}).then(b=>{ if(b){ $('#landingLogoSekolah').attr('src',b).removeClass('hidden'); } });
+        
+        // Hubungkan nomor WA Admin di Lupa Password
+        if(s.telp_sekolah) {
+            let noWA = s.telp_sekolah.replace(/\D/g,'').replace(/^0/,'62');
+            $('#btnWAAdminLupaPass').attr('href', 'https://wa.me/' + noWA + '?text=Halo%20Admin,%20saya%20lupa%20password%20akun%20SiMISTerBIn.%20Mohon%20bantuannya.');
+        }
     }); 
 }
 
@@ -1887,8 +2007,8 @@ function cetakKartuMassal(tipe) {
             <style>
                 body { background: #fff; font-family: Arial, sans-serif; margin: 0; padding: 0; -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
                 @page { size: A4 portrait; margin: 25mm 10mm 10mm 10mm !important; }
-                .print-page { display: grid; grid-template-columns: 85mm 85mm; grid-template-rows: repeat(4, 55mm); gap: 5mm; justify-content: center; align-content: start; width: 100%; page-break-after: always; padding-top: 5mm; }
-                .print-card-wrapper { width: 85mm; height: 55mm; overflow: hidden; position: relative; border: 1px dashed #cbd5e1; border-radius: 8px; }
+                .print-page { display: grid; grid-template-columns: 85.2mm 85.2mm; grid-template-rows: repeat(4, 53.3mm); gap: 5mm; justify-content: center; align-content: start; width: 100%; page-break-after: always; padding-top: 5mm; }
+                .print-card-wrapper { width: 85.2mm; height: 53.3mm; overflow: hidden; position: relative; border: 1px dashed #cbd5e1; border-radius: 8px; }
                 .id-card { width: 400px; height: 250px; background: white; position: relative; overflow: hidden; transform-origin: top left; transform: scale(0.805); margin: 0; }
                 .card-bg-gradient { position: absolute; inset: 0; background: linear-gradient(120deg, #4e73df 35%, #fff 35.5%); z-index: 1; }
                 .card-bg-img { position: absolute; inset: 0; background-size: cover; background-position: center; z-index: 2; opacity: 1; }
@@ -2064,9 +2184,10 @@ function lihatKartu() {
 }
 
 function cetakKartuAdmin(nis) {
-    const d = globalSiswa.find(x => x[0] === nis); if(!d) return;
+    // FIX: Paksa keduanya menjadi String agar pencariannya akurat 100%
+    const d = globalSiswa.find(x => String(x[0]) === String(nis)); 
+    if(!d) return; // Jika gagal nemu, berhenti
     
-    // d[31] = Status, d[36] = Foto Keluar, d[35] = Foto Masuk
     let isAlumni = (d[31] === 'Lulus');
     let fotoDipakai = isAlumni ? (d[36] || d[35]) : d[35];
 
