@@ -1606,9 +1606,9 @@ function updateAccount(e, role) {
     }); 
 }
 
-function loadSettings() { 
+ffunction loadSettings() { 
     callAPI('getSettings').then(s => { 
-        globalConf = s; // <-- TAMBAHKAN BARIS INI (Simpan ke global)
+        globalConf = s; 
         
         if(s.theme_color) document.documentElement.style.setProperty('--primary-color', s.theme_color); 
         if(s.nama_instansi) { $('#lblInstansi').text(s.nama_instansi); $('#dashInstansi').text(s.nama_instansi); $('#setInstansi').val(s.nama_instansi); } 
@@ -1624,29 +1624,28 @@ function loadSettings() {
         if(s.logo_sekolah) callAPI('getImage', {id: s.logo_sekolah}).then(b=>{ if(b){ $('#loginLogoSekolah').attr('src',b).removeClass('hidden');$('#prevLogoSekolah').attr('src',b).removeClass('hidden'); } }); 
         $('#logo_sekolah').val(s.logo_sekolah); 
 
-        // Isi link bantuan admin
-        if(s.telp_sekolah) $('#btnBantuanWA').attr('href', 'https://wa.me/' + s.telp_sekolah.replace(/\D/g,'').replace(/^0/,'62'));
-        if(s.email_sekolah) $('#btnBantuanEmail').attr('href', 'mailto:' + s.email_sekolah);
-
         $('#background_kartu').val(s.background_kartu); 
         if(s.background_kartu) callAPI('getImage', {id: s.background_kartu}).then(b=>{ if(b){ $('#prev_bg_depan').attr('src',b).removeClass('hidden'); } }); 
         
         $('#background_belakang').val(s.background_belakang); 
         if(s.background_belakang) callAPI('getImage', {id: s.background_belakang}).then(b=>{ if(b){ $('#prev_bg_belakang').attr('src',b).removeClass('hidden'); } });
 
-
-        // FIX HALAMAN DEPAN: Pastikan ID-nya sesuai dengan HTML Landing Page
+        // --- FIX 1: TAMPILAN HALAMAN DEPAN (LANDING PAGE) ---
         $('#lblInstansiLanding').text(s.nama_instansi || 'PEMERINTAH');
         $('#lblSekolahLanding').text(s.nama_sekolah || 'NAMA SEKOLAH');
         $('#footSchoolLanding').text(s.nama_sekolah || '');
         $('#yearAppLanding').text(new Date().getFullYear());
-        if(s.logo_instansi) callAPI('getImage', {id: s.logo_instansi}).then(b=>{ if(b) $('#landingLogoInstansi').attr('src',b).removeClass('hidden'); });
-        if(s.logo_sekolah) callAPI('getImage', {id: s.logo_sekolah}).then(b=>{ if(b) $('#landingLogoSekolah').attr('src',b).removeClass('hidden'); });
-        // Hubungkan nomor WA Admin di Lupa Password
+        
+        if(s.logo_instansi) callAPI('getImage', {id: s.logo_instansi}).then(b=>{ if(b){ $('#landingLogoInstansi').attr('src',b).removeClass('hidden'); } });
+        if(s.logo_sekolah) callAPI('getImage', {id: s.logo_sekolah}).then(b=>{ if(b){ $('#landingLogoSekolah').attr('src',b).removeClass('hidden'); } });
+
+        // --- FIX 2: MENCEGAH TOMBOL WA ERROR (Konversi Nomor HP ke String) ---
         if(s.telp_sekolah) {
-            let noWA = s.telp_sekolah.replace(/\D/g,'').replace(/^0/,'62');
-            $('#btnWAAdminLupaPass').attr('href', 'https://wa.me/' + noWA + '?text=Halo%20Admin,%20saya%20lupa%20password%20akun%20SiMISTerBIn.%20Mohon%20bantuannya.');
+            let noWA = String(s.telp_sekolah).replace(/\D/g,'').replace(/^0/,'62');
+            $('#btnBantuanWA').attr('href', 'https://wa.me/' + noWA);
+            $('#btnWAAdminLupaPass').attr('href', 'https://wa.me/' + noWA + '?text=Halo%20Admin,%20saya%20butuh%20bantuan%20akun%20SiMISTerBIn.');
         }
+        if(s.email_sekolah) $('#btnBantuanEmail').attr('href', 'mailto:' + s.email_sekolah);
     }); 
 }
 
@@ -2224,7 +2223,7 @@ $('#mdlScanner').on('hidden.bs.modal', function () {
 // --- FITUR HUBUNGI WA ADMIN (LUPA PASS / DATA ALUMNI KOSONG) ---
 function hubungiAdminLupaPass() {
     if(globalConf.telp_sekolah) {
-        let noWA = globalConf.telp_sekolah.replace(/\D/g,'').replace(/^0/,'62');
+        let noWA = String(globalConf.telp_sekolah).replace(/\D/g,'').replace(/^0/,'62'); // <--- TAMBAH String()
         window.open('https://wa.me/' + noWA + '?text=Halo%20Admin,%20saya%20butuh%20bantuan%20akun%20SiMISTerBIn.', '_blank');
     } else {
         Swal.fire('Info', 'Nomor telepon admin belum diatur di sistem.', 'info');
@@ -2267,7 +2266,7 @@ function cariDataAlumni() {
                         icon: 'success'
                     });
                 } else if (res.status === 'not_found') {
-                    let noWA = globalConf.telp_sekolah ? globalConf.telp_sekolah.replace(/\D/g,'').replace(/^0/,'62') : '';
+                    let noWA = globalConf.telp_sekolah ? String(globalConf.telp_sekolah).replace(/\D/g,'').replace(/^0/,'62') : ''; // <--- TAMBAH String()
                     let waLink = noWA ? `<button class="btn btn-success mt-3 fw-bold w-100" onclick="window.open('https://wa.me/${noWA}', '_blank')"><i class="bi bi-whatsapp"></i> Lapor via WhatsApp Admin</button>` : '';
                     
                     Swal.fire({
@@ -2293,7 +2292,7 @@ function lihatDataKosong() {
         empty.forEach(item => listHtml += `<li>${item}</li>`);
         listHtml += '</ul><p class="small text-muted mt-3">Silakan hubungi Admin Sekolah untuk melengkapi data-data di atas agar Kartu Alumni Anda tercetak sempurna.</p>';
         
-        let noWA = globalConf.telp_sekolah ? globalConf.telp_sekolah.replace(/\D/g,'').replace(/^0/,'62') : '';
+        let noWA = globalConf.telp_sekolah ? String(globalConf.telp_sekolah).replace(/\D/g,'').replace(/^0/,'62') : ''; // <--- TAMBAH String()
         let waLink = noWA ? `<button class="btn btn-success fw-bold w-100" onclick="window.open('https://wa.me/${noWA}', '_blank')"><i class="bi bi-whatsapp"></i> Hubungi Admin Sekarang</button>` : '';
 
         Swal.fire({ title: 'Data Belum Lengkap!', html: listHtml + waLink, icon: 'warning' });
