@@ -1178,7 +1178,6 @@ function nav(page, el, param) {
     } 
 }
 
-// --- OPTIMIZED LOAD SISWA VIA API ---
 // --- OPTIMIZED LOAD SISWA VIA API & PEMISAH TABEL ---
 function loadSiswa() { 
     callAPI('getStudents').then(data => { 
@@ -1211,7 +1210,7 @@ function loadSiswa() {
         let htmlInduk = "", htmlSiswa = "", htmlAlumni = "";
 
         listSiswa.forEach(r => {
-            const nis = r[0], nisn = r[1], nama = r[2], tgllahir = r[6], jk = r[7];
+            const nis = r[0], nisn = r[1], nama = r[2], tgllahir = formatTglIndoJS(r[6]), jk = r[7]; // <--- TAMBAH formatTglIndoJS di r[6]
             const kls = r[29], thnMasuk = r[30] ? r[30].substring(0,4) : '-', status = r[31];
             const thnKeluar = r[32] ? r[32].substring(0,4) : "-";
             const nisGabung = nisn ? `${nis} / ${nisn}` : nis;
@@ -1381,7 +1380,7 @@ async function cetakPDF(nis) {
                 <tr><td style="width: 35%; vertical-align: top;">1. Nama Lengkap</td><td style="width: 2%;">:</td><td style="width: 63%; font-weight: bold;">${s[2]}</td></tr>
                 <tr><td style="vertical-align: top;">2. NIS / NISN</td><td>:</td><td style="font-weight: bold;">${s[0]} / ${s[1]}</td></tr>
                 <tr><td style="vertical-align: top;">3. NIK / No.KK</td><td>:</td><td style="font-weight: bold;">${s[3]} / ${s[4]}</td></tr>
-                <tr><td style="vertical-align: top;">4. TTL</td><td>:</td><td style="font-weight: bold;">${s[5]}, ${s[6]}</td></tr>
+                <tr><td style="vertical-align: top;">4. TTL</td><td>:</td><td style="font-weight: bold;">${s[5]}, ${formatTglIndoJS(s[6])}</td></tr>
                 <tr><td style="vertical-align: top;">5. Jenis Kelamin</td><td>:</td><td style="font-weight: bold;">${s[7] == 'L' ? 'Laki-laki' : 'Perempuan'}</td></tr>
                 <tr><td style="vertical-align: top;">6. Agama</td><td>:</td><td style="font-weight: bold;">${s[8]}</td></tr>
                 <tr><td style="vertical-align: top;">7. Anak ke </td><td>:</td><td style="font-weight: bold;">${s[9]} dari ${s[10]} bersaudara</td></tr>
@@ -1643,9 +1642,10 @@ function loadSettings() {
         if(s.telp_sekolah) {
             let noWA = String(s.telp_sekolah).replace(/\D/g,'').replace(/^0/,'62');
             $('#btnBantuanWA').attr('href', 'https://wa.me/' + noWA);
-            $('#btnWAAdminLupaPass').attr('href', 'https://wa.me/' + noWA + '?text=Halo%20Admin,%20saya%20butuh%20bantuan%20akun%20SiMISTerBIn.');
+            // Ganti bagian Lupa Pass ini
+            let teksWA = `Halo Admin, saya butuh bantuan akun SiMISTerBIn ${s.nama_sekolah}, karena lupa password.`;
+            $('#btnWAAdminLupaPass').attr('href', 'https://wa.me/' + noWA + '?text=' + encodeURIComponent(teksWA));
         }
-        if(s.email_sekolah) $('#btnBantuanEmail').attr('href', 'mailto:' + s.email_sekolah);
     }); 
 }
 
@@ -2082,11 +2082,11 @@ function cetakKartuMassal(tipe) {
                              <tr><td class="lbl">Nama</td><td>: </td><td class="val">${s[2]}</td></tr>
                              <tr><td class="lbl">NISN</td><td>: </td><td class="val">${s[1]}</td></tr>
                              <tr><td class="lbl">Tmpt Lahir</td><td>: </td><td class="val">${s[5] || '-'}</td></tr>
-                             <tr><td class="lbl">Tgl Lahir</td><td>: </td><td class="val">${s[6] || '-'}</td></tr>
+                             <tr><td class="lbl">Tgl Lahir</td><td>: </td><td class="val">${formatTglIndoJS(s[6]) || '-'}</td></tr>
                              <tr><td class="lbl">JK</td><td>: </td><td class="val">${s[7] === 'L' ? 'Laki-laki' : 'Perempuan'}</td></tr>
                           </table>
                           <div class="qr-area-new"><img src="${qrUrl}" crossorigin="anonymous" style="width:85px; height:85px; display:block;"></div>
-                          <div class="txt-validasi-bawah">Scan QR untuk validasi:<br><b>${globalConf.link_validasi || "https://sikapprofesi.my.id"}</b></div>
+                          <div class="txt-validasi-bawah">Untuk memvalidasi kartu ini, scan QR Code melalui alamat berikut:<br><b>${globalConf.link_validasi || "https://simisterbin.my.id"}</b></div>
                        </div>
                     </div>
                  </div>
@@ -2183,14 +2183,14 @@ function lihatKartu() {
 }
 
 function cetakKartuAdmin(nis) {
-    // FIX: Paksa keduanya menjadi String agar pencariannya akurat 100%
     const d = globalSiswa.find(x => String(x[0]) === String(nis)); 
-    if(!d) return; // Jika gagal nemu, berhenti
+    if(!d) return; 
     
     let isAlumni = (d[31] === 'Lulus');
     let fotoDipakai = isAlumni ? (d[36] || d[35]) : d[35];
 
-    tampilkanKartuKeModal(d[2], d[1], d[5] + ', ' + d[6], d[7] === 'L' ? 'Laki-laki' : 'Perempuan', fotoDipakai, d[31]);
+    // <--- TAMBAH formatTglIndoJS di d[6]
+    tampilkanKartuKeModal(d[2], d[1], d[5] + ', ' + formatTglIndoJS(d[6]), d[7] === 'L' ? 'Laki-laki' : 'Perempuan', fotoDipakai, d[31]);
 }
 
 
@@ -2221,10 +2221,21 @@ $('#mdlScanner').on('hidden.bs.modal', function () {
 });
 
 // --- FITUR HUBUNGI WA ADMIN (LUPA PASS / DATA ALUMNI KOSONG) ---
+// === HELPER JS: UBAH YYYY-MM-DD JADI INDO (08 Januari 2005) ===
+function formatTglIndoJS(dateStr) {
+    if(!dateStr || dateStr === '-') return '-';
+    let d = new Date(dateStr);
+    if(isNaN(d.getTime())) return dateStr;
+    const m = ["Januari", "Februari", "Maret", "April", "Mei", "Juni", "Juli", "Agustus", "September", "Oktober", "November", "Desember"];
+    return ('0' + d.getDate()).slice(-2) + ' ' + m[d.getMonth()] + ' ' + d.getFullYear();
+}
+
+// --- FITUR HUBUNGI WA ADMIN (LUPA PASS) ---
 function hubungiAdminLupaPass() {
     if(globalConf.telp_sekolah) {
-        let noWA = String(globalConf.telp_sekolah).replace(/\D/g,'').replace(/^0/,'62'); // <--- TAMBAH String()
-        window.open('https://wa.me/' + noWA + '?text=Halo%20Admin,%20saya%20butuh%20bantuan%20akun%20SiMISTerBIn.', '_blank');
+        let noWA = String(globalConf.telp_sekolah).replace(/\D/g,'').replace(/^0/,'62');
+        let teksWA = `Halo Admin, saya butuh bantuan akun SiMISTerBIn ${globalConf.nama_sekolah}, karena lupa password.`;
+        window.open('https://wa.me/' + noWA + '?text=' + encodeURIComponent(teksWA), '_blank');
     } else {
         Swal.fire('Info', 'Nomor telepon admin belum diatur di sistem.', 'info');
     }
@@ -2266,8 +2277,10 @@ function cariDataAlumni() {
                         icon: 'success'
                     });
                 } else if (res.status === 'not_found') {
-                    let noWA = globalConf.telp_sekolah ? String(globalConf.telp_sekolah).replace(/\D/g,'').replace(/^0/,'62') : ''; // <--- TAMBAH String()
-                    let waLink = noWA ? `<button class="btn btn-success mt-3 fw-bold w-100" onclick="window.open('https://wa.me/${noWA}', '_blank')"><i class="bi bi-whatsapp"></i> Lapor via WhatsApp Admin</button>` : '';
+                    // FIX PESAN WA ALUMNI TIDAK DITEMUKAN
+                    let noWA = globalConf.telp_sekolah ? String(globalConf.telp_sekolah).replace(/\D/g,'').replace(/^0/,'62') : '';
+                    let teksWA = `Halo admin, saya alumni ${globalConf.nama_sekolah}, butuh bantuan utk cek data di aplikasi SiMISTerBIN ${globalConf.nama_sekolah}.`;
+                    let waLink = noWA ? `<button class="btn btn-success mt-3 fw-bold w-100" onclick="window.open('https://wa.me/${noWA}?text=${encodeURIComponent(teksWA)}', '_blank')"><i class="bi bi-whatsapp"></i> Lapor via WhatsApp Admin</button>` : '';
                     
                     Swal.fire({
                         title: 'Tidak Ditemukan',
