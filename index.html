@@ -1128,80 +1128,6 @@ function kembaliKeLanding() {
     $('#viewLanding').removeClass('hidden').addClass('animate__animated animate__fadeInLeft');
 }
 
-// --- FITUR CEK DATA ALUMNI (HALAMAN DEPAN - 2 KOLOM) ---
-function cariDataAlumni() {
-    Swal.fire({
-        title: 'Cek Data Alumni / Keluar',
-        html: `
-            <p class="text-muted small">Masukkan <b>salah satu</b> data di bawah ini:</p>
-            <input id="swal-input-nisn" class="swal2-input" placeholder="Masukkan NISN (10 Digit)">
-            <div class="text-muted fw-bold my-2" style="font-size: 14px;">ATAU</div>
-            <input id="swal-input-nis" class="swal2-input" placeholder="Masukkan NIS (Bebas)">
-        `,
-        showCancelButton: true,
-        confirmButtonText: '<i class="bi bi-search"></i> Cari Data',
-        cancelButtonText: 'Batal',
-        confirmButtonColor: '#4e73df',
-        preConfirm: () => {
-            const nisn = document.getElementById('swal-input-nisn').value.trim();
-            const nis = document.getElementById('swal-input-nis').value.trim();
-            if (!nisn && !nis) {
-                Swal.showValidationMessage('Harap isi minimal NISN atau NIS!');
-            }
-            return { nisn: nisn, nis: nis };
-        }
-    }).then((result) => {
-        if(result.isConfirmed && result.value) {
-            $('#loader').removeClass('hidden'); $('#loaderText').text('Mencari Data di Buku Induk...');
-            callAPI('cariDataAlumniPublic', result.value).then(res => {
-                $('#loader').addClass('hidden');
-                
-                if(res.status === 'success') {
-                    let d = res.data;
-                    let statusTeks = d.isLengkap ? '<span class="badge bg-success">Data Lengkap</span>' : '<span class="badge bg-warning text-dark">Belum Lengkap</span>';
-                    let statusPendidikan = d.status === 'Lulus' ? '<span class="badge bg-primary">LULUS</span>' : `<span class="badge bg-danger">${d.status.toUpperCase()}</span>`;
-                    
-                    // Logika Pesan Petunjuk
-                    let petunjukHtml = "";
-                    if(d.status === 'Keluar' || d.status === 'Pindah') {
-                        petunjukHtml = `<div class="alert alert-danger small text-start m-0"><b>Peringatan:</b><br>Maaf, Anda tidak bisa login karena berstatus <b>${d.status}</b>.</div>`;
-                    } else {
-                        petunjukHtml = `<div class="alert alert-info small text-start m-0"><b>Petunjuk:</b><br>Silakan kembali dan login menggunakan <b>NISN</b> / <b>NIS</b> (jika tidak punya NISN) dan password standar <b>123456</b>. Demi keamanan, harap langsung mengganti password Anda!</div>`;
-                    }
-                    
-                    Swal.fire({
-                        title: 'Data Ditemukan!',
-                        html: `
-                            <div class="text-start mb-3" style="font-size: 14px;">
-                                <b>NISN:</b> ${d.nisn || '-'}<br>
-                                <b>NIS:</b> ${d.nis || '-'}<br>
-                                <b>Nama:</b> ${d.nama}<br>
-                                <b>Tahun Lulus/Keluar:</b> ${d.thn_lulus}<br>
-                                <b>Status:</b> ${statusPendidikan}<br>
-                                <b>Kelengkapan Data:</b> ${statusTeks}
-                            </div>
-                            ${petunjukHtml}
-                        `,
-                        icon: 'success'
-                    });
-                } else if (res.status === 'not_found') {
-                    let noWA = globalConf.telp_sekolah ? String(globalConf.telp_sekolah).replace(/\D/g,'').replace(/^0/,'62') : '';
-                    let teksWA = `Halo Admin, saya alumni ${globalConf.nama_sekolah}, butuh bantuan utk cek data di aplikasi SiMISTerBIN ${globalConf.nama_sekolah}.`;
-                    let waLink = noWA ? `<button class="btn btn-success mt-3 fw-bold w-100" onclick="window.open('https://wa.me/${noWA}?text=${encodeURIComponent(teksWA)}', '_blank')"><i class="bi bi-whatsapp"></i> Lapor via WhatsApp Admin</button>` : '';
-                    
-                    Swal.fire({
-                        title: 'Tidak Ditemukan',
-                        html: `Data tidak ditemukan di database Alumni.<br>Harap lapor dengan menghubungi Admin di WA.<br>${waLink}`,
-                        icon: 'error'
-                    });
-                } else {
-                    Swal.fire('Error', res.message, 'error');
-                }
-            });
-        }
-    });
-}
-
 // --- PASSWORD TOGGLE ---
 function togglePass(id, icon) {
     const input = document.getElementById(id);
@@ -1799,6 +1725,11 @@ function exportTranskrip() {
     const nis = $('#selSiswa').val(); 
     if(!nis) { showCoolAlert('Pilih Siswa','','warning'); return; } 
     const nama = $('#selSiswa option:selected').text().split(" - ")[1]; 
+    
+    // PERBAIKAN BUG A: Cari data siswa di memori untuk mendapatkan NISN
+    const s = globalSiswa.find(x => x[0] == nis);
+    const nisn = s ? s[1] : '-';
+
     $('#loader').removeClass('hidden'); 
     callAPI('exportTranskripNilai', {nis: nis, nisn: nisn, nama: nama}).then(res => { 
         $('#loader').addClass('hidden'); 
@@ -2185,20 +2116,23 @@ function cetakKartuMassal(tipe) {
             if((i + 1) % cardsPerPage === 0 || i === targetData.length - 1) html += `</div>`;
         }
         
+        // ... kode atasnya tetap sama
         html += `</body></html>`;
         
         $('#loader').addClass('hidden'); // Matikan Loading di tab asli
         
-        // BUKA DI TAB BARU (Mencegah "Kosong Melompong")
+        // BUKA DI TAB BARU
         let printWindow = window.open('', '_blank');
         printWindow.document.open();
         printWindow.document.write(html);
         printWindow.document.close();
         
-        // Beri waktu 4 detik di tab baru agar browser men-download semua foto dari Google Drive sebelum memunculkan jendela Print
-        setTimeout(() => { 
-            printWindow.print(); 
-        }, 4000); 
+        // PERBAIKAN BUG E: Gunakan window.onload agar gambar tidak kosong
+        printWindow.onload = function() {
+            setTimeout(() => { 
+                printWindow.print(); 
+            }, 1500); // Beri jeda 1.5 detik ekstra untuk memastikan Base64 stabil
+        };
     });
 }
 
@@ -2329,51 +2263,69 @@ function hubungiAdminLupaPass() {
         Swal.fire('Info', 'Nomor telepon admin belum diatur di sistem.', 'info');
     }
 }
-
-// --- FITUR CEK DATA ALUMNI (HALAMAN DEPAN) ---
+// GANTI SEMUA FUNGSI cariDataAlumni() DENGAN KODE INI
 function cariDataAlumni() {
     Swal.fire({
-        title: 'Cek Data Alumni',
-        text: 'Masukkan NISN, NIS, atau Nama Anda:',
-        input: 'text',
-        inputPlaceholder: 'Ketik di sini...',
+        title: 'Cek Data Alumni / Keluar',
+        html: `
+            <p class="text-muted small">Masukkan <b>salah satu</b> data di bawah ini:</p>
+            <input id="swal-input-nisn" class="swal2-input" placeholder="Masukkan NISN (10 Digit)">
+            <div class="text-muted fw-bold my-2" style="font-size: 14px;">ATAU</div>
+            <input id="swal-input-nis" class="swal2-input" placeholder="Masukkan NIS (Bebas)">
+        `,
         showCancelButton: true,
         confirmButtonText: '<i class="bi bi-search"></i> Cari Data',
-        confirmButtonColor: '#4e73df'
+        cancelButtonText: 'Batal',
+        confirmButtonColor: '#4e73df',
+        preConfirm: () => {
+            const nisn = document.getElementById('swal-input-nisn').value.trim();
+            const nis = document.getElementById('swal-input-nis').value.trim();
+            if (!nisn && !nis) {
+                Swal.showValidationMessage('Harap isi minimal NISN atau NIS!');
+            }
+            return { nisn: nisn, nis: nis };
+        }
     }).then((result) => {
         if(result.isConfirmed && result.value) {
             $('#loader').removeClass('hidden'); $('#loaderText').text('Mencari Data di Buku Induk...');
-            callAPI('cariDataAlumniPublic', { keyword: result.value }).then(res => {
+            callAPI('cariDataAlumniPublic', result.value).then(res => {
                 $('#loader').addClass('hidden');
                 
                 if(res.status === 'success') {
                     let d = res.data;
                     let statusTeks = d.isLengkap ? '<span class="badge bg-success">Data Lengkap</span>' : '<span class="badge bg-warning text-dark">Belum Lengkap</span>';
+                    let statusPendidikan = d.status === 'Lulus' ? '<span class="badge bg-primary">LULUS</span>' : `<span class="badge bg-danger">${d.status.toUpperCase()}</span>`;
+                    
+                    let petunjukHtml = "";
+                    if(d.status === 'Keluar' || d.status === 'Pindah') {
+                        petunjukHtml = `<div class="alert alert-danger small text-start m-0"><b>Peringatan:</b><br>Maaf, Anda tidak bisa login karena berstatus <b>${d.status}</b>.</div>`;
+                    } else {
+                        petunjukHtml = `<div class="alert alert-info small text-start m-0"><b>Petunjuk:</b><br>Silakan kembali dan login menggunakan <b>NISN</b> / <b>NIS</b> dan password standar <b>123456</b>. Demi keamanan, harap langsung mengganti password Anda!</div>`;
+                    }
                     
                     Swal.fire({
                         title: 'Data Ditemukan!',
                         html: `
                             <div class="text-start mb-3" style="font-size: 14px;">
-                                <b>NISN:</b> ${d.nisn}<br>
+                                <b>NISN:</b> ${d.nisn || '-'}<br>
+                                <b>NIS:</b> ${d.nis || '-'}<br>
                                 <b>Nama:</b> ${d.nama}<br>
-                                <b>Tahun Lulus:</b> ${d.thn_lulus}<br>
-                                <b>Status Buku Induk:</b> ${statusTeks}
+                                <b>Tahun Lulus/Keluar:</b> ${d.thn_lulus}<br>
+                                <b>Status:</b> ${statusPendidikan}<br>
+                                <b>Kelengkapan Data:</b> ${statusTeks}
                             </div>
-                            <div class="alert alert-info small text-start m-0">
-                                <b>Petunjuk:</b><br>Silakan kembali dan login menggunakan NISN dan password standar <b>123456</b>. Demi keamanan, harap langsung mengganti password Anda!
-                            </div>
+                            ${petunjukHtml}
                         `,
                         icon: 'success'
                     });
                 } else if (res.status === 'not_found') {
-                    // FIX PESAN WA ALUMNI TIDAK DITEMUKAN
                     let noWA = globalConf.telp_sekolah ? String(globalConf.telp_sekolah).replace(/\D/g,'').replace(/^0/,'62') : '';
-                    let teksWA = `Halo admin, saya alumni ${globalConf.nama_sekolah}, butuh bantuan utk cek data di aplikasi SiMISTerBIN ${globalConf.nama_sekolah}.`;
+                    let teksWA = `Halo Admin, saya alumni ${globalConf.nama_sekolah || ''}, butuh bantuan utk cek data di aplikasi SiMISTerBIN.`;
                     let waLink = noWA ? `<button class="btn btn-success mt-3 fw-bold w-100" onclick="window.open('https://wa.me/${noWA}?text=${encodeURIComponent(teksWA)}', '_blank')"><i class="bi bi-whatsapp"></i> Lapor via WhatsApp Admin</button>` : '';
                     
                     Swal.fire({
                         title: 'Tidak Ditemukan',
-                        html: `Data tidak ditemukan di database Alumni.<br>Pastikan ejaan sudah benar, atau hubungi Admin sekolah untuk melapor.<br>${waLink}`,
+                        html: `Data tidak ditemukan di database Alumni.<br>Pastikan nomor benar, atau hubungi Admin.<br>${waLink}`,
                         icon: 'error'
                     });
                 } else {
