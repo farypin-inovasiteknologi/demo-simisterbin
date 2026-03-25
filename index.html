@@ -195,7 +195,7 @@ input, button, select, textarea {
             
             <img src="https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEgpnOpoQv4zKvXKWgVq_tFB5gKYVbjd8i-fgApUH-b36SrMAaqRX8V7ZFU3bU60gt8I8d77wlTeRI_F8UdMGaZl26EvQw6bBiwtFAygUMiaXSM7tDN-xiPl6r3RguMlwQ3N4BQ-fWaJ62_b318672r9c-iPiGHLhd9y4QHDPBc9SoFpTPwdDp0rkgLf6B4E/s100/Logo%20SiBuk%20InSTal.png" style="height: 70px;" class="mb-2">
             <h4 class="fw-bold text-primary mb-1">SiMISTerBIn</h4>
-            <span class="text-muted small d-block mb-4">Sistem Buku Induk & Kartu Digital</span>
+            <span class="text-muted small d-block mb-4">Sistem Manajemen Informasi Siswa Terpadu & Buku Induk</span>
             
             <button class="btn btn-primary w-100 rounded-pill py-3 fw-bold shadow-lg btn-melayang bg-theme" onclick="pindahKeLogin()">
                 MASUK SISTEM <i class="bi bi-arrow-right-circle ms-1"></i>
@@ -203,7 +203,7 @@ input, button, select, textarea {
         </div>
         <div class="text-center mt-5 small text-secondary">
             &copy; <span id="yearAppLanding"></span> SiMISTerBin <span id="footSchoolLanding" class="fw-bold"></span>.<br>
-            Created by: <a href='https://www.farypin-inovasiteknologi.com' rel='dofollow' style='color:blue;'>PT Farypin Inovasi Teknologi</a>
+            Powered by: <a href='https://www.farypin-inovasiteknologi.com' rel='dofollow' style='color:blue;'>PT Farypin Inovasi Teknologi</a>
         </div>
     </div>
 
@@ -425,9 +425,10 @@ input, button, select, textarea {
                     <h4 class="fw-bold mt-3 mb-1" id="profil_nama">Nama Siswa</h4>
                     <div><span class="badge bg-primary mb-3" id="profil_nisn" style="font-size: 14px;">NISN</span></div>
                     
-                    <div class="d-flex justify-content-center gap-2 flex-wrap">
-                        <button class="btn btn-warning fw-bold shadow-sm px-4" onclick="lihatKartu()"><i class="bi bi-card-heading"></i> Lihat & Unduh Kartu Pelajar</button>
+                  <div class="d-flex justify-content-center gap-2 flex-wrap">
+                        <button class="btn btn-warning fw-bold shadow-sm px-4" onclick="lihatKartu()"><i class="bi bi-card-heading"></i> Lihat & Unduh Kartu</button>
                         <button class="btn btn-secondary fw-bold shadow-sm px-4" onclick="$('#mdlGantiPass').modal('show')"><i class="bi bi-key"></i> Ganti Password</button>
+                        <button id="btnCekKelengkapan" class="btn btn-outline-danger fw-bold shadow-sm px-4 hidden" onclick="lihatDataKosong()"><i class="bi bi-exclamation-triangle"></i> Cek Data Belum Lengkap</button>
                     </div>
                 </div>
 
@@ -586,7 +587,7 @@ input, button, select, textarea {
         <footer class="app-footer">
             <div class="container small">
                 &copy; <span id="yearApp"></span> SiMISTerBIn <span id="footSchoolName" class="fw-bold"></span>. All Rights Reserved. <br>
-                <a href="javascript:void(0)" onclick="showPrivacy()">Kebijakan Privasi</a> &bull; Created by : <a href='https://www.farypin-inovasiteknologi.com' rel='dofollow' style='color:blue;'>PT Farypin Inovasi Teknologi</a>
+                <a href="javascript:void(0)" onclick="showPrivacy()">Kebijakan Privasi</a> &bull; Powered by : <a href='https://www.farypin-inovasiteknologi.com' rel='dofollow' style='color:blue;'>PT Farypin Inovasi Teknologi</a>
             </div>
         </footer>
 
@@ -807,10 +808,10 @@ input, button, select, textarea {
             </div>
             <div class="modal-body text-center p-4">
                 <i class="bi bi-exclamation-circle text-warning mb-2" style="font-size: 3rem;"></i>
-                <p class="text-muted small mb-3">Untuk alasan keamanan, reset password hanya bisa dilakukan oleh Admin Sekolah. Silakan hubungi admin untuk meminta password baru.</p>
-                <a id="btnWAAdminLupaPass" href="#" target="_blank" class="btn btn-success w-100 fw-bold shadow-sm rounded-pill">
+               <p class="text-muted small mb-3">Untuk alasan keamanan, reset password hanya bisa dilakukan oleh Admin Sekolah. Silakan hubungi admin untuk meminta password baru.</p>
+                <button type="button" class="btn btn-success w-100 fw-bold shadow-sm rounded-pill" onclick="hubungiAdminLupaPass()">
                     <i class="bi bi-whatsapp"></i> Hubungi Admin
-                </a>
+                </button>
             </div>
         </div>
     </div>
@@ -892,7 +893,7 @@ input, button, select, textarea {
 
 // 1. Buat "Buku Alamat" untuk masing-masing sekolah
 const tenantConfig = {
-    "demo": "https://script.google.com/macros/s/AKfycbyv4TghJyEriz74NtVfGhMKM6kLQKRSIqIygdpAWeeDnE2TKoMd5G-nLMwAJPc-fxdi/exec",
+    "demo": "https://script.google.com/macros/s/AKfycbzyKSIEEOTA-uowYYKTPWlRhQPhTrkabtt-RQBoUoQ-lVEvQpRGLZLeLcwEaRDcmWGk/exec",
     "sekolah-b": "https://script.google.com/macros/s/ID_API_SEKOLAH_2/exec",
     "sma-merdeka": "https://script.google.com/macros/s/ID_API_SEKOLAH_3/exec"
     // Tambahkan sekolah lain di sini sesuai kebutuhan
@@ -1022,8 +1023,8 @@ function restoreSession(res) {
         // MUNCULKAN DATA ALUMNI JIKA LULUS
         if(isAlumni) {
             $('#row-alumni-lulus, #row-alumni-ijazah').removeClass('hidden');
+            $('#btnCekKelengkapan').removeClass('hidden'); // <--- MUNCULKAN TOMBOL
             
-            // Ambil 4 angka pertama saja untuk Tahun Lulus
             let thnLulusStr = d.tgl_keluar ? String(d.tgl_keluar).substring(0,4) : '-';
             $('#profil_thn_lulus').text(thnLulusStr);
             $('#profil_no_ijazah').text(d.noijazah_sma || '-');
@@ -1633,15 +1634,14 @@ function loadSettings() {
         $('#background_belakang').val(s.background_belakang); 
         if(s.background_belakang) callAPI('getImage', {id: s.background_belakang}).then(b=>{ if(b){ $('#prev_bg_belakang').attr('src',b).removeClass('hidden'); } });
 
-        // Sinkronisasi teks ke Halaman Landing & Lupa Password
-        $('#lblInstansiLanding').text(s.nama_instansi || '');
-        $('#lblSekolahLanding').text(s.nama_sekolah || '');
+
+        // FIX HALAMAN DEPAN: Pastikan ID-nya sesuai dengan HTML Landing Page
+        $('#lblInstansiLanding').text(s.nama_instansi || 'PEMERINTAH');
+        $('#lblSekolahLanding').text(s.nama_sekolah || 'NAMA SEKOLAH');
         $('#footSchoolLanding').text(s.nama_sekolah || '');
         $('#yearAppLanding').text(new Date().getFullYear());
-        
-        if(s.logo_instansi) callAPI('getImage', {id: s.logo_instansi}).then(b=>{ if(b){ $('#landingLogoInstansi').attr('src',b).removeClass('hidden'); } });
-        if(s.logo_sekolah) callAPI('getImage', {id: s.logo_sekolah}).then(b=>{ if(b){ $('#landingLogoSekolah').attr('src',b).removeClass('hidden'); } });
-        
+        if(s.logo_instansi) callAPI('getImage', {id: s.logo_instansi}).then(b=>{ if(b) $('#landingLogoInstansi').attr('src',b).removeClass('hidden'); });
+        if(s.logo_sekolah) callAPI('getImage', {id: s.logo_sekolah}).then(b=>{ if(b) $('#landingLogoSekolah').attr('src',b).removeClass('hidden'); });
         // Hubungkan nomor WA Admin di Lupa Password
         if(s.telp_sekolah) {
             let noWA = s.telp_sekolah.replace(/\D/g,'').replace(/^0/,'62');
@@ -2220,6 +2220,86 @@ $('#mdlScanner').on('hidden.bs.modal', function () {
         scanner = null;
     }
 });
+
+// --- FITUR HUBUNGI WA ADMIN (LUPA PASS / DATA ALUMNI KOSONG) ---
+function hubungiAdminLupaPass() {
+    if(globalConf.telp_sekolah) {
+        let noWA = globalConf.telp_sekolah.replace(/\D/g,'').replace(/^0/,'62');
+        window.open('https://wa.me/' + noWA + '?text=Halo%20Admin,%20saya%20butuh%20bantuan%20akun%20SiMISTerBIn.', '_blank');
+    } else {
+        Swal.fire('Info', 'Nomor telepon admin belum diatur di sistem.', 'info');
+    }
+}
+
+// --- FITUR CEK DATA ALUMNI (HALAMAN DEPAN) ---
+function cariDataAlumni() {
+    Swal.fire({
+        title: 'Cek Data Alumni',
+        text: 'Masukkan NISN, NIS, atau Nama Anda:',
+        input: 'text',
+        inputPlaceholder: 'Ketik di sini...',
+        showCancelButton: true,
+        confirmButtonText: '<i class="bi bi-search"></i> Cari Data',
+        confirmButtonColor: '#4e73df'
+    }).then((result) => {
+        if(result.isConfirmed && result.value) {
+            $('#loader').removeClass('hidden'); $('#loaderText').text('Mencari Data di Buku Induk...');
+            callAPI('cariDataAlumniPublic', { keyword: result.value }).then(res => {
+                $('#loader').addClass('hidden');
+                
+                if(res.status === 'success') {
+                    let d = res.data;
+                    let statusTeks = d.isLengkap ? '<span class="badge bg-success">Data Lengkap</span>' : '<span class="badge bg-warning text-dark">Belum Lengkap</span>';
+                    
+                    Swal.fire({
+                        title: 'Data Ditemukan!',
+                        html: `
+                            <div class="text-start mb-3" style="font-size: 14px;">
+                                <b>NISN:</b> ${d.nisn}<br>
+                                <b>Nama:</b> ${d.nama}<br>
+                                <b>Tahun Lulus:</b> ${d.thn_lulus}<br>
+                                <b>Status Buku Induk:</b> ${statusTeks}
+                            </div>
+                            <div class="alert alert-info small text-start m-0">
+                                <b>Petunjuk:</b><br>Silakan kembali dan login menggunakan NISN dan password standar <b>123456</b>. Demi keamanan, harap langsung mengganti password Anda!
+                            </div>
+                        `,
+                        icon: 'success'
+                    });
+                } else if (res.status === 'not_found') {
+                    let noWA = globalConf.telp_sekolah ? globalConf.telp_sekolah.replace(/\D/g,'').replace(/^0/,'62') : '';
+                    let waLink = noWA ? `<button class="btn btn-success mt-3 fw-bold w-100" onclick="window.open('https://wa.me/${noWA}', '_blank')"><i class="bi bi-whatsapp"></i> Lapor via WhatsApp Admin</button>` : '';
+                    
+                    Swal.fire({
+                        title: 'Tidak Ditemukan',
+                        html: `Data tidak ditemukan di database Alumni.<br>Pastikan ejaan sudah benar, atau hubungi Admin sekolah untuk melapor.<br>${waLink}`,
+                        icon: 'error'
+                    });
+                } else {
+                    Swal.fire('Error', res.message, 'error');
+                }
+            });
+        }
+    });
+}
+
+// --- FITUR CEK DATA KOSONG (DI DALAM PROFIL ALUMNI) ---
+function lihatDataKosong() {
+    let empty = window.siswaAktif.emptyFields || [];
+    if(empty.length === 0) {
+        Swal.fire('Sempurna!', 'Semua data Buku Induk Anda sudah lengkap.', 'success');
+    } else {
+        let listHtml = '<ul class="text-start text-danger" style="font-weight:bold;">';
+        empty.forEach(item => listHtml += `<li>${item}</li>`);
+        listHtml += '</ul><p class="small text-muted mt-3">Silakan hubungi Admin Sekolah untuk melengkapi data-data di atas agar Kartu Alumni Anda tercetak sempurna.</p>';
+        
+        let noWA = globalConf.telp_sekolah ? globalConf.telp_sekolah.replace(/\D/g,'').replace(/^0/,'62') : '';
+        let waLink = noWA ? `<button class="btn btn-success fw-bold w-100" onclick="window.open('https://wa.me/${noWA}', '_blank')"><i class="bi bi-whatsapp"></i> Hubungi Admin Sekarang</button>` : '';
+
+        Swal.fire({ title: 'Data Belum Lengkap!', html: listHtml + waLink, icon: 'warning' });
+    }
+}
+
 
 function onScanSuccess(decodedText) {
     $('#mdlScanner').modal('hide');
