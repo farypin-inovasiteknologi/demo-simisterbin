@@ -917,36 +917,32 @@ input, button, select, textarea {
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 
 <script>
+
 // ==========================================
 // KONFIGURASI MULTI-TENANT (BANYAK SEKOLAH)
 // ==========================================
-
 
 // 1. Buat "Buku Alamat" untuk masing-masing sekolah
 const tenantConfig = {
     "demo": "https://script.google.com/macros/s/AKfycbwXW8_h3VOFXfPguJIHHI5vqoa2a2XLWv6VvN_MeEBP-5n6B86wunCnvoqAu4xN-rJB/exec",
     "sekolah-b": "https://script.google.com/macros/s/ID_API_SEKOLAH_2/exec",
     "sma-merdeka": "https://script.google.com/macros/s/ID_API_SEKOLAH_3/exec"
-    // Tambahkan sekolah lain di sini sesuai kebutuhan
 };
 
-
-// 2. Baca ID dari URL (contoh: https://namamu.github.io/sibukinstal/?id=demo)
+// 2. Baca ID dari URL
 const urlParams = new URLSearchParams(window.location.search);
 let tenantId = urlParams.get('id');
 
-// PERBAIKAN: Jika tidak ada id di link, otomatis pakai 'demo' agar aplikasi tetap bisa jalan
 if (!tenantId) {
     tenantId = 'demo'; 
 }
 
 let API_URL = "";
 
-// 3. Validasi: Pastikan ID ada dan terdaftar di tenantConfig
+// 3. Validasi
 if (tenantId && tenantConfig[tenantId]) {
-    API_URL = tenantConfig[tenantId]; // <--- BARIS INI WAJIB ADA!
+    API_URL = tenantConfig[tenantId]; 
 } else {
-    // Jika ID salah atau tidak ada, hancurkan halaman dan tampilkan error
     document.addEventListener("DOMContentLoaded", function() {
         document.body.innerHTML = `
             <div style="display:flex; justify-content:center; align-items:center; height:100vh; background:#f0f2f5; font-family:sans-serif;">
@@ -956,7 +952,6 @@ if (tenantId && tenantConfig[tenantId]) {
                 </div>
             </div>`;
     });
-    // Hentikan eksekusi script selanjutnya
     throw new Error("Tenant ID tidak valid atau tidak ditemukan di URL.");
 }
 
@@ -964,15 +959,11 @@ if (tenantId && tenantConfig[tenantId]) {
 // LANJUTAN KODE APLIKASI
 // ==========================================
 
-let globalConf = {}; // Menampung pengaturan sekolah
+let globalConf = {}; 
 let globalSiswa=[], curSmt=1, cropper, cropTarget, curPage='dash';
-let globalMapel = []; // <--- KANTONG MAPEL
+let globalMapel = []; 
 let chartGender, chartStatus;
 
-// ==========================================
-// ==========================================
-// FUNGSI PUSAT PENGHUBUNG FRONTEND KE BACKEND
-// ==========================================
 async function callAPI(actionName, payloadData = {}) {
     try {
         const response = await fetch(API_URL, {
@@ -994,8 +985,6 @@ $(document).ready(function() {
         if(res.status == 'error') Swal.fire('Error DB', res.message, 'error');
         else { 
             loadSettings(); 
-            
-            // CEK SESI LOGIN SAAT RELOAD
             let session = localStorage.getItem('simisterbin_session');
             if (session) {
                 restoreSession(JSON.parse(session));
@@ -1007,7 +996,15 @@ $(document).ready(function() {
     }).catch(e => alert(e));
 });
 
-// FUNGSI UNTUK MENGEMBALIKAN SESI (RELOAD)
+// === HELPER JS: UBAH YYYY-MM-DD JADI INDO (08 Januari 2005) ===
+function formatTglIndoJS(dateStr) {
+    if(!dateStr || dateStr === '-') return '-';
+    let d = new Date(dateStr);
+    if(isNaN(d.getTime())) return dateStr;
+    const m = ["Januari", "Februari", "Maret", "April", "Mei", "Juni", "Juli", "Agustus", "September", "Oktober", "November", "Desember"];
+    return ('0' + d.getDate()).slice(-2) + ' ' + m[d.getMonth()] + ' ' + d.getFullYear();
+}
+
 function restoreSession(res) {
     $('#loginPage').addClass('hidden'); 
     $('#appPage').removeClass('hidden'); 
@@ -1018,8 +1015,7 @@ function restoreSession(res) {
     $('#yearApp').text(new Date().getFullYear()); 
     
     if (res.role === 'siswa') {
-      // Tampilan khusus Siswa
-        $('#mobileTopBar').addClass('d-none'); // Hilangkan bar atas untuk siswa
+        $('#mobileTopBar').addClass('d-none'); 
         $('#botSiswa').removeClass('d-none').addClass('d-flex');
         $('#botAdmin, #botWaka').removeClass('d-flex').addClass('d-none');
         $('#mainSidebar').addClass('hidden'); 
@@ -1040,7 +1036,6 @@ function restoreSession(res) {
         $('#profil_ttl').text((d.tmplahir || '-') + ', ' + (d.tgllahir_indo || '-'));
         $('#profil_jk').text(d.jk === 'L' ? 'Laki-laki' : 'Perempuan');
         $('#profil_agama').text(d.agama || '-');
-        // Ambil 10 angka pertama saja untuk Tahun Masuk
         let thnMasukStr = d.thn_masuk ? String(d.thn_masuk).substring(0,10) : '-';
         $('#profil_kelas').text((d.kls_masuk || '-') + ' / ' + thnMasukStr);
         $('#profil_alamat').text(d.alamat || '-'); $('#profil_hp').text(d.nohp || '-');
@@ -1051,10 +1046,9 @@ function restoreSession(res) {
         
        let isAlumni = (d.status_akhir === 'Lulus');
         
-        // MUNCULKAN DATA ALUMNI JIKA LULUS
         if(isAlumni) {
             $('#row-alumni-lulus, #row-alumni-ijazah').removeClass('hidden');
-            $('#btnCekKelengkapan').removeClass('hidden'); // <--- MUNCULKAN TOMBOL
+            $('#btnCekKelengkapan').removeClass('hidden'); 
             
             let thnLulusStr = d.tgl_keluar ? String(d.tgl_keluar).substring(0,4) : '-';
             $('#profil_thn_lulus').text(thnLulusStr);
@@ -1069,15 +1063,15 @@ function restoreSession(res) {
         
         window.siswaAktif = d;
     } else {
-      $('#mobileTopBar').removeClass('d-none'); // Munculkan bar atas
+      $('#mobileTopBar').removeClass('d-none'); 
         if(res.role === 'admin') {
             $('#botAdmin').removeClass('d-none').addClass('d-flex');
             $('#botSiswa, #botWaka').removeClass('d-flex').addClass('d-none');
-            $('#mobTopSetting, #mobTopLogout').show(); // Tampilkan Icon Setting & Logout
+            $('#mobTopSetting, #mobTopLogout').show(); 
         } else if (res.role === 'wakakurikulum') {
             $('#botWaka').removeClass('d-none').addClass('d-flex');
             $('#botAdmin, #botSiswa').removeClass('d-flex').addClass('d-none');
-            $('#mobTopSetting, #mobTopLogout').hide(); // Sembunyikan Icon Setting & Logout
+            $('#mobTopSetting, #mobTopLogout').hide(); 
         }
 
         $('#mainSidebar').removeClass('hidden');
@@ -1093,7 +1087,6 @@ function restoreSession(res) {
     }
 }
 
-// --- FUNGSI LOGIN VIA API ---
 function doLogin(e) { 
     e.preventDefault(); 
     $('#loader').removeClass('hidden'); 
@@ -1101,7 +1094,6 @@ function doLogin(e) {
     callAPI('login', { u: $('#u').val(), p: $('#p').val() }).then(res => {
         $('#loader').addClass('hidden'); 
         if(res.status === 'success') { 
-            // SIMPAN SESI KE LOCAL STORAGE
             localStorage.setItem('simisterbin_session', JSON.stringify({ role: res.role, nama: res.nama, data: res.data || null }));
             restoreSession(res);
         } else {
@@ -1111,7 +1103,7 @@ function doLogin(e) {
 }
 
 function logout() { 
-    localStorage.removeItem('simisterbin_session'); // HAPUS SESI SAAT LOGOUT
+    localStorage.removeItem('simisterbin_session'); 
     $('#appPage').addClass('hidden'); 
     $('#loginPage').removeClass('hidden').addClass('animate__animated animate__fadeIn'); 
     $('#u').val(''); $('#p').val(''); 
@@ -1126,80 +1118,6 @@ function pindahKeLogin() {
 function kembaliKeLanding() {
     $('#viewLogin').addClass('hidden').removeClass('animate__animated animate__fadeInRight');
     $('#viewLanding').removeClass('hidden').addClass('animate__animated animate__fadeInLeft');
-}
-
-// --- FITUR CEK DATA ALUMNI (HALAMAN DEPAN - 2 KOLOM) ---
-function cariDataAlumni() {
-    Swal.fire({
-        title: 'Cek Data Alumni / Keluar',
-        html: `
-            <p class="text-muted small">Masukkan <b>salah satu</b> data di bawah ini:</p>
-            <input id="swal-input-nisn" class="swal2-input" placeholder="Masukkan NISN (10 Digit)">
-            <div class="text-muted fw-bold my-2" style="font-size: 14px;">ATAU</div>
-            <input id="swal-input-nis" class="swal2-input" placeholder="Masukkan NIS (Bebas)">
-        `,
-        showCancelButton: true,
-        confirmButtonText: '<i class="bi bi-search"></i> Cari Data',
-        cancelButtonText: 'Batal',
-        confirmButtonColor: '#4e73df',
-        preConfirm: () => {
-            const nisn = document.getElementById('swal-input-nisn').value.trim();
-            const nis = document.getElementById('swal-input-nis').value.trim();
-            if (!nisn && !nis) {
-                Swal.showValidationMessage('Harap isi minimal NISN atau NIS!');
-            }
-            return { nisn: nisn, nis: nis };
-        }
-    }).then((result) => {
-        if(result.isConfirmed && result.value) {
-            $('#loader').removeClass('hidden'); $('#loaderText').text('Mencari Data di Buku Induk...');
-            callAPI('cariDataAlumniPublic', result.value).then(res => {
-                $('#loader').addClass('hidden');
-                
-                if(res.status === 'success') {
-                    let d = res.data;
-                    let statusTeks = d.isLengkap ? '<span class="badge bg-success">Data Lengkap</span>' : '<span class="badge bg-warning text-dark">Belum Lengkap</span>';
-                    let statusPendidikan = d.status === 'Lulus' ? '<span class="badge bg-primary">LULUS</span>' : `<span class="badge bg-danger">${d.status.toUpperCase()}</span>`;
-                    
-                    // Logika Pesan Petunjuk
-                    let petunjukHtml = "";
-                    if(d.status === 'Keluar' || d.status === 'Pindah') {
-                        petunjukHtml = `<div class="alert alert-danger small text-start m-0"><b>Peringatan:</b><br>Maaf, Anda tidak bisa login karena berstatus <b>${d.status}</b>.</div>`;
-                    } else {
-                        petunjukHtml = `<div class="alert alert-info small text-start m-0"><b>Petunjuk:</b><br>Silakan kembali dan login menggunakan <b>NISN</b> / <b>NIS</b> (jika tidak punya NISN) dan password standar <b>123456</b>. Demi keamanan, harap langsung mengganti password Anda!</div>`;
-                    }
-                    
-                    Swal.fire({
-                        title: 'Data Ditemukan!',
-                        html: `
-                            <div class="text-start mb-3" style="font-size: 14px;">
-                                <b>NISN:</b> ${d.nisn || '-'}<br>
-                                <b>NIS:</b> ${d.nis || '-'}<br>
-                                <b>Nama:</b> ${d.nama}<br>
-                                <b>Tahun Lulus/Keluar:</b> ${d.thn_lulus}<br>
-                                <b>Status:</b> ${statusPendidikan}<br>
-                                <b>Kelengkapan Data:</b> ${statusTeks}
-                            </div>
-                            ${petunjukHtml}
-                        `,
-                        icon: 'success'
-                    });
-                } else if (res.status === 'not_found') {
-                    let noWA = globalConf.telp_sekolah ? String(globalConf.telp_sekolah).replace(/\D/g,'').replace(/^0/,'62') : '';
-                    let teksWA = `Halo Admin, saya alumni ${globalConf.nama_sekolah}, butuh bantuan utk cek data di aplikasi SiMISTerBIN ${globalConf.nama_sekolah}.`;
-                    let waLink = noWA ? `<button class="btn btn-success mt-3 fw-bold w-100" onclick="window.open('https://wa.me/${noWA}?text=${encodeURIComponent(teksWA)}', '_blank')"><i class="bi bi-whatsapp"></i> Lapor via WhatsApp Admin</button>` : '';
-                    
-                    Swal.fire({
-                        title: 'Tidak Ditemukan',
-                        html: `Data tidak ditemukan di database Alumni.<br>Harap lapor dengan menghubungi Admin di WA.<br>${waLink}`,
-                        icon: 'error'
-                    });
-                } else {
-                    Swal.fire('Error', res.message, 'error');
-                }
-            });
-        }
-    });
 }
 
 // --- PASSWORD TOGGLE ---
@@ -1222,7 +1140,6 @@ function toggleSidebar() {
     $('.sidebar-overlay').toggleClass('show');
 }
 
-
 function showPrivacy() { $('#mdlPrivacy').modal('show'); }
 function showCoolAlert(title, text, icon) { Swal.fire({ title: title, text: text, icon: icon, showClass: { popup: 'animate__animated animate__fadeInDown' }, hideClass: { popup: 'animate__animated animate__fadeOutUp' }, confirmButtonColor: '#4e73df', backdrop: `rgba(0,0,123,0.4)` }); }
 function validateInput(el) { let val = parseFloat(el.value); if(val > 100) { showCoolAlert('Nilai Invalid', 'Maksimal 100!', 'warning'); el.value = 100; return false; } if(val < 0) { showCoolAlert('Nilai Invalid', 'Minimal 0!', 'warning'); el.value = 0; return false; } if(el.value.includes('.')) { if(el.value.split('.')[1].length > 2) { showCoolAlert('Format Salah', 'Maks 2 desimal', 'warning'); el.value = parseFloat(val).toFixed(2); return false; } } return true; }
@@ -1231,11 +1148,7 @@ function refreshPage() { if(curPage == 'siswa') loadSiswa(); else if(curPage == 
 
 function nav(page, el, param) { 
     curPage = page; 
-    
-    // Ubah status aktif di menu laptop/PC
     if(el) { $('.sidebar a').removeClass('active'); $(el).addClass('active'); } 
-    
-    // Ubah status aktif di menu HP
     $('.m-nav-item').removeClass('active');
     $(`.m-nav-item[data-target='${page}']`).addClass('active');
     
@@ -1250,27 +1163,19 @@ function nav(page, el, param) {
     if(page=='nilai') { 
         curSmt=param; 
         $('#judulNilai').text('Input Nilai Semester '+param); 
-        $('#mobileSemester').val(param); // Sync dropdown HP
-        
+        $('#mobileSemester').val(param); 
         const s = $('#selSiswa').empty().append('<option value="">-- Pilih --</option>'); 
         globalSiswa.forEach(x => s.append(`<option value="${x[0]}">${x[0]} - ${x[2]}</option>`)); 
         $('#tbodyNilai').html('<tr><td colspan="4" class="text-muted py-5">Silakan pilih siswa...</td></tr>');
-        
-        if(globalMapel.length === 0) {
-             callAPI('getMapel').then(d => { 
-                 globalMapel = d; 
-             });
-        }
+        if(globalMapel.length === 0) { callAPI('getMapel').then(d => { globalMapel = d; }); }
     } 
 }
 
-// --- OPTIMIZED LOAD SISWA VIA API & PEMISAH TABEL ---
 function loadSiswa() { 
     callAPI('getStudents').then(data => { 
         const listSiswa = data.data ? data.data : data;
         globalSiswa = listSiswa; 
 
-        // Update Statistik Dashboard
         $('#totalSiswa').text(listSiswa.length);
         const l = listSiswa.filter(r=>r[7]=='L').length; 
         const p = listSiswa.filter(r=>r[7]=='P').length;
@@ -1286,7 +1191,6 @@ function loadSiswa() {
 
         callAPI('getDashboardStats').then(res=>{ $('#totalMapel').text(res.mapel); $('#totalRombel').text(res.rombel); $('#totalUser').text(res.user); });
 
-        // Hancurkan tabel lama agar tidak error saat reload
         if($.fn.DataTable.isDataTable('#tblSiswa')) $('#tblSiswa').DataTable().destroy(); 
         if($.fn.DataTable.isDataTable('#tblDataSiswa')) $('#tblDataSiswa').DataTable().destroy(); 
         if($.fn.DataTable.isDataTable('#tblAlumni')) $('#tblAlumni').DataTable().destroy(); 
@@ -1296,35 +1200,27 @@ function loadSiswa() {
         let htmlInduk = "", htmlSiswa = "", htmlAlumni = "";
 
         listSiswa.forEach(r => {
-            const nis = r[0], nisn = r[1], nama = r[2], tgllahir = formatTglIndoJS(r[6]), jk = r[7]; // <--- TAMBAH formatTglIndoJS di r[6]
+            const nis = r[0], nisn = r[1], nama = r[2], tgllahir = formatTglIndoJS(r[6]), jk = r[7];
             const kls = r[29], thnMasuk = r[30] ? r[30].substring(0,4) : '-', status = r[31];
             const thnKeluar = r[32] ? r[32].substring(0,4) : "-";
             const nisGabung = nisn ? `${nis} / ${nisn}` : nis;
 
-            // Tombol Master Buku Induk
             let btnInduk = `<button class="btn btn-sm btn-info text-white me-1 shadow-sm" onclick="cetakPDF('${nis}')" title="PDF"><i class="bi bi-file-pdf"></i></button><button class="btn btn-sm btn-secondary me-1 shadow-sm" onclick="reviewSiswa('${nis}')" title="Detail"><i class="bi bi-eye"></i></button>`; 
             if(isAdmin) btnInduk += `<button class="btn btn-sm btn-warning me-1 shadow-sm" onclick="editSiswa('${nis}')"><i class="bi bi-pencil"></i></button><button class="btn btn-sm btn-danger shadow-sm" onclick="delSiswa('${nis}')"><i class="bi bi-trash"></i></button>`; 
 
-            // Tombol Data Siswa & Alumni
-            // Tombol Data Siswa & Alumni (Sudah Aktif)
             let btnData = `<button class="btn btn-sm btn-secondary me-1 shadow-sm" onclick="reviewSiswa('${nis}')" title="Lihat"><i class="bi bi-eye"></i></button> <button class="btn btn-sm btn-success me-1 shadow-sm" onclick="cetakKartuAdmin('${nis}')" title="Unduh Kartu"><i class="bi bi-card-heading"></i></button>`;
             if(isAdmin && status !== 'Lulus') btnData += `<button class="btn btn-sm btn-danger shadow-sm" onclick="resetPassAdmin('${nis}')" title="Reset Password"><i class="bi bi-key"></i></button>`;
 
-            // 1. Masuk Buku Induk (Semua Data)
             htmlInduk += `<tr><td>${nis}</td><td>${nama}</td><td>${tgllahir}</td><td>${jk}</td><td>${thnMasuk}</td><td>${btnInduk}</td></tr>`;
 
-            // 2. Masuk Data Siswa (Kecuali Lulus)
             if (status !== 'Lulus') {
                 let badgeStatus = status === 'Aktif' ? `<span class="badge bg-success">Aktif</span>` : `<span class="badge bg-danger">${status}</span>`;
                 htmlSiswa += `<tr><td>${nisGabung}</td><td>${nama}</td><td>${tgllahir}</td><td>${jk}</td><td>${badgeStatus}</td><td>${btnData}</td></tr>`;
             }
 
-            // 3. Masuk Data Alumni (Hanya Lulus)
             if (status === 'Lulus') {
                 let btnDataAlumni = `<button class="btn btn-sm btn-secondary me-1 shadow-sm" onclick="reviewSiswa('${nis}')" title="Lihat"><i class="bi bi-eye"></i></button> <button class="btn btn-sm btn-success me-1 shadow-sm" onclick="cetakKartuAdmin('${nis}')" title="Unduh Kartu"><i class="bi bi-card-heading"></i></button>`;
-                // Tambahkan Tombol Kunci (Reset Password) untuk Alumni
                 if(isAdmin) btnDataAlumni += `<button class="btn btn-sm btn-danger shadow-sm" onclick="resetPassAdmin('${nis}')" title="Reset Password"><i class="bi bi-key"></i></button>`;
-                
                 htmlAlumni += `<tr><td>${nisGabung}</td><td>${nama}</td><td>${jk}</td><td><span class="badge bg-success">Lulus</span></td><td>${thnKeluar}</td><td>${btnDataAlumni}</td></tr>`;
             }
         }); 
@@ -1374,7 +1270,6 @@ function saveSiswa(e) {
             showCoolAlert('Sukses', 'Data berhasil disimpan', 'success'); 
             loadSiswa(); 
         } else {
-            // JIKA DITOLAK KARENA KURANG DIGIT/DUPLIKAT, MUNCULKAN PESAN INI:
             showCoolAlert('Peringatan!', r.message, 'warning'); 
         }
     }); 
@@ -1399,7 +1294,6 @@ function downloadPDFBase64(base64, filename) {
     link.click();
     document.body.removeChild(link);
 }
-
 
 function openTranskrip(nis) { 
     $('#loader').removeClass('hidden'); 
@@ -1428,20 +1322,15 @@ function openTranskrip(nis) {
     }); 
 }
 
-// ==========================================
-// 1. FUNGSI CETAK BIODATA (SUPER CEPAT & BISA ATUR MARGIN)
-// ==========================================
 async function cetakPDF(nis) { 
     $('#loader').removeClass('hidden'); 
     
     const s = globalSiswa.find(x => x[0] == nis);
     if(!s) { $('#loader').addClass('hidden'); return; }
 
-    // TRIK NGEBUT: Ambil Logo langsung dari layar (Tanpa manggil Google Drive lagi!)
     const imgInstansi = $('#loginLogoInstansi').attr('src') || '';
     const imgSekolah = $('#loginLogoSekolah').attr('src') || '';
 
-    // Kita HANYA mendownload foto siswa (karena fotonya belum tampil di tabel)
     const imgMasukProm = s[35] ? callAPI('getImage', {id: s[35]}) : Promise.resolve('');
     const imgKeluarProm = s[36] ? callAPI('getImage', {id: s[36]}) : Promise.resolve('');
     const [imgMasuk, imgKeluar] = await Promise.all([imgMasukProm, imgKeluarProm]);
@@ -1504,13 +1393,11 @@ async function cetakPDF(nis) {
         </div>
     `;
 
-    // --- PENGATURAN MARGIN ADA DI SINI ---
-   // --- PENGATURAN MARGIN & SCROLL (FIX) ---
     var opt = { 
         margin: [0.8, 1.4, 1, 1.4], 
         filename: 'Biodata_' + s[2] + '.pdf', 
         image: { type: 'jpeg', quality: 0.98 }, 
-        html2canvas: { scale: 2, scrollY: 0, windowY: 0 }, // <--- TAMBAHAN KUNCI SCROLL
+        html2canvas: { scale: 2, scrollY: 0, windowY: 0 },
         jsPDF: { unit: 'cm', format: 'a4', orientation: 'portrait' } 
     };
     
@@ -1518,17 +1405,12 @@ async function cetakPDF(nis) {
 
 }
 
-
-// ==========================================
-// FUNGSI CETAK TRANSKRIP (DENGAN NIS/NISN)
-// ==========================================
 async function cetakTranskrip() { 
     const nis = $('#tNis').val(); 
     const namaSiswa = $('#tNamaSiswa').text().split(' (')[0]; 
     
-    // --- TRIK BARU: Cari siswa di globalSiswa untuk mendapatkan NISN ---
     const s = globalSiswa.find(x => x[0] == nis);
-    const nisn = s ? s[1] : '-'; // s[1] adalah urutan kolom NISN di databasemu
+    const nisn = s ? s[1] : '-'; 
 
     $('#loader').removeClass('hidden'); 
 
@@ -1589,13 +1471,11 @@ async function cetakTranskrip() {
         </div>
     `;
 
-    // --- PENGATURAN MARGIN TRANSKRIP (Landscape) ---
-    // --- PENGATURAN MARGIN TRANSKRIP (Landscape FIX) ---
     var opt = { 
-        margin: [0.5, 1.5, 1.5, 1.5], // [Atas, Kanan, Bawah, Kiri]
+        margin: [0.5, 1.5, 1.5, 1.5], 
         filename: 'Transkrip_' + namaSiswa + '.pdf', 
         image: { type: 'jpeg', quality: 0.98 }, 
-        html2canvas: { scale: 2, scrollY: 0, windowY: 0 }, // <--- TAMBAHAN KUNCI SCROLL
+        html2canvas: { scale: 2, scrollY: 0, windowY: 0 }, 
         jsPDF: { unit: 'cm', format: 'A4', orientation: 'landscape' } 
     };
     
@@ -1731,10 +1611,10 @@ function loadSettings() {
         if(s.telp_sekolah) {
             let noWA = String(s.telp_sekolah).replace(/\D/g,'').replace(/^0/,'62');
             $('#btnBantuanWA').attr('href', 'https://wa.me/' + noWA);
-            // Ganti bagian Lupa Pass ini
             let teksWA = `Halo Admin, saya butuh bantuan akun SiMISTerBIn ${s.nama_sekolah}, karena lupa password.`;
             $('#btnWAAdminLupaPass').attr('href', 'https://wa.me/' + noWA + '?text=' + encodeURIComponent(teksWA));
         }
+        if(s.email_sekolah) $('#btnBantuanEmail').attr('href', 'mailto:' + s.email_sekolah);
     }); 
 }
 
@@ -1925,7 +1805,6 @@ function kirimChat() {
     });
 }
 
-
 function doBackup() {
     Swal.fire({
         title: 'Backup Database?',
@@ -1953,7 +1832,6 @@ function doBackup() {
     });
 }
 
-// --- FUNGSI KARTU & PASSWORD ---
 function resetPassAdmin(nis) {
     Swal.fire({ title: 'Reset Password', input: 'text', inputLabel: 'Masukkan Password Baru', inputPlaceholder: 'Contoh: 123456', showCancelButton: true }).then((res) => {
         if (res.isConfirmed && res.value) {
@@ -1972,17 +1850,13 @@ function simpanPasswordSiswa() {
     });
 }
 
-
-// === MENAMPILKAN KARTU KE POP-UP ===baru
 function tampilkanKartuKeModal(nama, nisn, ttl, jk, fotoId, status) {
-    // 1. LOADING DULU (Jangan ada perintah show modal di sini)
     $('#loader').removeClass('hidden');
     $('#loaderText').text('Memproses Desain Kartu...');
 
     let isAlumni = (status === 'Lulus');
     $('#judulKartuModal').text(isAlumni ? 'KARTU ALUMNI' : 'KARTU PELAJAR');
 
-    // 2. Isi Teks
     $('#card-instansi').text(globalConf.nama_instansi); 
     $('#card-sekolah').text(globalConf.nama_sekolah); 
     $('#card-alamat-sek').text(globalConf.alamat_sekolah);
@@ -1996,14 +1870,11 @@ function tampilkanKartuKeModal(nama, nisn, ttl, jk, fotoId, status) {
     $('#card-jk').text(jk);
     $('#card-link-validasi').text(globalConf.link_validasi || "https://simisterbin.my.id");
     
-    // 3. QR Code pakai API luar agar terbaca sebagai gambar (Aman untuk didownload)
     $('#qrcode').html(`<img src="https://api.qrserver.com/v1/create-qr-code/?size=100x100&margin=0&data=${nisn}" crossorigin="anonymous" style="width:85px; height:85px; display:block;">`);
     
-    // Kosongkan gambar lama
     $('#card-foto').attr('src', '');
     $('#card-bg-back').attr('src', '');
     
-    // 4. Tarik Base64 dari Server
     callAPI('getSemuaGambarKartu', {
         fotoId: fotoId, 
         bgDepan: globalConf.background_kartu, 
@@ -2011,8 +1882,6 @@ function tampilkanKartuKeModal(nama, nisn, ttl, jk, fotoId, status) {
         logoInstansi: globalConf.logo_instansi, 
         logoSekolah: globalConf.logo_sekolah
     }).then(res => {
-        
-        // 5. Tempelkan ke HTML
         if(res.foto) $('#card-foto').attr('src', res.foto);
         else $('#card-foto').attr('src', 'https://via.placeholder.com/75x100?text=Kosong');
         
@@ -2036,15 +1905,13 @@ function tampilkanKartuKeModal(nama, nisn, ttl, jk, fotoId, status) {
 
         window.namaKartuCetak = nama; 
 
-        // 6. SETELAH GAMBAR NEMPEL SEMUA, TUNGGU 1 DETIK, BARU BUKA MODAL FIX!
         setTimeout(() => {
-            $('#loader').addClass('hidden'); // Matikan Layar Loading Hitam
-            $('#mdlKartu').modal('show');    // <--- MODAL BARU BOLEH DIBUKA DI SINI
+            $('#loader').addClass('hidden'); 
+            $('#mdlKartu').modal('show');    
         }, 1000); 
     });
 }
 
-// === UNDUH KARTU DEPAN ===
 function downloadKartuDepan() { 
     Swal.fire({ title: 'Menyiapkan Unduhan...', text: 'Mohon tunggu...', allowOutsideClick: false, didOpen: () => { Swal.showLoading(); } });
     setTimeout(() => {
@@ -2055,7 +1922,6 @@ function downloadKartuDepan() {
     }, 500);
 }
 
-// === UNDUH KARTU BELAKANG ===
 function downloadKartuBelakang() { 
     let bgSrc = $('#card-bg-back').attr('src');
     if(!bgSrc || bgSrc === '') { Swal.fire('Info', 'Background belakang belum diatur oleh admin.', 'info'); return; }
@@ -2068,7 +1934,6 @@ function downloadKartuBelakang() {
     }, 500);
 }
 
-// === CETAK MASSAL KERTAS A4 (DIPERBAIKI DENGAN TAB BARU) ===
 function cetakKartuMassal(tipe) {
     let targetData = [];
     if (tipe === 'alumni') targetData = globalSiswa.filter(r => r[31] === 'Lulus');
@@ -2084,8 +1949,6 @@ function cetakKartuMassal(tipe) {
     const logo2 = globalConf.logo_sekolah || "";
 
     callAPI('getSemuaGambarKartu', { fotoId: "", bgDepan: bgDepan, bgBelakang: "", logoInstansi: logo1, logoSekolah: logo2 }).then(res => {
-        
-        // Rancang HTML Penuh untuk ditaruh di Tab Baru
         let html = `
         <html>
         <head>
@@ -2175,7 +2038,7 @@ function cetakKartuMassal(tipe) {
                              <tr><td class="lbl">JK</td><td>: </td><td class="val">${s[7] === 'L' ? 'Laki-laki' : 'Perempuan'}</td></tr>
                           </table>
                           <div class="qr-area-new"><img src="${qrUrl}" crossorigin="anonymous" style="width:85px; height:85px; display:block;"></div>
-                          <div class="txt-validasi-bawah">Untuk memvalidasi kartu ini, scan QR Code melalui alamat berikut:<br><b>${globalConf.link_validasi || "https://simisterbin.my.id"}</b></div>
+                          <div class="txt-validasi-bawah">Scan QR untuk validasi:<br><b>${globalConf.link_validasi || "https://sikapprofesi.my.id"}</b></div>
                        </div>
                     </div>
                  </div>
@@ -2187,15 +2050,12 @@ function cetakKartuMassal(tipe) {
         
         html += `</body></html>`;
         
-        $('#loader').addClass('hidden'); // Matikan Loading di tab asli
-        
-        // BUKA DI TAB BARU (Mencegah "Kosong Melompong")
+        $('#loader').addClass('hidden'); 
         let printWindow = window.open('', '_blank');
         printWindow.document.open();
         printWindow.document.write(html);
         printWindow.document.close();
         
-        // Beri waktu 4 detik di tab baru agar browser men-download semua foto dari Google Drive sebelum memunculkan jendela Print
         setTimeout(() => { 
             printWindow.print(); 
         }, 4000); 
@@ -2209,20 +2069,14 @@ let hitungMundurTimer;
 const elemenLoader = document.getElementById('loader');
 const teksLoader = document.getElementById('loaderText');
 
-// Membuat Pengamat Otomatis (MutationObserver)
 const pengamatLoader = new MutationObserver((mutations) => {
     mutations.forEach((mutation) => {
         if (mutation.attributeName === 'class') {
             const sedangSembunyi = elemenLoader.classList.contains('hidden');
-            
             if (!sedangSembunyi) {
-                // Loader Muncul! Mulai hitung mundur dari 5
                 let detik = 5;
                 teksLoader.innerText = `Memuat Data... (${detik} detik)`;
-                
-                // Bersihkan timer sebelumnya (jika ada) supaya tidak bentrok
                 clearInterval(hitungMundurTimer);
-                
                 hitungMundurTimer = setInterval(() => {
                     detik--;
                     if (detik > 0) {
@@ -2230,14 +2084,11 @@ const pengamatLoader = new MutationObserver((mutations) => {
                     } else if (detik === 0) {
                         teksLoader.innerText = `Memuat Data... (0 detik)`;
                     } else {
-                        // Jika ternyata loading lebih dari 5 detik
                         teksLoader.innerText = `Sedang menyelesaikan proses...`;
                         clearInterval(hitungMundurTimer);
                     }
-                }, 1000); // Berkurang setiap 1000 milidetik (1 detik)
-                
+                }, 1000); 
             } else {
-                // Loader Sembunyi! Hentikan timer dan kembalikan teks ke awal
                 clearInterval(hitungMundurTimer);
                 teksLoader.innerText = 'Memuat Data, Tunggu Sebentar...';
             }
@@ -2245,12 +2096,9 @@ const pengamatLoader = new MutationObserver((mutations) => {
     });
 });
 
-// Mulai mengawasi si Loader
 pengamatLoader.observe(elemenLoader, { attributes: true });
 
-// --- LOGIKA TOMBOL SCROLL TO TOP ---
 window.onscroll = function() {
-    // Munculkan tombol jika pengguna scroll lebih dari 100px ke bawah
     if (document.body.scrollTop > 100 || document.documentElement.scrollTop > 100) {
         document.getElementById("btnScrollTop").style.display = "flex";
     } else {
@@ -2258,79 +2106,6 @@ window.onscroll = function() {
     }
 };
 
-// ==========================================
-// LOGIKA KARTU PELAJAR & ALUMNI (SINGLE & MASSAL)
-// ==========================================
-
-function lihatKartu() {
-    const d = window.siswaAktif;
-    // Jika alumni, gunakan foto keluar. Jika tidak, foto masuk.
-    let isAlumni = (d.status_akhir === 'Lulus');
-    let fotoDipakai = isAlumni ? (d.foto_keluar || d.foto_id) : d.foto_id;
-    
-    tampilkanKartuKeModal(d.nama, d.nisn, (d.tmplahir||'-') + ', ' + (d.tgllahir_indo||'-'), d.jk === 'L' ? 'Laki-laki' : 'Perempuan', fotoDipakai, d.status_akhir);
-}
-
-function cetakKartuAdmin(nis) {
-    const d = globalSiswa.find(x => String(x[0]) === String(nis)); 
-    if(!d) return; 
-    
-    let isAlumni = (d[31] === 'Lulus');
-    let fotoDipakai = isAlumni ? (d[36] || d[35]) : d[35];
-
-    // <--- TAMBAH formatTglIndoJS di d[6]
-    tampilkanKartuKeModal(d[2], d[1], d[5] + ', ' + formatTglIndoJS(d[6]), d[7] === 'L' ? 'Laki-laki' : 'Perempuan', fotoDipakai, d[31]);
-}
-
-
-// ==========================================
-// FITUR SCANNER & VALIDASI (DIPERBAIKI)
-// ==========================================
-let scanner = null;
-
-function openScannerPublic() {
-    $('#mdlScanner').modal('show');
-}
-
-// LOGIKA KUNCI: Nyalakan kamera HANYA saat modal sudah selesai muncul
-$('#mdlScanner').on('shown.bs.modal', function () {
-    if (!scanner) {
-        // Render kamera ke dalam div ber-ID "reader"
-        scanner = new Html5QrcodeScanner("reader", { fps: 10, qrbox: {width: 250, height: 250} }, false);
-        scanner.render(onScanSuccess, function(error){ /* Abaikan error pencarian frame */ });
-    }
-});
-
-// Matikan kamera saat pop-up ditutup agar tidak berat
-$('#mdlScanner').on('hidden.bs.modal', function () {
-    if (scanner) {
-        scanner.clear();
-        scanner = null;
-    }
-});
-
-// --- FITUR HUBUNGI WA ADMIN (LUPA PASS / DATA ALUMNI KOSONG) ---
-// === HELPER JS: UBAH YYYY-MM-DD JADI INDO (08 Januari 2005) ===
-function formatTglIndoJS(dateStr) {
-    if(!dateStr || dateStr === '-') return '-';
-    let d = new Date(dateStr);
-    if(isNaN(d.getTime())) return dateStr;
-    const m = ["Januari", "Februari", "Maret", "April", "Mei", "Juni", "Juli", "Agustus", "September", "Oktober", "November", "Desember"];
-    return ('0' + d.getDate()).slice(-2) + ' ' + m[d.getMonth()] + ' ' + d.getFullYear();
-}
-
-// --- FITUR HUBUNGI WA ADMIN (LUPA PASS) ---
-function hubungiAdminLupaPass() {
-    if(globalConf.telp_sekolah) {
-        let noWA = String(globalConf.telp_sekolah).replace(/\D/g,'').replace(/^0/,'62');
-        let teksWA = `Halo Admin, saya butuh bantuan akun SiMISTerBIn ${globalConf.nama_sekolah}, karena lupa password.`;
-        window.open('https://wa.me/' + noWA + '?text=' + encodeURIComponent(teksWA), '_blank');
-    } else {
-        Swal.fire('Info', 'Nomor telepon admin belum diatur di sistem.', 'info');
-    }
-}
-
-// --- FITUR CEK DATA ALUMNI (HALAMAN DEPAN) ---
 function cariDataAlumni() {
     Swal.fire({
         title: 'Cek Data Alumni',
@@ -2366,7 +2141,6 @@ function cariDataAlumni() {
                         icon: 'success'
                     });
                 } else if (res.status === 'not_found') {
-                    // FIX PESAN WA ALUMNI TIDAK DITEMUKAN
                     let noWA = globalConf.telp_sekolah ? String(globalConf.telp_sekolah).replace(/\D/g,'').replace(/^0/,'62') : '';
                     let teksWA = `Halo admin, saya alumni ${globalConf.nama_sekolah}, butuh bantuan utk cek data di aplikasi SiMISTerBIN ${globalConf.nama_sekolah}.`;
                     let waLink = noWA ? `<button class="btn btn-success mt-3 fw-bold w-100" onclick="window.open('https://wa.me/${noWA}?text=${encodeURIComponent(teksWA)}', '_blank')"><i class="bi bi-whatsapp"></i> Lapor via WhatsApp Admin</button>` : '';
@@ -2384,7 +2158,6 @@ function cariDataAlumni() {
     });
 }
 
-// --- FITUR CEK DATA KOSONG (DI DALAM PROFIL ALUMNI) ---
 function lihatDataKosong() {
     let empty = window.siswaAktif.emptyFields || [];
     if(empty.length === 0) {
@@ -2394,13 +2167,12 @@ function lihatDataKosong() {
         empty.forEach(item => listHtml += `<li>${item}</li>`);
         listHtml += '</ul><p class="small text-muted mt-3">Silakan hubungi Admin Sekolah untuk melengkapi data-data di atas agar Kartu Alumni Anda tercetak sempurna.</p>';
         
-        let noWA = globalConf.telp_sekolah ? String(globalConf.telp_sekolah).replace(/\D/g,'').replace(/^0/,'62') : ''; // <--- TAMBAH String()
+        let noWA = globalConf.telp_sekolah ? String(globalConf.telp_sekolah).replace(/\D/g,'').replace(/^0/,'62') : ''; 
         let waLink = noWA ? `<button class="btn btn-success fw-bold w-100" onclick="window.open('https://wa.me/${noWA}', '_blank')"><i class="bi bi-whatsapp"></i> Hubungi Admin Sekarang</button>` : '';
 
         Swal.fire({ title: 'Data Belum Lengkap!', html: listHtml + waLink, icon: 'warning' });
     }
 }
-
 
 function onScanSuccess(decodedText) {
     $('#mdlScanner').modal('hide');
@@ -2412,42 +2184,29 @@ function onScanSuccess(decodedText) {
             const s = res.data;
             $('#mdlHasilScan').modal('show');
             
-            // Set Logo & Kop
             $('#val-instansi').text(globalConf.nama_instansi);
             $('#val-sekolah').text(globalConf.nama_sekolah);
             if(globalConf.logo_instansi) callAPI('getImage', {id: globalConf.logo_instansi}).then(b => { if(b) $('#val-logo-instansi').attr('src', b); });
             if(globalConf.logo_sekolah) callAPI('getImage', {id: globalConf.logo_sekolah}).then(b => { if(b) $('#val-logo-sekolah').attr('src', b); });
 
-            // Set Data Biodata
             $('#val-nama').text(s.nama);
             $('#val-nisn').text(s.nisn);
-            
-            // PRIVASI: Sembunyikan Tempat Lahir, Tampilkan Tanggal Saja
             $('#val-ttl').text(s.tgllahir_indo || '-'); 
-            
-            // JK
             $('#val-jk').text(s.jk === 'L' ? 'Laki-laki' : 'Perempuan');
             
-            // Status Badge
             let badge = s.status === 'Aktif' ? `<span class="badge bg-success px-3 py-2">AKTIF</span>` : `<span class="badge bg-danger px-3 py-2">${s.status.toUpperCase()}</span>`;
             $('#val-status').html(badge);
 
-            // LOGIKA FOTO (ALUMNI VS PELAJAR)
             let isAlumni = (s.status === 'Lulus');
             let fotoTampil = isAlumni ? (s.foto_keluar || s.foto_id) : s.foto_id;
 
             $('#val-foto').attr('src', '');
             if(fotoTampil) callAPI('getImage', {id: fotoTampil}).then(b => { if(b) $('#val-foto').attr('src', b); });
 
-            // Aksi Buka Kartu Digital
             $('#btn-buka-kartu-digital').off('click').on('click', function() {
                 $('#mdlHasilScan').modal('hide');
-                
-                // Untuk di dalam kartu, tetap gabungkan Tempat dan Tanggal Lahir
                 let ttlLengkap = (s.tmplahir || '-') + ', ' + (s.tgllahir_indo || '-');
                 let jkLengkap = s.jk === 'L' ? 'Laki-laki' : 'Perempuan';
-                
-                // Panggil fungsi pembuat kartu dengan urutan argumen yang benar 100%
                 tampilkanKartuKeModal(s.nama, s.nisn, ttlLengkap, jkLengkap, fotoTampil, s.status);
             });
         } else {
@@ -2455,8 +2214,6 @@ function onScanSuccess(decodedText) {
         }
     });
 }
-
-
 </script>
 </body>
 </html>
