@@ -272,6 +272,120 @@ input, button, select, textarea {
     #view-profil_siswa .table tr:last-child td {
         border-bottom: none !important;
     }
+
+    /* ==========================================
+       3. HEADER PROFIL SISWA SUPER KEREN (HERO BANNER)
+       ========================================== */
+    #headerSiswa {
+        /* Latar belakang biru gradasi premium */
+        background: linear-gradient(135deg, var(--primary-color) 0%, #1e3a8a 100%) !important;
+        border-radius: 24px !important;
+        padding: 40px 20px !important;
+        box-shadow: 0 15px 35px rgba(30, 58, 138, 0.25) !important;
+        margin-top: 15px;
+    }
+    
+    /* Warna teks diubah menjadi putih agar menyala di atas biru */
+    #headerSiswa h6 {
+        color: rgba(255, 255, 255, 0.8) !important;
+        letter-spacing: 2px;
+        font-size: 0.85rem;
+        margin-bottom: 5px !important;
+    }
+    #headerSiswa h4 {
+        color: #ffffff !important;
+        font-weight: 800 !important;
+        text-shadow: 0 2px 10px rgba(0, 0, 0, 0.3); /* Bayangan pada teks */
+        font-size: 1.6rem;
+    }
+    
+    /* Efek 3D dan animasi pada Logo Sekolah */
+    #headerSiswa img {
+        height: 75px !important;
+        filter: drop-shadow(0 5px 8px rgba(0, 0, 0, 0.4)); /* Efek logo timbul */
+        transition: transform 0.4s ease;
+    }
+    #headerSiswa img:hover {
+        transform: scale(1.15) rotate(5deg); /* Membesar dan miring sedikit saat disentuh */
+    }
+
+    /* ==========================================
+       4. HALAMAN VALIDASI QR (HASIL SCAN) FUTURISTIK
+       ========================================== */
+    #mdlHasilScan .modal-content {
+        border-radius: 24px !important;
+        border: none;
+        background: rgba(255, 255, 255, 0.95);
+        backdrop-filter: blur(20px);
+        box-shadow: 0 25px 50px rgba(0,0,0,0.15);
+        overflow: hidden;
+    }
+    
+    /* Header modal diubah jadi Hijau Verifikasi Sukses */
+    #mdlHasilScan .modal-header {
+        background: linear-gradient(135deg, #1cc88a 0%, #13855c 100%) !important;
+        border-bottom: none !important;
+        padding: 25px 20px;
+    }
+    #mdlHasilScan .modal-title {
+        color: white !important;
+        letter-spacing: 2px;
+        font-size: 1.2rem;
+        text-shadow: 0 2px 4px rgba(0,0,0,0.2);
+    }
+
+    /* Mengangkat Pas Foto Validasi ke Atas menabrak Header (Efek Overlap) */
+    #val-foto {
+        width: 120px !important;
+        height: 160px !important;
+        border-radius: 16px !important;
+        border: 5px solid #fff !important; /* Bingkai putih tebal */
+        box-shadow: 0 10px 25px rgba(0,0,0,0.12) !important;
+        margin-top: -50px !important; /* Menarik foto ke atas menembus batas hijau */
+        position: relative;
+        z-index: 10;
+        background: #f8f9fc;
+        transition: transform 0.3s ease;
+    }
+    #val-foto:hover {
+        transform: scale(1.05);
+    }
+
+    /* Merapikan tabel dan tombol di hasil validasi */
+    #mdlHasilScan .modal-body {
+        padding: 30px 25px !important;
+        background: #ffffff;
+    }
+    #mdlHasilScan .table td {
+        padding: 12px 5px !important;
+        border-bottom: 1px dashed rgba(0,0,0,0.06) !important;
+        color: #4a5568;
+    }
+    #mdlHasilScan .table tr:last-child td { border-bottom: none !important; }
+    
+    /* Tombol Buka Kartu Digital */
+    #btn-buka-kartu-digital {
+        border-radius: 14px !important;
+        background: linear-gradient(135deg, var(--primary-color), #2563eb) !important;
+        border: none;
+        box-shadow: 0 8px 15px rgba(37, 99, 235, 0.25);
+        padding: 12px;
+    }
+    
+    /* Tombol Tutup Halaman (Ghost Button Merah) */
+    #mdlHasilScan .btn-danger {
+        border-radius: 14px !important;
+        background: transparent !important;
+        color: #ef4444 !important;
+        border: 2px solid #ef4444 !important;
+        padding: 10px;
+        transition: all 0.3s ease;
+    }
+    #mdlHasilScan .btn-danger:hover {
+        background: #ef4444 !important;
+        color: white !important;
+        box-shadow: 0 5px 15px rgba(239, 68, 68, 0.3);
+    }
   </style>
 </head>
 <body>
@@ -294,7 +408,7 @@ input, button, select, textarea {
             <h6 class="text-uppercase fw-bold text-secondary mb-0 small" id="lblInstansiLanding">PEMERINTAH...</h6>
             <h5 class="text-uppercase fw-bold text-dark mb-4" id="lblSekolahLanding">NAMA SEKOLAH</h5>
             
-            <img src="https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEjIzvYjZOO0Lz9_TJAhh89ExbzVTxqqBmcjZzqacDuAqazvp8a7VOQgbF3ULki4ynoA3uUuhufGMvRVCS5z9Ch-rOzfCyfoXQ6c2oqjfwC2UguNl7-_r97qabkElBSVXpHH69HzXBY3KL8sLSUg2_r4iJdDqlxZ8a23n4E2nBRdaqEeI7kEU3lpKm5hKloL/s120/imgsimisterbin.png" style="height: 70px;" class="mb-2">
+            <img src="https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEjafGLe66t5Iui2EyuJcxkmGd7iIlbhu7s6CL45Kt-aU4_c2M2TV5uVI_fWeZQ3EDRldnC2waR5HTnAkQ62c4LDw0D0TfFR6V0aDt04TrsCLvYD2UBJ4mSmX5HHi9GWlMIFf0NS9UQaeKvBDE4xB9eb2HNPI6966aoZXaIsbmpO7FplFgnv4kNEGAPObFw2/s150/logo%20simisterbin%20png.png" style="height: 80px;" class="mb-2">
             <h4 class="fw-bold text-primary mb-1">SiMISTerBIn</h4>
             <span class="text-muted small d-block mb-4">Sistem Manajemen Informasi Siswa Terpadu & Buku Induk</span>
             
@@ -314,7 +428,7 @@ input, button, select, textarea {
         </button>
 
         <div class="text-center mb-4 mt-4">
-            <img src="https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEjIzvYjZOO0Lz9_TJAhh89ExbzVTxqqBmcjZzqacDuAqazvp8a7VOQgbF3ULki4ynoA3uUuhufGMvRVCS5z9Ch-rOzfCyfoXQ6c2oqjfwC2UguNl7-_r97qabkElBSVXpHH69HzXBY3KL8sLSUg2_r4iJdDqlxZ8a23n4E2nBRdaqEeI7kEU3lpKm5hKloL/s120/imgsimisterbin.png" style="height: 50px;" class="mb-2">
+            <img src="https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEjafGLe66t5Iui2EyuJcxkmGd7iIlbhu7s6CL45Kt-aU4_c2M2TV5uVI_fWeZQ3EDRldnC2waR5HTnAkQ62c4LDw0D0TfFR6V0aDt04TrsCLvYD2UBJ4mSmX5HHi9GWlMIFf0NS9UQaeKvBDE4xB9eb2HNPI6966aoZXaIsbmpO7FplFgnv4kNEGAPObFw2/s150/logo%20simisterbin%20png.png" style="height: 70px;" class="mb-2">
             <h5 class="text-uppercase fw-bold text-dark mb-0">Silakan Login</h5>
             <span class="text-muted small">Masukkan Username/NISN Anda</span>
         </div>
@@ -691,10 +805,10 @@ input, button, select, textarea {
                 <a href="javascript:void(0)" onclick="showPrivacy()">Kebijakan Privasi</a> &bull; Powered by : <a href='https://www.farypin-inovasiteknologi.com' rel='dofollow' style='color:blue;'>PT Farypin Inovasi Teknologi</a>
             </div>
         </footer>
-
+<!--
 <button id="btnChatbot" class="btn btn-primary rounded-circle shadow-lg" style="position: fixed; bottom: 30px; left: 30px; width: 60px; height: 60px; z-index: 9999; display: flex; align-items: center; justify-content: center;" onclick="$('#chatWindow').toggleClass('hidden')">
     <i class="bi bi-robot fs-3"></i>
-</button>
+</button> 
 
 <div id="chatWindow" class="card shadow-lg hidden" style="position: fixed; bottom: 100px; left: 30px; width: 350px; max-width: 90vw; height: 450px; z-index: 9999; display: flex; flex-direction: column;">
     <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
@@ -710,7 +824,7 @@ input, button, select, textarea {
             <button class="btn btn-primary" onclick="kirimChat()"><i class="bi bi-send"></i></button>
         </div>
     </div>
-</div>
+</div> -->
 
 
 
@@ -1738,6 +1852,11 @@ function loadSettings() {
         
         if(s.logo_sekolah) callAPI('getImage', {id: s.logo_sekolah}).then(b=>{ if(b){ $('#loginLogoSekolah').attr('src',b).removeClass('hidden');$('#prevLogoSekolah').attr('src',b).removeClass('hidden'); } }); 
         $('#logo_sekolah').val(s.logo_sekolah); 
+        // --- FIX: UPDATE HEADER SISWA SETELAH DATA TIBA ---
+$('#headerInstansi').text(s.nama_instansi || 'DINAS PENDIDIKAN');
+$('#headerSekolah').text(s.nama_sekolah || 'NAMA SEKOLAH');
+if(s.logo_instansi) callAPI('getImage', {id: s.logo_instansi}).then(b=>{ if(b) $('#headerLogoInstansi').attr('src',b).removeClass('hidden'); });
+if(s.logo_sekolah) callAPI('getImage', {id: s.logo_sekolah}).then(b=>{ if(b) $('#headerLogoSekolah').attr('src',b).removeClass('hidden'); });
 
         $('#background_kartu').val(s.background_kartu); 
         if(s.background_kartu) callAPI('getImage', {id: s.background_kartu}).then(b=>{ if(b){ $('#prev_bg_depan').attr('src',b).removeClass('hidden'); } }); 
@@ -2367,7 +2486,7 @@ function hubungiAdminLupaPass() {
 // GANTI SEMUA FUNGSI cariDataAlumni() DENGAN KODE INI
 function cariDataAlumni() {
     Swal.fire({
-        title: 'Cek Data Alumni / Keluar',
+        title: 'Cek Data Alumni',
         html: `
             <p class="text-muted small">Masukkan <b>salah satu</b> data di bawah ini:</p>
             <input id="swal-input-nisn" class="swal2-input" placeholder="Masukkan NISN (10 Digit)">
