@@ -1086,7 +1086,34 @@ input, button, select, textarea {
                         <li class="nav-item"><a class="nav-link fw-bold" data-bs-toggle="tab" href="#t4">Akademik</a></li>
                     </ul>
                     <div class="tab-content p-4">
-                        <div class="tab-pane fade show active" id="t1"><div class="row g-3"><div class="col-md-3"><label class="form-label small fw-bold">*NIS</label><input name="nis" class="form-control bg-light" required></div><div class="col-md-3"><label class="form-label small fw-bold">NISN</label><input name="nisn" class="form-control"></div><div class="col-md-6"><label class="form-label small fw-bold">*Nama Lengkap</label><input name="nama" class="form-control fw-bold border-primary" required></div><div class="col-md-4"><label class="form-label small fw-bold">NIK</label><input name="nik" class="form-control"></div><div class="col-md-4"><label class="form-label small fw-bold">No. KK</label><input name="nokk" class="form-control"></div><div class="col-md-4"><label class="form-label small fw-bold">Agama</label>
+                        <div class="tab-pane fade show active" id="t1"><div class="row g-3">
+                          
+                          <div class="col-md-4">
+    <label class="form-label small fw-bold">*NIS</label>
+    <input name="nis" class="form-control bg-light" required>
+</div>
+
+<div class="col-md-8">
+    <label class="form-label small fw-bold" style="line-height: 1.1;">NISN (isi NIS jika tidak memiliki NISN)</label>
+    <input name="nisn" class="form-control" onblur="formatAndValidateNISN(this)">
+</div>
+
+<div class="col-md-12">
+    <label class="form-label small fw-bold">*Nama Lengkap</label>
+    <input name="nama" class="form-control fw-bold border-primary" required>
+</div>
+
+<div class="col-md-4">
+    <label class="form-label small fw-bold">NIK</label>
+    <input name="nik" class="form-control" onblur="formatAndValidateNIK_KK(this, 'NIK')">
+</div>
+
+<div class="col-md-4">
+    <label class="form-label small fw-bold">No. KK</label>
+    <input name="nokk" class="form-control" onblur="formatAndValidateNIK_KK(this, 'No. KK')">
+</div>
+                        
+                        <div class="col-md-4"><label class="form-label small fw-bold">Agama</label>
                         <select name="agama" class="form-select">
                             <option value="">- Pilih -</option>
                             <option value="Islam">Islam</option>
@@ -1217,8 +1244,39 @@ input, button, select, textarea {
 </div>
 
 <div class="modal fade" id="mdlGantiPass" tabindex="-1">
-    <div class="modal-dialog modal-dialog-centered"><div class="modal-content"><div class="modal-header bg-secondary text-white"><h5 class="modal-title">Ganti Password</h5><button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button></div>
-    <div class="modal-body"><input type="password" id="oldPass" class="form-control mb-2" placeholder="Password Lama"><input type="password" id="newPass" class="form-control mb-3" placeholder="Password Baru"><button class="btn btn-primary w-100 fw-bold" onclick="simpanPasswordSiswa()">SIMPAN PASSWORD</button></div></div></div>
+    <div class="modal-dialog modal-dialog-centered modal-sm">
+        <div class="modal-content border-0 shadow-lg" style="border-radius: 20px;">
+            <div class="modal-header bg-secondary text-white" style="border-radius: 20px 20px 0 0;">
+                <h5 class="modal-title fw-bold"><i class="bi bi-key-fill me-2"></i>Ganti Password</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body p-4">
+                <div class="mb-3">
+                    <label class="small fw-bold text-muted mb-1">Password Lama</label>
+                    <div class="input-group shadow-sm" style="border-radius: 12px; overflow: hidden;">
+                        <input type="password" id="oldPass" class="form-control border-end-0" placeholder="Ketik password saat ini">
+                        <span class="input-group-text bg-white border-start-0" onclick="togglePass('oldPass', this.querySelector('i'))" style="cursor:pointer">
+                            <i class="bi bi-eye-slash text-secondary"></i>
+                        </span>
+                    </div>
+                </div>
+                
+                <div class="mb-4">
+                    <label class="small fw-bold text-muted mb-1">Password Baru</label>
+                    <div class="input-group shadow-sm" style="border-radius: 12px; overflow: hidden;">
+                        <input type="password" id="newPass" class="form-control border-end-0" placeholder="Ketik password baru">
+                        <span class="input-group-text bg-white border-start-0" onclick="togglePass('newPass', this.querySelector('i'))" style="cursor:pointer">
+                            <i class="bi bi-eye-slash text-secondary"></i>
+                        </span>
+                    </div>
+                </div>
+                
+                <button class="btn btn-primary w-100 fw-bold rounded-pill py-2 shadow-sm" style="background: linear-gradient(135deg, var(--primary-color), #3b82f6); border: none;" onclick="simpanPasswordSiswa()">
+                    SIMPAN PASSWORD
+                </button>
+            </div>
+        </div>
+    </div>
 </div>
 
 <div class="modal fade" id="mdlScanner" tabindex="-1" style="z-index: 1060;">
@@ -2679,7 +2737,7 @@ function cariDataAlumni() {
                     if(d.status === 'Keluar' || d.status === 'Pindah') {
                         petunjukHtml = `<div class="alert alert-danger small text-start m-0"><b>Peringatan:</b><br>Maaf, Anda tidak bisa login karena berstatus <b>${d.status}</b>.</div>`;
                     } else {
-                        petunjukHtml = `<div class="alert alert-info small text-start m-0"><b>Petunjuk:</b><br>Silakan kembali dan login menggunakan <b>NISN</b> / <b>NIS </b> (NIS 10 Digit bagi alumni yang tidak memiliki NISN) dan password standar <b>123456</b>. Demi keamanan, harap langsung mengganti password Anda!</div>`;
+                        petunjukHtml = `<div class="alert alert-info small text-start m-0"><b>Petunjuk:</b><br>Silakan kembali dan login menggunakan <b>NISN</b> dan password standar <b>123456</b>. Demi keamanan, harap langsung mengganti password Anda!</div>`;
                     }
                     
                     Swal.fire({
@@ -2817,6 +2875,55 @@ function hapusGambarSettings(inputId, imgId) {
             }
         }
     });
+}
+
+// ==========================================
+// FITUR VALIDASI REAL-TIME (NISN, NIK, KK)
+// ==========================================
+
+function formatAndValidateNISN(input) {
+    let val = input.value.trim();
+    if (val === "") return; // Abaikan jika kosong
+    
+    // Cek apakah ada huruf (Hanya boleh angka)
+    if (!/^\d+$/.test(val)) {
+        Swal.fire('Format Salah', 'NISN hanya boleh berisi angka!', 'error');
+        input.value = val.replace(/\D/g, ''); // Bersihkan otomatis hurufnya
+        return;
+    }
+
+    // Jika jumlah angka kurang dari 10
+    if (val.length < 10) {
+        // Tambahkan angka 0 di depan sampai pas 10 digit (Otomatis)
+        input.value = val.padStart(10, '0');
+        
+        Swal.fire({
+            title: 'Info Sistem',
+            text: 'Peringatan, NISN wajib 10 digit, data anda otomatis dilengkapi oleh sistem dengan menambah angka 0 di depan.',
+            icon: 'info'
+        });
+    } 
+    // Jika jumlah angka lebih dari 10
+    else if (val.length > 10) {
+        Swal.fire('Peringatan', 'NISN tidak boleh lebih dari 10 digit! Mohon periksa kembali.', 'warning');
+    }
+}
+
+function formatAndValidateNIK_KK(input, namaKolom) {
+    let val = input.value.trim();
+    if (val === "") return; // Boleh kosong berdasarkan aturan sebelumnya
+    
+    // Cek apakah ada huruf
+    if (!/^\d+$/.test(val)) {
+        Swal.fire('Format Salah', namaKolom + ' hanya boleh berisi angka!', 'error');
+        input.value = val.replace(/\D/g, ''); // Bersihkan otomatis hurufnya
+        return;
+    }
+
+    // Jika jumlah angka BUKAN 16 digit
+    if (val.length !== 16) {
+        Swal.fire('Peringatan', namaKolom + ' wajib 16 digit angka! (Saat ini Anda menginput ' + val.length + ' digit)', 'warning');
+    }
 }
 
 </script>
