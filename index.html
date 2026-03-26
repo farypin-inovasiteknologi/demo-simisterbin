@@ -620,7 +620,9 @@ input, button, select, textarea {
         <div id="botAdmin" class="d-none justify-content-around align-items-center h-100 w-100">
             <a href="javascript:void(0)" onclick="nav('siswa', this)" class="m-nav-item text-center text-decoration-none"><i class="bi bi-journal-bookmark-fill fs-4 d-block mb-1" style="line-height: 1;"></i><span style="font-size: 10px; font-weight: bold;">Induk</span></a>
             <a href="javascript:void(0)" onclick="nav('datasiswa', this)" class="m-nav-item text-center text-decoration-none"><i class="bi bi-people-fill fs-4 d-block mb-1" style="line-height: 1;"></i><span style="font-size: 10px; font-weight: bold;">Siswa</span></a>
-            <a href="javascript:void(0)" onclick="nav('dash', this)" class="m-nav-item text-center text-decoration-none active text-primary" style="transform: translateY(-15px);"><div class="bg-primary text-white rounded-circle d-flex align-items-center justify-content-center mx-auto shadow-lg border border-3 border-white" style="width:50px; height:50px;"><i class="bi bi-home fs-3"></i></div><span class="mt-1" style="font-size: 10px; font-weight: bold;">Home</span></a>
+
+            <a href="javascript:void(0)" onclick="nav('dash', this)" class="m-nav-item text-center text-decoration-none active text-primary" style="transform: translateY(-15px);"><div class="bg-primary text-white rounded-circle d-flex align-items-center justify-content-center mx-auto shadow-lg border border-3 border-white" style="width:50px; height:50px;"><i class="bi bi-house-door-fill fs-3"></i></div><span class="mt-1" style="font-size: 10px; font-weight: bold;">Home</span></a>
+
             <a href="javascript:void(0)" onclick="nav('alumni', this)" class="m-nav-item text-center text-decoration-none"><i class="bi bi-mortarboard-fill fs-4 d-block mb-1" style="line-height: 1;"></i><span style="font-size: 10px; font-weight: bold;">Alumni</span></a>
             <a href="javascript:void(0)" onclick="nav('mapel', this)" class="m-nav-item text-center text-decoration-none"><i class="bi bi-book-half fs-4 d-block mb-1" style="line-height: 1;"></i><span style="font-size: 10px; font-weight: bold;">Mapel</span></a>
         </div>
@@ -861,30 +863,44 @@ input, button, select, textarea {
                                     <div class="col-md-6"><label class="fw-bold small">NIP Kepala Sekolah</label><input id="setNip" class="form-control"></div>
                                     
                                     <div class="col-md-6">
-                                        <label class="fw-bold small text-muted">Logo Instansi</label>
-                                        <input type="file" class="form-control form-control-sm mt-1" onchange="cropImage(this, 'logo_instansi')">
-                                        <img id="prevLogoInstansi" class="settings-preview hidden">
-                                        <input type="hidden" id="logo_instansi">
-                                    </div>
-                                    <div class="col-md-6">
-                                        <label class="fw-bold small text-muted">Logo Sekolah</label>
-                                        <input type="file" class="form-control form-control-sm mt-1" onchange="cropImage(this, 'logo_sekolah')">
-                                        <img id="prevLogoSekolah" class="settings-preview hidden">
-                                        <input type="hidden" id="logo_sekolah">
-                                    </div>
+    <label class="fw-bold small text-muted">Logo Instansi</label>
+    <div class="input-group input-group-sm mt-1 shadow-sm">
+        <input type="file" id="file_logo_instansi" class="form-control" onchange="cropImage(this, 'logo_instansi')">
+        <button type="button" class="btn btn-outline-danger" onclick="hapusGambarSettings('logo_instansi', 'prevLogoInstansi')" title="Hapus Logo"><i class="bi bi-trash"></i></button>
+    </div>
+    <img id="prevLogoInstansi" class="settings-preview hidden">
+    <input type="hidden" id="logo_instansi">
+</div>
 
-                                    <div class="col-md-6 mt-3">
-                                        <label class="fw-bold small text-muted">Background Depan (8.5 x 5.5)</label>
-                                        <input type="file" class="form-control form-control-sm mt-1" onchange="cropImage(this, 'background_kartu')">
-                                        <img id="prev_bg_depan" class="settings-preview hidden">
-                                        <input type="hidden" id="background_kartu">
-                                    </div>
-                                    <div class="col-md-6 mt-3">
-                                        <label class="fw-bold small text-muted">Background Belakang (8.5 x 5.5)</label>
-                                        <input type="file" class="form-control form-control-sm mt-1" onchange="cropImage(this, 'background_belakang')">
-                                        <img id="prev_bg_belakang" class="settings-preview hidden">
-                                        <input type="hidden" id="background_belakang">
-                                    </div>
+<div class="col-md-6">
+    <label class="fw-bold small text-muted">Logo Sekolah</label>
+    <div class="input-group input-group-sm mt-1 shadow-sm">
+        <input type="file" id="file_logo_sekolah" class="form-control" onchange="cropImage(this, 'logo_sekolah')">
+        <button type="button" class="btn btn-outline-danger" onclick="hapusGambarSettings('logo_sekolah', 'prevLogoSekolah')" title="Hapus Logo"><i class="bi bi-trash"></i></button>
+    </div>
+    <img id="prevLogoSekolah" class="settings-preview hidden">
+    <input type="hidden" id="logo_sekolah">
+</div>
+
+<div class="col-md-6 mt-3">
+    <label class="fw-bold small text-muted">Background Depan (8.5 x 5.5)</label>
+    <div class="input-group input-group-sm mt-1 shadow-sm">
+        <input type="file" id="file_background_kartu" class="form-control" onchange="cropImage(this, 'background_kartu')">
+        <button type="button" class="btn btn-outline-danger" onclick="hapusGambarSettings('background_kartu', 'prev_bg_depan')" title="Hapus Background"><i class="bi bi-trash"></i></button>
+    </div>
+    <img id="prev_bg_depan" class="settings-preview hidden">
+    <input type="hidden" id="background_kartu">
+</div>
+
+<div class="col-md-6 mt-3">
+    <label class="fw-bold small text-muted">Background Belakang (8.5 x 5.5)</label>
+    <div class="input-group input-group-sm mt-1 shadow-sm">
+        <input type="file" id="file_background_belakang" class="form-control" onchange="cropImage(this, 'background_belakang')">
+        <button type="button" class="btn btn-outline-danger" onclick="hapusGambarSettings('background_belakang', 'prev_bg_belakang')" title="Hapus Background"><i class="bi bi-trash"></i></button>
+    </div>
+    <img id="prev_bg_belakang" class="settings-preview hidden">
+    <input type="hidden" id="background_belakang">
+</div>
 
                                     <div class="col-12 mt-3">
                                         <label class="fw-bold small">Warna Tema Aplikasi</label>
@@ -2771,6 +2787,37 @@ function onScanSuccess(decodedText) {
     });
 }
 
+// === FUNGSI HAPUS GAMBAR DI PENGATURAN ===
+function hapusGambarSettings(inputId, imgId) {
+    Swal.fire({
+        title: 'Hapus Gambar?',
+        text: "Gambar akan dihapus dari layar. Jangan lupa klik tombol SIMPAN PENGATURAN di bawah setelah ini agar tersimpan ke database!",
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#d33',
+        cancelButtonText: 'Batal',
+        confirmButtonText: 'Ya, Hapus!'
+    }).then((result) => {
+        if (result.isConfirmed) {
+            // 1. Kosongkan data di memory
+            $('#' + inputId).val(''); 
+            // 2. Sembunyikan preview gambar
+            $('#' + imgId).attr('src', '').addClass('hidden'); 
+            // 3. Reset kolom Pilih File agar kosong kembali
+            $('#file_' + inputId).val(''); 
+            
+            // Khusus jika yang dihapus adalah logo instansi/sekolah, hilangkan juga di header
+            if(inputId === 'logo_instansi') {
+                $('#loginLogoInstansi').addClass('hidden');
+                $('#headerLogoInstansi').addClass('hidden');
+            }
+            if(inputId === 'logo_sekolah') {
+                $('#loginLogoSekolah').addClass('hidden');
+                $('#headerLogoSekolah').addClass('hidden');
+            }
+        }
+    });
+}
 
 </script>
 </body>
