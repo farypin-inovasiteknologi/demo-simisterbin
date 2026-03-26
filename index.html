@@ -541,7 +541,7 @@ input, button, select, textarea {
             <h6 class="text-uppercase fw-bold text-secondary mb-0 small" id="lblInstansiLanding">PEMERINTAH...</h6>
             <h5 class="text-uppercase fw-bold text-dark mb-4" id="lblSekolahLanding">NAMA SEKOLAH</h5>
             
-            <img src="https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEjafGLe66t5Iui2EyuJcxkmGd7iIlbhu7s6CL45Kt-aU4_c2M2TV5uVI_fWeZQ3EDRldnC2waR5HTnAkQ62c4LDw0D0TfFR6V0aDt04TrsCLvYD2UBJ4mSmX5HHi9GWlMIFf0NS9UQaeKvBDE4xB9eb2HNPI6966aoZXaIsbmpO7FplFgnv4kNEGAPObFw2/s150/logo%20simisterbin%20png.png" style="height: 80px;" class="mb-2">
+            <img src="https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEgXnwcEW0_0pVSugiR61n8ybVDmUiuLCTm0KmJo6roISNw4hsZsZkcOp9fpIW53i75hwl5npMCpJ7bOBEvTWHxvNxN5vV9q7pFrNbOupfVZEhMsaUzVW_adndD169aRllRDTqmTu92LeoFOxDuDfZByb6FoWnjM9AJCGWq113pDEYUuA1_QKbASVkZLOpnc/s512/imgsimisterbin.png" style="height: 80px;" class="mb-2">
             <h4 class="fw-bold text-primary mb-1">SiMISTerBIn</h4>
             <span class="text-muted small d-block mb-4">Sistem Manajemen Informasi Siswa Terpadu & Buku Induk</span>
             
@@ -561,7 +561,7 @@ input, button, select, textarea {
         </button>
 
         <div class="text-center mb-4 mt-4">
-            <img src="https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEjafGLe66t5Iui2EyuJcxkmGd7iIlbhu7s6CL45Kt-aU4_c2M2TV5uVI_fWeZQ3EDRldnC2waR5HTnAkQ62c4LDw0D0TfFR6V0aDt04TrsCLvYD2UBJ4mSmX5HHi9GWlMIFf0NS9UQaeKvBDE4xB9eb2HNPI6966aoZXaIsbmpO7FplFgnv4kNEGAPObFw2/s150/logo%20simisterbin%20png.png" style="height: 70px;" class="mb-2">
+            <img src="https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEgXnwcEW0_0pVSugiR61n8ybVDmUiuLCTm0KmJo6roISNw4hsZsZkcOp9fpIW53i75hwl5npMCpJ7bOBEvTWHxvNxN5vV9q7pFrNbOupfVZEhMsaUzVW_adndD169aRllRDTqmTu92LeoFOxDuDfZByb6FoWnjM9AJCGWq113pDEYUuA1_QKbASVkZLOpnc/s512/imgsimisterbin.png" style="height: 70px;" class="mb-2">
             <h5 class="text-uppercase fw-bold text-dark mb-0">Silakan Login</h5>
             <span class="text-muted small">Masukkan Username/NISN Anda</span>
         </div>
@@ -1718,7 +1718,28 @@ function openModalSiswa(nis, readonly) {
 
 function reviewSiswa(nis) { openModalSiswa(nis, true); }
 function editSiswa(nis) { openModalSiswa(nis, false); }
-function modalSiswa() { $('#frmSiswa')[0].reset(); $('#isEdit').val('false'); $('#frmSiswa input, #frmSiswa select, #frmSiswa textarea').prop('disabled', false); $('#btnSimpanSiswa').show(); $('#btnLihatNilai').addClass('hidden'); $('#lblModalSiswa').text("Tambah Siswa"); $('.student-photo').addClass('hidden'); new bootstrap.Modal('#mdlSiswa').show(); }
+// === FUNGSI BUKA MODAL TAMBAH SISWA (ANTI DATA HANTU) ===
+function modalSiswa() { 
+    $('#frmSiswa')[0].reset(); 
+    $('#isEdit').val('false'); 
+    $('#frmSiswa input, #frmSiswa select, #frmSiswa textarea').prop('disabled', false); 
+    $('#btnSimpanSiswa').show(); 
+    $('#btnLihatNilai').addClass('hidden'); 
+    $('#lblModalSiswa').text("Tambah Siswa"); 
+    
+    // --- PERBAIKAN BUG FOTO NYANGKUT ---
+    // 1. Kosongkan ID Foto di kolom tersembunyi secara paksa
+    $('#id_foto_masuk').val('');
+    $('#id_foto_keluar').val('');
+    
+    // 2. Kosongkan sumber gambar (src) dan sembunyikan preview-nya
+    $('#prev_masuk').attr('src', '').addClass('hidden');
+    $('#prev_keluar').attr('src', '').addClass('hidden');
+    $('.student-photo').addClass('hidden'); 
+    // -----------------------------------
+
+    new bootstrap.Modal('#mdlSiswa').show(); 
+}
 
 function saveSiswa(e) { 
     e.preventDefault(); 
