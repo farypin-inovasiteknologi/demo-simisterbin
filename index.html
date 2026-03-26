@@ -334,14 +334,14 @@ input, button, select, textarea {
         text-shadow: 0 2px 4px rgba(0,0,0,0.2);
     }
 
-    /* Mengangkat Pas Foto Validasi ke Atas menabrak Header (Efek Overlap) */
+    /* Mengembalikan foto validasi ke posisi aman agar tidak menabrak teks */
     #val-foto {
         width: 120px !important;
         height: 160px !important;
         border-radius: 16px !important;
-        border: 5px solid #fff !important; /* Bingkai putih tebal */
+        border: 5px solid #fff !important; 
         box-shadow: 0 10px 25px rgba(0,0,0,0.12) !important;
-        margin-top: -50px !important; /* Menarik foto ke atas menembus batas hijau */
+        margin-top: 10px !important; /* DIGANTI: Mendorong foto sedikit ke bawah, bukan ke atas */
         position: relative;
         z-index: 10;
         background: #f8f9fc;
@@ -385,6 +385,103 @@ input, button, select, textarea {
         background: #ef4444 !important;
         color: white !important;
         box-shadow: 0 5px 15px rgba(239, 68, 68, 0.3);
+    }
+
+    /* ==========================================
+       5. RESPONSIVE HEADER KHUSUS HP (DI BAWAH 768px)
+       ========================================== */
+    @media (max-width: 768px) {
+        /* Mengizinkan elemen untuk turun baris */
+        #headerSiswa .d-flex {
+            flex-wrap: wrap !important;
+            justify-content: center !important;
+        }
+        
+        /* Memaksa teks instansi & sekolah turun ke baris baru */
+        #headerSiswa .d-flex > div {
+            order: 3; /* Teks ditaruh di urutan terakhir (bawah) */
+            width: 100%;
+            margin-top: 15px; /* Jarak antara logo dan teks */
+        }
+        
+        /* Mengatur logo berjejer di atas */
+        #headerLogoInstansi {
+            order: 1; /* Logo kiri */
+            margin-right: 15px;
+        }
+        #headerLogoSekolah {
+            order: 2; /* Logo kanan */
+            margin-left: 15px;
+        }
+        
+        /* Penyesuaian ukuran font & logo agar proporsional di HP */
+        #headerSiswa h4 { font-size: 1rem !important; }
+        #headerSiswa h6 { font-size: 0.75rem !important; }
+        #headerSiswa img { height: 60px !important; }
+    }
+
+    /* ==========================================
+       6. BIODATA SISWA ATAS-BAWAH KHUSUS HP (MOBILE)
+       ========================================== */
+    @media (max-width: 768px) {
+        /* Memaksa tabel menjadi elemen blok (berdiri sendiri, tidak menyamping) */
+        #view-profil_siswa .table, 
+        #view-profil_siswa .table tbody, 
+        #view-profil_siswa .table tr, 
+        #view-profil_siswa .table td {
+            display: block;
+            width: 100%;
+            text-align: left !important; /* Semua teks rata kiri */
+        }
+
+        /* Mengatur jarak antar kelompok data (baris) */
+        #view-profil_siswa .table tr {
+            margin-bottom: 12px;
+            padding: 8px 12px;
+            background: #f8f9fc; /* Latar belakang abu-abu sangat muda agar terlihat seperti kartu kecil */
+            border-radius: 12px;
+            border: 1px solid rgba(0,0,0,0.03);
+        }
+
+        /* Desain Judul/Label (contoh: NIS / NISN) - Posisi Atas */
+        #view-profil_siswa .table td:first-child {
+            font-size: 0.75rem !important; /* Huruf lebih kecil */
+            text-transform: uppercase; /* Huruf kapital semua */
+            letter-spacing: 0.5px;
+            color: var(--primary-color) !important; /* Warna biru aplikasi */
+            font-weight: 700 !important;
+            padding-bottom: 2px !important; /* Jarak ditarik agar menempel dengan isinya */
+            border-bottom: none !important;
+        }
+
+        /* Desain Isi/Data (contoh: 123 / 123456) - Posisi Bawah */
+        #view-profil_siswa .table td:nth-child(2) {
+            font-size: 1.05rem !important; /* Huruf lebih besar & jelas */
+            color: #2d3748 !important; /* Warna abu-abu kehitaman pekat */
+            font-weight: 600 !important;
+            padding-top: 0 !important; /* Menempel dengan judul di atasnya */
+            border-bottom: none !important;
+        }
+
+        /* Menyembunyikan baris kosong yang mungkin ada di tabel asli */
+        #view-profil_siswa .table tr td:empty {
+            display: none;
+        }
+    }
+
+    /* ==========================================
+       7. SEMBUNYIKAN TOMBOL BADAN PROFIL KHUSUS HP
+       ========================================== */
+    @media (max-width: 768px) {
+        /* Sembunyikan tombol Keluar (Logout) yang ada di atas tabel profil */
+        #view-profil_siswa > div.d-flex.justify-content-between.align-items-center.mb-3 > button {
+            display: none !important;
+        }
+        
+        /* Sembunyikan deretan tombol (Kartu, Sandi, Cek Data) di bawah pas foto */
+        #view-profil_siswa .card .d-flex.justify-content-center.gap-2.flex-wrap {
+            display: none !important;
+        }
     }
   </style>
 </head>
@@ -475,6 +572,9 @@ input, button, select, textarea {
             <select id="mobileSemester" class="form-select form-select-sm fw-bold border-0 text-primary shadow-sm" style="border-radius: 20px; width: auto;" onchange="nav('nilai', null, this.value)">
                 <option value="1">Smt 1</option><option value="2">Smt 2</option><option value="3">Smt 3</option><option value="4">Smt 4</option><option value="5">Smt 5</option><option value="6">Smt 6</option>
             </select>
+            
+            <i id="mobTopCekData" class="bi bi-exclamation-triangle-fill fs-5 text-warning bg-white rounded-circle shadow-sm hidden" onclick="lihatDataKosong()" style="cursor:pointer; padding: 2px 6px;"></i>
+            
             <i id="mobTopLogout" class="bi bi-power fs-5 text-danger bg-white rounded-circle shadow-sm" onclick="logout()" style="cursor:pointer; padding: 2px 6px; display:none;"></i>
         </div>
     </div>
@@ -497,11 +597,12 @@ input, button, select, textarea {
             <a href="javascript:void(0)" onclick="logout()" class="m-nav-item text-center text-decoration-none text-danger"><i class="bi bi-box-arrow-right fs-4 d-block mb-1" style="line-height: 1;"></i><span style="font-size: 10px; font-weight: bold;">Keluar</span></a>
         </div>
 
-        <div id="botSiswa" class="d-none justify-content-around align-items-center h-100 w-100">
+      <div id="botSiswa" class="d-none justify-content-around align-items-center h-100 w-100">
             <a href="javascript:void(0)" onclick="nav('profil_siswa', this)" class="m-nav-item text-center text-decoration-none active text-primary"><i class="bi bi-person-fill fs-4 d-block mb-1" style="line-height: 1;"></i><span style="font-size: 10px; font-weight: bold;">Profil</span></a>
             <a href="javascript:void(0)" onclick="$('#mdlGantiPass').modal('show')" class="m-nav-item text-center text-decoration-none"><i class="bi bi-key-fill fs-4 d-block mb-1" style="line-height: 1;"></i><span style="font-size: 10px; font-weight: bold;">Sandi</span></a>
             <a href="javascript:void(0)" onclick="lihatKartu()" class="m-nav-item text-center text-decoration-none text-primary" style="transform: translateY(-15px);"><div class="bg-primary text-white rounded-circle d-flex align-items-center justify-content-center mx-auto shadow-lg border border-3 border-white" style="width:50px; height:50px;"><i class="bi bi-card-heading fs-3"></i></div><span class="mt-1" style="font-size: 10px; font-weight: bold;">Kartu</span></a>
             <a href="javascript:void(0)" onclick="$('#mdlBantuan').modal('show')" class="m-nav-item text-center text-decoration-none"><i class="bi bi-headset fs-4 d-block mb-1" style="line-height: 1;"></i><span style="font-size: 10px; font-weight: bold;">Bantuan</span></a>
+            
             <a href="javascript:void(0)" onclick="logout()" class="m-nav-item text-center text-decoration-none text-danger"><i class="bi bi-box-arrow-right fs-4 d-block mb-1" style="line-height: 1;"></i><span style="font-size: 10px; font-weight: bold;">Keluar</span></a>
         </div>
 
@@ -1233,8 +1334,13 @@ function restoreSession(res) {
     $('#yearApp').text(new Date().getFullYear()); 
     
     if (res.role === 'siswa') {
-      // Tampilan khusus Siswa
-        $('#mobileTopBar').addClass('d-none'); // Hilangkan bar atas untuk siswa
+        // Tampilan khusus Siswa & Alumni
+        $('#mobileTopBar').removeClass('d-none'); // Munculkan bar atas
+        $('#mobileSemester').addClass('d-none');  // Sembunyikan pilihan semester
+        $('#mobTopSetting').hide();               // Sembunyikan icon gear
+        $('#mobTopLogout').hide();                // Sembunyikan Logout atas (karena sudah di bawah)
+        $('#mobTopCekData').addClass('hidden');   // Default sembunyikan cek data
+        
         $('#botSiswa').removeClass('d-none').addClass('d-flex');
         $('#botAdmin, #botWaka').removeClass('d-flex').addClass('d-none');
         $('#mainSidebar').addClass('hidden'); 
@@ -1242,14 +1348,15 @@ function restoreSession(res) {
         $('.mobile-toggle').addClass('hidden'); 
         $('.fab-refresh').addClass('hidden');
 
-        $('#headerInstansi').text(globalConf.nama_instansi);
-        $('#headerSekolah').text(globalConf.nama_sekolah);
+        $('#headerInstansi').text(globalConf.nama_instansi || 'DINAS PENDIDIKAN');
+        $('#headerSekolah').text(globalConf.nama_sekolah || 'NAMA SEKOLAH');
         if(globalConf.logo_instansi) callAPI('getImage', {id: globalConf.logo_instansi}).then(b => { if(b) $('#headerLogoInstansi').attr('src', b).removeClass('hidden'); });
         if(globalConf.logo_sekolah) callAPI('getImage', {id: globalConf.logo_sekolah}).then(b => { if(b) $('#headerLogoSekolah').attr('src', b).removeClass('hidden'); });
 
         nav('profil_siswa', null); 
         
         const d = res.data;
+      
         $('#profil_nama').text(d.nama); $('#profil_nisn').text(d.nisn);
         $('#profil_nis_nisn').text(d.nis + ' / ' + d.nisn);
         $('#profil_ttl').text((d.tmplahir || '-') + ', ' + (d.tgllahir_indo || '-'));
@@ -1266,16 +1373,14 @@ function restoreSession(res) {
         
        let isAlumni = (d.status_akhir === 'Lulus');
         
-        // MUNCULKAN DATA ALUMNI JIKA LULUS
+        // MUNCULKAN DATA & NOTIFIKASI KHUSUS ALUMNI
         if(isAlumni) {
             $('#row-alumni-lulus, #row-alumni-ijazah').removeClass('hidden');
-            $('#btnCekKelengkapan').removeClass('hidden'); // <--- MUNCULKAN TOMBOL
-            
-            let thnLulusStr = d.tgl_keluar ? String(d.tgl_keluar).substring(0,4) : '-';
-            $('#profil_thn_lulus').text(thnLulusStr);
-            $('#profil_no_ijazah').text(d.noijazah_sma || '-');
+            $('#btnCekKelengkapan').removeClass('hidden'); 
+            $('#mobTopCekData').removeClass('hidden'); // MUNCULKAN CEK DATA DI KANAN ATAS
         } else {
             $('#row-alumni-lulus, #row-alumni-ijazah').addClass('hidden');
+            $('#mobTopCekData').addClass('hidden');
         }
         let fotoProfilTampil = isAlumni ? (d.foto_keluar || d.foto_id) : d.foto_id;
 
