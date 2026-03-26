@@ -1090,27 +1090,27 @@ input, button, select, textarea {
                           
                           <div class="col-md-4">
     <label class="form-label small fw-bold">*NIS</label>
-    <input name="nis" class="form-control bg-light" required>
+    <input name="nis" class="form-control bg-light" required placeholder="NIS auto 3 digit" onblur="formatAndValidateNIS(this)">
 </div>
 
 <div class="col-md-8">
-    <label class="form-label small fw-bold" style="line-height: 1.1;">NISN (isi NIS jika tidak memiliki NISN)</label>
-    <input name="nisn" class="form-control" onblur="formatAndValidateNISN(this)">
+    <label class="form-label small fw-bold" style="line-height: 1.1;">*NISN (Isi NIS jika tidak punya)</label>
+    <input name="nisn" class="form-control" placeholder="NISN auto 10 digit" onblur="formatAndValidateNISN(this)">
 </div>
 
 <div class="col-md-12">
-    <label class="form-label small fw-bold">*Nama Lengkap</label>
-    <input name="nama" class="form-control fw-bold border-primary" required>
+    <label class="form-label small fw-bold">*Nama Lengkap (sesuai Ijazah)</label>
+    <input name="nama" class="form-control fw-bold border-primary" required placeholder="Nama Lengkap Siswa">
 </div>
 
 <div class="col-md-4">
     <label class="form-label small fw-bold">NIK (Kosongkan jika tidak ada)</label>
-    <input name="nik" class="form-control" onblur="formatAndValidateNIK_KK(this, 'NIK')">
+    <input name="nik" class="form-control" placeholder="16 digit angka atau kosongkan" onblur="formatAndValidateNIK_KK(this, 'NIK')">
 </div>
 
 <div class="col-md-4">
     <label class="form-label small fw-bold">No. KK (Kosongkan jika tidak ada)</label>
-    <input name="nokk" class="form-control" onblur="formatAndValidateNIK_KK(this, 'No. KK')">
+    <input name="nokk" class="form-control" placeholder="16 digit angka atau kosongkan" onblur="formatAndValidateNIK_KK(this, 'No. KK')">
 </div>
                         
                         <div class="col-md-4"><label class="form-label small fw-bold">Agama</label>
@@ -2880,6 +2880,30 @@ function hapusGambarSettings(inputId, imgId) {
 // ==========================================
 // FITUR VALIDASI REAL-TIME (NISN, NIK, KK)
 // ==========================================
+
+// --- VALIDASI REAL-TIME NIS (Otomatis 3 Digit) ---
+function formatAndValidateNIS(input) {
+    let val = input.value.trim();
+    if (val === "") return; // Abaikan jika kosong
+
+    // Cek apakah ada huruf (Hanya boleh angka)
+    if (!/^\d+$/.test(val)) {
+        Swal.fire('Format Salah', 'NIS hanya boleh berisi angka!', 'error');
+        input.value = val.replace(/\D/g, ''); // Bersihkan otomatis hurufnya
+        return;
+    }
+
+    // Jika jumlah angka kurang dari 3 digit
+    if (val.length < 3) {
+        // Tambahkan angka 0 di depan sampai minimal 3 digit
+        input.value = val.padStart(3, '0');
+        
+        // Notifikasi kecil di pojok kanan atas agar tidak mengganggu (tidak perlu diklik OK)
+        const Toast = Swal.mixin({toast: true, position: 'top-end', showConfirmButton: false, timer: 3000}); 
+        Toast.fire({icon: 'info', title: 'NIS otomatis disesuaikan menjadi minimal 3 digit'});
+    }
+}
+
 
 function formatAndValidateNISN(input) {
     let val = input.value.trim();
