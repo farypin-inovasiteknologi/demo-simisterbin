@@ -1104,12 +1104,12 @@ input, button, select, textarea {
 </div>
 
 <div class="col-md-4">
-    <label class="form-label small fw-bold">NIK</label>
+    <label class="form-label small fw-bold">NIK (Kosongkan jika tidak ada)</label>
     <input name="nik" class="form-control" onblur="formatAndValidateNIK_KK(this, 'NIK')">
 </div>
 
 <div class="col-md-4">
-    <label class="form-label small fw-bold">No. KK</label>
+    <label class="form-label small fw-bold">No. KK (Kosongkan jika tidak ada)</label>
     <input name="nokk" class="form-control" onblur="formatAndValidateNIK_KK(this, 'No. KK')">
 </div>
                         
@@ -2899,7 +2899,7 @@ function formatAndValidateNISN(input) {
         
         Swal.fire({
             title: 'Info Sistem',
-            text: 'Peringatan, NISN wajib 10 digit, data anda otomatis dilengkapi oleh sistem dengan menambah angka 0 di depan.',
+            text: 'Peringatan, NISN wajib 10 digit, data anda otomatis dilengkapi oleh sistem dengan menambah angka 0 di depan. Mohon periksa kembali jika ada kekeliruan.',
             icon: 'info'
         });
     } 
