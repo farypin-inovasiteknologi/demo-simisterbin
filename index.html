@@ -41,6 +41,29 @@ input, button, select, textarea {
         display:flex; align-items:center; justify-content:center; padding: 20px; 
         position: relative; overflow: hidden;
     }
+
+    /* --- PERBAIKAN OVERLAY LOADER JADI MODERN (GLASSMORPHISM) --- */
+.loader-overlay { 
+    position: fixed; 
+    inset: 0; 
+    background: rgba(255, 255, 255, 0.85); /* Putih transparan */
+    backdrop-filter: blur(5px); /* Efek kaca buram */
+    -webkit-backdrop-filter: blur(5px);
+    z-index: 9999; 
+    display: flex; 
+    flex-direction: column; 
+    align-items: center; 
+    justify-content: center; 
+    color: var(--dark); /* Warna teks jadi gelap agar terbaca di background terang */
+}
+.spinner { 
+    width: 50px; 
+    height: 50px; 
+    border: 5px solid #e2e8f0; /* Lingkaran dasar abu-abu lembut */
+    border-top-color: var(--primary); /* Putaran warna biru/primary */
+    border-radius: 50%; 
+    animation: spin 1s linear infinite; 
+}
     
     /* Animasi background dasar berjalan */
     @keyframes gradientMove { 0% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } 100% { background-position: 0% 50%; } }
@@ -167,6 +190,19 @@ input, button, select, textarea {
         .print-card-wrapper { width: 85.2mm; height: 53.3mm; overflow: hidden; position: relative; border: 1px dashed #cbd5e1; border-radius: 8px; -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
         .print-card-wrapper .id-card { transform-origin: top left; transform: scale(0.805); margin: 0; box-shadow: none; border-radius: 0; }
     }
+
+    /* ==========================================
+           Pengecualian Warna Status Siswa di HP
+           ========================================== */
+        #view-profil_siswa .table td#profil_status.text-success {
+            color: #1cc88a !important; /* Hijau terang untuk Aktif */
+            font-weight: 800 !important; /* Dibuat sedikit lebih tebal agar mencolok */
+        }
+        
+        #view-profil_siswa .table td#profil_status.text-danger {
+            color: #e74a3b !important; /* Merah untuk Lulus */
+            font-weight: 800 !important;
+        }
 
     /* --- PASSWORD EYE --- */
     .pass-wrapper { position: relative; }
@@ -584,7 +620,7 @@ input, button, select, textarea {
         <div id="botAdmin" class="d-none justify-content-around align-items-center h-100 w-100">
             <a href="javascript:void(0)" onclick="nav('siswa', this)" class="m-nav-item text-center text-decoration-none"><i class="bi bi-journal-bookmark-fill fs-4 d-block mb-1" style="line-height: 1;"></i><span style="font-size: 10px; font-weight: bold;">Induk</span></a>
             <a href="javascript:void(0)" onclick="nav('datasiswa', this)" class="m-nav-item text-center text-decoration-none"><i class="bi bi-people-fill fs-4 d-block mb-1" style="line-height: 1;"></i><span style="font-size: 10px; font-weight: bold;">Siswa</span></a>
-            <a href="javascript:void(0)" onclick="nav('dash', this)" class="m-nav-item text-center text-decoration-none active text-primary" style="transform: translateY(-15px);"><div class="bg-primary text-white rounded-circle d-flex align-items-center justify-content-center mx-auto shadow-lg border border-3 border-white" style="width:50px; height:50px;"><i class="bi bi-speedometer2 fs-3"></i></div><span class="mt-1" style="font-size: 10px; font-weight: bold;">Dash</span></a>
+            <a href="javascript:void(0)" onclick="nav('dash', this)" class="m-nav-item text-center text-decoration-none active text-primary" style="transform: translateY(-15px);"><div class="bg-primary text-white rounded-circle d-flex align-items-center justify-content-center mx-auto shadow-lg border border-3 border-white" style="width:50px; height:50px;"><i class="bi bi-Home fs-3"></i></div><span class="mt-1" style="font-size: 10px; font-weight: bold;">Home</span></a>
             <a href="javascript:void(0)" onclick="nav('alumni', this)" class="m-nav-item text-center text-decoration-none"><i class="bi bi-mortarboard-fill fs-4 d-block mb-1" style="line-height: 1;"></i><span style="font-size: 10px; font-weight: bold;">Alumni</span></a>
             <a href="javascript:void(0)" onclick="nav('mapel', this)" class="m-nav-item text-center text-decoration-none"><i class="bi bi-book-half fs-4 d-block mb-1" style="line-height: 1;"></i><span style="font-size: 10px; font-weight: bold;">Mapel</span></a>
         </div>
@@ -2625,7 +2661,7 @@ function cariDataAlumni() {
                     if(d.status === 'Keluar' || d.status === 'Pindah') {
                         petunjukHtml = `<div class="alert alert-danger small text-start m-0"><b>Peringatan:</b><br>Maaf, Anda tidak bisa login karena berstatus <b>${d.status}</b>.</div>`;
                     } else {
-                        petunjukHtml = `<div class="alert alert-info small text-start m-0"><b>Petunjuk:</b><br>Silakan kembali dan login menggunakan <b>NISN</b> / <b>NIS</b> dan password standar <b>123456</b>. Demi keamanan, harap langsung mengganti password Anda!</div>`;
+                        petunjukHtml = `<div class="alert alert-info small text-start m-0"><b>Petunjuk:</b><br>Silakan kembali dan login menggunakan <b>NISN</b> / <b>NIS </b> (NIS 10 Digit bagi alumni yang tidak memiliki NISN) dan password standar <b>123456</b>. Demi keamanan, harap langsung mengganti password Anda!</div>`;
                     }
                     
                     Swal.fire({
