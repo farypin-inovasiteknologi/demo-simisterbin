@@ -523,7 +523,7 @@ input, button, select, textarea {
 </head>
 <body>
 
-<div id="loader" style="position:fixed;inset:0;background:rgba(255,255,255,0.98);z-index:9999;display:flex;justify-content:center;align-items:center;flex-direction:column;">
+<div id="loader" class="loader-overlay">
     <div class="spinner-border text-primary" role="status"></div>
     <div id="loaderText" class="mt-3 fw-bold text-secondary">Memuat Data, Tunggu Sebentar...</div>
 </div>
@@ -550,7 +550,7 @@ input, button, select, textarea {
             </button>
         </div>
         <div class="text-center mt-5 small text-secondary">
-            &copy; <span id="yearAppLanding"></span> SiMISTerBin <span id="footSchoolLanding" class="fw-bold"></span>.<br>
+            &copy; <span id="yearAppLanding"></span> SiMISTerBin <span id="footSchoolLanding" class="fw-bold"></span>. Hak Cipta Dilindungi.<br>
             Powered by: <a href='https://www.farypin-inovasiteknologi.com' rel='dofollow' style='color:blue;'>PT Farypin Inovasi Teknologi</a>
         </div>
     </div>
@@ -620,7 +620,7 @@ input, button, select, textarea {
         <div id="botAdmin" class="d-none justify-content-around align-items-center h-100 w-100">
             <a href="javascript:void(0)" onclick="nav('siswa', this)" class="m-nav-item text-center text-decoration-none"><i class="bi bi-journal-bookmark-fill fs-4 d-block mb-1" style="line-height: 1;"></i><span style="font-size: 10px; font-weight: bold;">Induk</span></a>
             <a href="javascript:void(0)" onclick="nav('datasiswa', this)" class="m-nav-item text-center text-decoration-none"><i class="bi bi-people-fill fs-4 d-block mb-1" style="line-height: 1;"></i><span style="font-size: 10px; font-weight: bold;">Siswa</span></a>
-            <a href="javascript:void(0)" onclick="nav('dash', this)" class="m-nav-item text-center text-decoration-none active text-primary" style="transform: translateY(-15px);"><div class="bg-primary text-white rounded-circle d-flex align-items-center justify-content-center mx-auto shadow-lg border border-3 border-white" style="width:50px; height:50px;"><i class="bi bi-Home fs-3"></i></div><span class="mt-1" style="font-size: 10px; font-weight: bold;">Home</span></a>
+            <a href="javascript:void(0)" onclick="nav('dash', this)" class="m-nav-item text-center text-decoration-none active text-primary" style="transform: translateY(-15px);"><div class="bg-primary text-white rounded-circle d-flex align-items-center justify-content-center mx-auto shadow-lg border border-3 border-white" style="width:50px; height:50px;"><i class="bi bi-home fs-3"></i></div><span class="mt-1" style="font-size: 10px; font-weight: bold;">Home</span></a>
             <a href="javascript:void(0)" onclick="nav('alumni', this)" class="m-nav-item text-center text-decoration-none"><i class="bi bi-mortarboard-fill fs-4 d-block mb-1" style="line-height: 1;"></i><span style="font-size: 10px; font-weight: bold;">Alumni</span></a>
             <a href="javascript:void(0)" onclick="nav('mapel', this)" class="m-nav-item text-center text-decoration-none"><i class="bi bi-book-half fs-4 d-block mb-1" style="line-height: 1;"></i><span style="font-size: 10px; font-weight: bold;">Mapel</span></a>
         </div>
@@ -938,7 +938,7 @@ input, button, select, textarea {
         
         <footer class="app-footer">
             <div class="container small">
-                &copy; <span id="yearApp"></span> SiMISTerBIn <span id="footSchoolName" class="fw-bold"></span>. All Rights Reserved. <br>
+                &copy; <span id="yearApp"></span> SiMISTerBIn <span id="footSchoolName" class="fw-bold"></span>. Hak Cipta Dilindungi. <br>
                 <a href="javascript:void(0)" onclick="showPrivacy()">Kebijakan Privasi</a> &bull; Powered by : <a href='https://www.farypin-inovasiteknologi.com' rel='dofollow' style='color:blue;'>PT Farypin Inovasi Teknologi</a>
             </div>
         </footer>
@@ -1547,9 +1547,11 @@ function nav(page, el, param) {
 }
 
 // --- OPTIMIZED LOAD SISWA VIA API & PEMISAH TABEL ---
+// --- OPTIMIZED LOAD SISWA VIA API & PEMISAH TABEL ---
 function loadSiswa() { 
     callAPI('getStudents').then(data => { 
-        const listSiswa = data.data ? data.data : data;
+        // PENGAMAN: Pastikan data yang ditarik adalah Array, jika error/kosong, jadikan array kosong []
+        const listSiswa = (data && data.data) ? data.data : (Array.isArray(data) ? data : []);
         globalSiswa = listSiswa; 
 
         // Update Statistik Dashboard
@@ -1578,33 +1580,27 @@ function loadSiswa() {
         let htmlInduk = "", htmlSiswa = "", htmlAlumni = "";
 
         listSiswa.forEach(r => {
-            const nis = r[0], nisn = r[1], nama = r[2], tgllahir = formatTglIndoJS(r[6]), jk = r[7]; // <--- TAMBAH formatTglIndoJS di r[6]
-            const kls = r[29], thnMasuk = r[30] ? r[30].substring(0,4) : '-', status = r[31];
-            const thnKeluar = r[32] ? r[32].substring(0,4) : "-";
+            const nis = r[0], nisn = r[1], nama = r[2], tgllahir = formatTglIndoJS(r[6]), jk = r[7]; 
+            const kls = r[29], thnMasuk = r[30] ? String(r[30]).substring(0,4) : '-', status = r[31];
+            const thnKeluar = r[32] ? String(r[32]).substring(0,4) : "-";
             const nisGabung = nisn ? `${nis} / ${nisn}` : nis;
 
             // Tombol Master Buku Induk
             let btnInduk = `<button class="btn btn-sm btn-info text-white me-1 shadow-sm" onclick="cetakPDF('${nis}')" title="PDF"><i class="bi bi-file-pdf"></i></button><button class="btn btn-sm btn-secondary me-1 shadow-sm" onclick="reviewSiswa('${nis}')" title="Detail"><i class="bi bi-eye"></i></button>`; 
             if(isAdmin) btnInduk += `<button class="btn btn-sm btn-warning me-1 shadow-sm" onclick="editSiswa('${nis}')"><i class="bi bi-pencil"></i></button><button class="btn btn-sm btn-danger shadow-sm" onclick="delSiswa('${nis}')"><i class="bi bi-trash"></i></button>`; 
 
-            // Tombol Data Siswa & Alumni
-            // Tombol Data Siswa & Alumni (Sudah Aktif)
             let btnData = `<button class="btn btn-sm btn-secondary me-1 shadow-sm" onclick="reviewSiswa('${nis}')" title="Lihat"><i class="bi bi-eye"></i></button> <button class="btn btn-sm btn-success me-1 shadow-sm" onclick="cetakKartuAdmin('${nis}')" title="Unduh Kartu"><i class="bi bi-card-heading"></i></button>`;
             if(isAdmin && status !== 'Lulus') btnData += `<button class="btn btn-sm btn-danger shadow-sm" onclick="resetPassAdmin('${nis}')" title="Reset Password"><i class="bi bi-key"></i></button>`;
 
-            // 1. Masuk Buku Induk (Semua Data)
             htmlInduk += `<tr><td>${nis}</td><td>${nama}</td><td>${tgllahir}</td><td>${jk}</td><td>${thnMasuk}</td><td>${btnInduk}</td></tr>`;
 
-            // 2. Masuk Data Siswa (Kecuali Lulus)
             if (status !== 'Lulus') {
                 let badgeStatus = status === 'Aktif' ? `<span class="badge bg-success">Aktif</span>` : `<span class="badge bg-danger">${status}</span>`;
                 htmlSiswa += `<tr><td>${nisGabung}</td><td>${nama}</td><td>${tgllahir}</td><td>${jk}</td><td>${badgeStatus}</td><td>${btnData}</td></tr>`;
             }
 
-            // 3. Masuk Data Alumni (Hanya Lulus)
             if (status === 'Lulus') {
                 let btnDataAlumni = `<button class="btn btn-sm btn-secondary me-1 shadow-sm" onclick="reviewSiswa('${nis}')" title="Lihat"><i class="bi bi-eye"></i></button> <button class="btn btn-sm btn-success me-1 shadow-sm" onclick="cetakKartuAdmin('${nis}')" title="Unduh Kartu"><i class="bi bi-card-heading"></i></button>`;
-                // Tambahkan Tombol Kunci (Reset Password) untuk Alumni
                 if(isAdmin) btnDataAlumni += `<button class="btn btn-sm btn-danger shadow-sm" onclick="resetPassAdmin('${nis}')" title="Reset Password"><i class="bi bi-key"></i></button>`;
                 
                 htmlAlumni += `<tr><td>${nisGabung}</td><td>${nama}</td><td>${jk}</td><td><span class="badge bg-success">Lulus</span></td><td>${thnKeluar}</td><td>${btnDataAlumni}</td></tr>`;
@@ -1619,6 +1615,12 @@ function loadSiswa() {
         $('#tblSiswa').DataTable(dtConfig); 
         $('#tblDataSiswa').DataTable(dtConfig); 
         $('#tblAlumni').DataTable(dtConfig); 
+        
+        // PENGAMAN: Paksa loader hilang jika nyangkut
+        $('#loader').addClass('hidden');
+    }).catch(e => {
+        console.error(e);
+        $('#loader').addClass('hidden'); // Paksa hilang jika error jaringan
     }); 
 }
 
