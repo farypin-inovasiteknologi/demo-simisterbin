@@ -574,85 +574,102 @@ async function cetakTranskrip() {
 
     $('#loader').removeClass('hidden'); 
 
+    // Ambil isi tabel dari HTML
     const tbodyHtml = $('#tbodyTranskrip').html();
     const tfootHtml = $('#tfootTranskrip').html();
 
-    // 1. AMBIL LOGO (Cari di header profil, kalau tidak ada cari di preview pengaturan)
+    // 1. AMBIL LOGO (Pasti muncul karena ambil dari header profil yang stabil)
     let imgInstansi = $('#headerLogoInstansi').attr('src') || $('#prevLogoInstansi').attr('src') || '';
     let imgSekolah = $('#headerLogoSekolah').attr('src') || $('#prevLogoSekolah').attr('src') || '';
     
     // 2. FORMAT ALAMAT (Ubah tombol enter menjadi baris baru HTML)
     let alamatSekolah = globalConf.alamat_sekolah ? globalConf.alamat_sekolah.replace(/\n/g, '<br>') : '-';
-    
     const tglSekarang = new Date().toLocaleDateString('id-ID', {day: 'numeric', month: 'long', year: 'numeric'});
 
+    // 3. AMBIL NAMA & NIP KEPSEK DARI PENGATURAN
+    let namaKepsek = globalConf.nama_kepsek || '.....................................';
+    let nipKepsek = globalConf.nip_kepsek ? 'NIP. ' + globalConf.nip_kepsek : 'NIP. -';
+
     const html = `
-        <div style="font-family: 'Arial', sans-serif; font-size: 9pt; color: #000; background: #fff;">
+        <div style="font-family: 'Arial', sans-serif; font-size: 9pt; color: #000; background: #fff; padding: 10px;">
+            
             <style>
                 .tabel-nilai { width: 100%; border-collapse: collapse; text-align: center; font-size: 9pt; }
-                .tabel-nilai th, .tabel-nilai td { border: 1px solid #000 !important; padding: 5px; }
+                .tabel-nilai th, .tabel-nilai td { border: 1px solid #000 !important; padding: 5px; vertical-align: middle !important; }
+                .tabel-nilai th { background-color: #e2e8f0 !important; font-weight: bold; }
+                .col-mapel { width: 22%; text-align: left !important; padding-left: 8px !important; }
+                .text-end { text-align: right !important; padding-right: 10px !important; }
             </style>
             
             <table style="width: 100%; border-collapse: collapse; margin-bottom: 5px; border: none;">
                 <tr>
-                    <td width="15%" align="center" style="border: none; vertical-align: middle;">
+                    <td width="12%" align="center" style="border: none;">
                         ${imgInstansi && imgInstansi.length > 100 ? `<img src="${imgInstansi}" style="width: 75px; height: 75px; object-fit: contain;">` : ''}
                     </td>
-                    <td width="70%" style="text-align: center; line-height: 1.2; border: none; vertical-align: middle;">
+                    <td width="76%" style="text-align: center; line-height: 1.2; border: none;">
                         <div style="font-size:14pt; font-weight:bold; text-transform:uppercase; letter-spacing: 1px;">${globalConf.nama_instansi || ''}</div>
                         ${globalConf.opd_dinas ? `<div style="font-size:13pt; font-weight:bold; text-transform:uppercase;">${globalConf.opd_dinas}</div>` : ''}
-                        <div style="font-size:17pt; font-weight:bold; text-transform:uppercase; margin: 3px 0;">${globalConf.nama_sekolah || ''}</div>
+                        <div style="font-size:18pt; font-weight:bold; text-transform:uppercase; margin: 3px 0;">${globalConf.nama_sekolah || ''}</div>
                         <div style="font-size:10pt;">${alamatSekolah}</div>
                         <div style="font-size:9pt; margin-top: 3px;">Telp: ${globalConf.telp_sekolah || '-'} | Email: ${globalConf.email_sekolah || '-'} | Web: ${globalConf.web_sekolah || '-'}</div>
                     </td>
-                    <td width="15%" align="center" style="border: none; vertical-align: middle;">
+                    <td width="12%" align="center" style="border: none;">
                         ${imgSekolah && imgSekolah.length > 100 ? `<img src="${imgSekolah}" style="width: 75px; height: 75px; object-fit: contain;">` : ''}
                     </td>
                 </tr>
             </table>
-            <div style="border-bottom: 4px double #000; margin: 5px 0 10px 0;"></div>
+            <div style="border-bottom: 4px double #000; margin: 5px 0 15px 0;"></div>
             
-            <div style="text-align:center; font-weight:bold; margin:10px 0; font-size:12pt;">TRANSKRIP NILAI KOMPREHENSIF</div>
+            <div style="text-align:center; font-weight:bold; margin:10px 0; font-size:14pt;">TRANSKRIP NILAI KOMPREHENSIF</div>
             
             <table style="width:100%; margin-bottom:10px; font-size:10pt;">
-                <tr><td width="15%">Nama</td><td>: ${namaSiswa}</td><td width="15%">NIS/NISN</td><td>: ${nis} / ${nisn}</td></tr>
+                <tr>
+                    <td width="12%">Nama Siswa</td><td>: <b style="text-transform: uppercase;">${namaSiswa}</b></td>
+                    <td width="15%" style="text-align:right;">NIS / NISN</td><td>: <b>${nis} / ${nisn}</b></td>
+                </tr>
             </table>
             
             <table class="tabel-nilai">
                 <thead>
-                    <tr style="background-color:#eee;">
-                        <th rowspan="2" width="15%" style="vertical-align: middle; padding-bottom: 5px;">Mata Pelajaran</th>
+                    <tr>
+                        <th rowspan="2" class="col-mapel">Mata Pelajaran</th>
                         <th colspan="3">Smt 1</th><th colspan="3">Smt 2</th><th colspan="3">Smt 3</th>
                         <th colspan="3">Smt 4</th><th colspan="3">Smt 5</th><th colspan="3">Smt 6</th>
                     </tr>
-                    <tr style="background-color:#eee;">
+                    <tr>
                         <th>P</th><th>K</th><th>S</th><th>P</th><th>K</th><th>S</th><th>P</th><th>K</th><th>S</th>
                         <th>P</th><th>K</th><th>S</th><th>P</th><th>K</th><th>S</th><th>P</th><th>K</th><th>S</th>
                     </tr>
                 </thead>
-                <tbody>${tbodyHtml}</tbody>
-                <tfoot style="background-color:#eee; font-weight:bold;">${tfootHtml}</tfoot>
+                <tbody>${tbodyHtml.replace(/text-start/g, 'col-mapel')}</tbody>
+                <tfoot style="background-color:#e2e8f0; font-weight:bold;">${tfootHtml}</tfoot>
             </table>
+            
             <br>
-            <div style="float:right; text-align:center; font-size:10pt; width:40%;">
-               <a> ..................... ,   ${tglSekarang}<br>Kepala Sekolah,<br><br><br><br>
-                <b><u>${globalConf.nama_kepsek || '.......................'}</u></b><br>NIP. ${globalConf.nip_kepsek || '-'} </a>
-            </div>
+            <table style="width: 100%; border: none; margin-top: 15px;">
+                <tr>
+                    <td width="65%" style="border: none;"></td>
+                    <td width="35%" style="border: none; text-align: center; font-size: 11pt;">
+                        ..............................., ${tglSekarang}<br>
+                        Kepala Sekolah<br><br><br><br><br>
+                        <b><u>${namaKepsek}</u></b><br>
+                        ${nipKepsek}
+                    </td>
+                </tr>
+            </table>
         </div>
     `;
 
-    // --- PENGATURAN MARGIN TRANSKRIP (Landscape) ---
-    // --- PENGATURAN MARGIN TRANSKRIP (Landscape FIX) ---
+    // 4. ATURAN CETAK (MARGIN & SKALA)
     var opt = { 
-        margin: [0.5, 1.5, 1.5, 1.5], // [Atas, Kanan, Bawah, Kiri]
+        margin: [1, 1, 1.5, 1], // [Atas, Kanan, Bawah, Kiri]
         filename: 'Transkrip_' + namaSiswa + '.pdf', 
         image: { type: 'jpeg', quality: 0.98 }, 
-        html2canvas: { scale: 2, scrollY: 0, windowY: 0 }, // <--- TAMBAHAN KUNCI SCROLL
+        html2canvas: { scale: 2, useCORS: true, scrollY: 0, windowY: 0 }, 
         jsPDF: { unit: 'cm', format: 'A4', orientation: 'landscape' } 
     };
     
     html2pdf().set(opt).from(html).save().then(() => { $('#loader').addClass('hidden'); });
-    
 }
 
 function loadMapel() { 
