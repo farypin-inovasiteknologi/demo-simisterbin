@@ -471,11 +471,13 @@ async function cetakPDF(nis) {
     const s = globalSiswa.find(x => x[0] == nis);
     if(!s) { $('#loader').addClass('hidden'); return; }
 
-    // TRIK NGEBUT: Ambil Logo langsung dari layar profil yang sudah pasti ter-render
-const imgInstansi = $('#headerLogoInstansi').attr('src') || '';
-const imgSekolah = $('#headerLogoSekolah').attr('src') || '';
+    // 1. AMBIL LOGO (Cari di header profil, kalau tidak ada cari di preview pengaturan)
+    let imgInstansi = $('#headerLogoInstansi').attr('src') || $('#prevLogoInstansi').attr('src') || '';
+    let imgSekolah = $('#headerLogoSekolah').attr('src') || $('#prevLogoSekolah').attr('src') || '';
+    
+    // 2. FORMAT ALAMAT (Ubah tombol enter menjadi baris baru HTML)
+    let alamatSekolah = globalConf.alamat_sekolah ? globalConf.alamat_sekolah.replace(/\n/g, '<br>') : '-';
 
-    // Kita HANYA mendownload foto siswa (karena fotonya belum tampil di tabel)
     const imgMasukProm = s[35] ? callAPI('getImage', {id: s[35]}) : Promise.resolve('');
     const imgKeluarProm = s[36] ? callAPI('getImage', {id: s[36]}) : Promise.resolve('');
     const [imgMasuk, imgKeluar] = await Promise.all([imgMasukProm, imgKeluarProm]);
@@ -484,22 +486,29 @@ const imgSekolah = $('#headerLogoSekolah').attr('src') || '';
 
     const html = `
         <div style="font-family: 'Arial', sans-serif; font-size: 11pt; color: #000; background: #fff;">
-            <table style="width: 100%; border-collapse: collapse;">
+            
+            <table style="width: 100%; border-collapse: collapse; margin-bottom: 5px; border: none;">
                 <tr>
-              <td width="15%" align="center" style="vertical-align: middle;">${imgInstansi ? `<img src="${imgInstansi}" style="width: 2cm; max-width: 100%; object-fit: contain;">` : ''}</td>
-                <td width="70%" style="text-align: center; line-height: 1.3;">
-                <div style="font-size:14pt; font-weight:bold; text-transform:uppercase;">${globalConf.nama_instansi || ''}</div>
-                 ${globalConf.opd_dinas ? `<div style="font-size:14pt; font-weight:bold; text-transform:uppercase;">${globalConf.opd_dinas}</div>` : ''}
-                <div style="font-size:17pt; font-weight:bold; text-transform:uppercase;">${globalConf.nama_sekolah || ''}</div>
-                <div style="font-size:9pt;">${globalConf.alamat_sekolah || ''}</div>
-                <div style="font-size:8pt;">Telp: ${globalConf.telp_sekolah || '-'}  |  Email: ${globalConf.email_sekolah || '-'}  |  Web: ${globalConf.web_sekolah || '-'}</div>
-               </td>
-            <td width="15%" align="center" style="vertical-align: middle;">${imgSekolah ? `<img src="${imgSekolah}" style="width: 2cm; max-width: 100%; object-fit: contain;">` : ''}</td>
-           </tr>
+                    <td width="15%" align="center" style="border: none; vertical-align: middle;">
+                        ${imgInstansi && imgInstansi.length > 100 ? `<img src="${imgInstansi}" style="width: 75px; height: 75px; object-fit: contain;">` : ''}
+                    </td>
+                    <td width="70%" style="text-align: center; line-height: 1.2; border: none; vertical-align: middle;">
+                        <div style="font-size:14pt; font-weight:bold; text-transform:uppercase; letter-spacing: 1px;">${globalConf.nama_instansi || ''}</div>
+                        ${globalConf.opd_dinas ? `<div style="font-size:13pt; font-weight:bold; text-transform:uppercase;">${globalConf.opd_dinas}</div>` : ''}
+                        <div style="font-size:17pt; font-weight:bold; text-transform:uppercase; margin: 3px 0;">${globalConf.nama_sekolah || ''}</div>
+                        <div style="font-size:10pt;">${alamatSekolah}</div>
+                        <div style="font-size:9pt; margin-top: 3px;">Telp: ${globalConf.telp_sekolah || '-'}  |  Email: ${globalConf.email_sekolah || '-'}  |  Web: ${globalConf.web_sekolah || '-'}</div>
+                    </td>
+                    <td width="15%" align="center" style="border: none; vertical-align: middle;">
+                        ${imgSekolah && imgSekolah.length > 100 ? `<img src="${imgSekolah}" style="width: 75px; height: 75px; object-fit: contain;">` : ''}
+                    </td>
+                </tr>
             </table>
-            <div style="border-bottom: 3px double #000; margin: 10px 0 20px 0;"></div>
+            <div style="border-bottom: 4px double #000; margin: 5px 0 20px 0;"></div>
+            
             <div style="text-align:center; font-weight:bold; text-decoration:underline; font-size:14pt; margin-bottom:20px;">LEMBAR BUKU INDUK SISWA</div>
             <table style="width: 100%; border-collapse: collapse; line-height: 1.5;">
+
                 <tr><td style="width: 35%; vertical-align: top;">1. Nama Lengkap</td><td style="width: 2%;">:</td><td style="width: 63%; font-weight: bold;">${s[2]}</td></tr>
                 <tr><td style="vertical-align: top;">2. NIS / NISN</td><td>:</td><td style="font-weight: bold;">${s[0]} / ${s[1]}</td></tr>
                 <tr><td style="vertical-align: top;">3. NIK / No.KK</td><td>:</td><td style="font-weight: bold;">${s[3]} / ${s[4]}</td></tr>
@@ -538,7 +547,6 @@ const imgSekolah = $('#headerLogoSekolah').attr('src') || '';
         </div>
     `;
 
-    // --- PENGATURAN MARGIN ADA DI SINI ---
    // --- PENGATURAN MARGIN & SCROLL (FIX) ---
     var opt = { 
         margin: [0.8, 1.4, 1, 1.4], 
@@ -560,18 +568,21 @@ async function cetakTranskrip() {
     const nis = $('#tNis').val(); 
     const namaSiswa = $('#tNamaSiswa').text().split(' (')[0]; 
     
-    // --- TRIK BARU: Cari siswa di globalSiswa untuk mendapatkan NISN ---
+    // Cari data siswa di memori untuk mendapatkan NISN
     const s = globalSiswa.find(x => x[0] == nis);
-    const nisn = s ? s[1] : '-'; // s[1] adalah urutan kolom NISN di databasemu
+    const nisn = s ? s[1] : '-'; 
 
     $('#loader').removeClass('hidden'); 
 
     const tbodyHtml = $('#tbodyTranskrip').html();
     const tfootHtml = $('#tfootTranskrip').html();
 
-    // Ambil logo dari header profil agar pasti muncul di PDF
-    const imgInstansi = $('#headerLogoInstansi').attr('src') || '';
-    const imgSekolah = $('#headerLogoSekolah').attr('src') || '';
+    // 1. AMBIL LOGO (Cari di header profil, kalau tidak ada cari di preview pengaturan)
+    let imgInstansi = $('#headerLogoInstansi').attr('src') || $('#prevLogoInstansi').attr('src') || '';
+    let imgSekolah = $('#headerLogoSekolah').attr('src') || $('#prevLogoSekolah').attr('src') || '';
+    
+    // 2. FORMAT ALAMAT (Ubah tombol enter menjadi baris baru HTML)
+    let alamatSekolah = globalConf.alamat_sekolah ? globalConf.alamat_sekolah.replace(/\n/g, '<br>') : '-';
     
     const tglSekarang = new Date().toLocaleDateString('id-ID', {day: 'numeric', month: 'long', year: 'numeric'});
 
@@ -579,24 +590,30 @@ async function cetakTranskrip() {
         <div style="font-family: 'Arial', sans-serif; font-size: 9pt; color: #000; background: #fff;">
             <style>
                 .tabel-nilai { width: 100%; border-collapse: collapse; text-align: center; font-size: 9pt; }
-                .tabel-nilai th, .tabel-nilai td { border: 0.3px solid #000 !important; padding: 5px; }
+                .tabel-nilai th, .tabel-nilai td { border: 1px solid #000 !important; padding: 5px; }
             </style>
             
-            <table style="width: 100%; border-collapse: collapse;">
-            <tr>
-              <td width="15%" align="center" style="vertical-align: middle;">${imgInstansi ? `<img src="${imgInstansi}" style="width: 2.2cm; max-width: 100%; object-fit: contain;">` : ''}</td>
-                <td width="70%" style="text-align: center; line-height: 1.2;">
-                <div style="font-size:14pt; font-weight:bold; text-transform:uppercase;">${globalConf.nama_instansi || ''}</div>
-                 ${globalConf.opd_dinas ? `<div style="font-size:14pt; font-weight:bold; text-transform:uppercase;">${globalConf.opd_dinas}</div>` : ''}
-                <div style="font-size:17pt; font-weight:bold; text-transform:uppercase;">${globalConf.nama_sekolah || ''}</div>
-                <div style="font-size:9pt;">${globalConf.alamat_sekolah || ''}</div>
-                <div style="font-size:9pt;">Telp: ${globalConf.telp_sekolah || '-'} | Email: ${globalConf.email_sekolah || '-'} | Web: ${globalConf.web_sekolah || '-'}</div>
-               </td>
-            <td width="15%" align="center" style="vertical-align: middle;">${imgSekolah ? `<img src="${imgSekolah}" style="width: 2.2cm; max-width: 100%; object-fit: contain;">` : ''}</td>
-           </tr>
+            <table style="width: 100%; border-collapse: collapse; margin-bottom: 5px; border: none;">
+                <tr>
+                    <td width="15%" align="center" style="border: none; vertical-align: middle;">
+                        ${imgInstansi && imgInstansi.length > 100 ? `<img src="${imgInstansi}" style="width: 75px; height: 75px; object-fit: contain;">` : ''}
+                    </td>
+                    <td width="70%" style="text-align: center; line-height: 1.2; border: none; vertical-align: middle;">
+                        <div style="font-size:14pt; font-weight:bold; text-transform:uppercase; letter-spacing: 1px;">${globalConf.nama_instansi || ''}</div>
+                        ${globalConf.opd_dinas ? `<div style="font-size:13pt; font-weight:bold; text-transform:uppercase;">${globalConf.opd_dinas}</div>` : ''}
+                        <div style="font-size:17pt; font-weight:bold; text-transform:uppercase; margin: 3px 0;">${globalConf.nama_sekolah || ''}</div>
+                        <div style="font-size:10pt;">${alamatSekolah}</div>
+                        <div style="font-size:9pt; margin-top: 3px;">Telp: ${globalConf.telp_sekolah || '-'} | Email: ${globalConf.email_sekolah || '-'} | Web: ${globalConf.web_sekolah || '-'}</div>
+                    </td>
+                    <td width="15%" align="center" style="border: none; vertical-align: middle;">
+                        ${imgSekolah && imgSekolah.length > 100 ? `<img src="${imgSekolah}" style="width: 75px; height: 75px; object-fit: contain;">` : ''}
+                    </td>
+                </tr>
             </table>
-            <hr style="border:1px solid #000; margin: 10px 0;">
+            <div style="border-bottom: 4px double #000; margin: 5px 0 10px 0;"></div>
+            
             <div style="text-align:center; font-weight:bold; margin:10px 0; font-size:12pt;">TRANSKRIP NILAI KOMPREHENSIF</div>
+            
             <table style="width:100%; margin-bottom:10px; font-size:10pt;">
                 <tr><td width="15%">Nama</td><td>: ${namaSiswa}</td><td width="15%">NIS/NISN</td><td>: ${nis} / ${nisn}</td></tr>
             </table>
