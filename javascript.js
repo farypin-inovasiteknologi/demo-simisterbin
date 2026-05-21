@@ -471,9 +471,9 @@ async function cetakPDF(nis) {
     const s = globalSiswa.find(x => x[0] == nis);
     if(!s) { $('#loader').addClass('hidden'); return; }
 
-    // TRIK NGEBUT: Ambil Logo langsung dari layar (Tanpa manggil Google Drive lagi!)
-    const imgInstansi = $('#loginLogoInstansi').attr('src') || '';
-    const imgSekolah = $('#loginLogoSekolah').attr('src') || '';
+    // TRIK NGEBUT: Ambil Logo langsung dari layar profil yang sudah pasti ter-render
+const imgInstansi = $('#headerLogoInstansi').attr('src') || '';
+const imgSekolah = $('#headerLogoSekolah').attr('src') || '';
 
     // Kita HANYA mendownload foto siswa (karena fotonya belum tampil di tabel)
     const imgMasukProm = s[35] ? callAPI('getImage', {id: s[35]}) : Promise.resolve('');
@@ -569,8 +569,9 @@ async function cetakTranskrip() {
     const tbodyHtml = $('#tbodyTranskrip').html();
     const tfootHtml = $('#tfootTranskrip').html();
 
-    const imgInstansi = $('#loginLogoInstansi').attr('src') || '';
-    const imgSekolah = $('#loginLogoSekolah').attr('src') || '';
+    // Ambil logo dari header profil agar pasti muncul di PDF
+    const imgInstansi = $('#headerLogoInstansi').attr('src') || '';
+    const imgSekolah = $('#headerLogoSekolah').attr('src') || '';
     
     const tglSekarang = new Date().toLocaleDateString('id-ID', {day: 'numeric', month: 'long', year: 'numeric'});
 
@@ -1729,8 +1730,8 @@ function cetakKlaperPDF() {
     }
 
     // 4. Bangun Struktur HTML dengan CSS Internal yang Memaksa Border Muncul
-    let html = `
-    <div style="font-family: 'Times New Roman', serif; color: #000; background: #fff; padding: 5px;">
+   let html = `
+<div style="font-family: 'Arial', sans-serif; color: #000; background: #fff; padding: 5px;">
         
         <style>
             .tabel-klaper { width: 100%; border-collapse: collapse; font-size: 8pt; font-family: 'Arial', sans-serif; }
