@@ -466,100 +466,94 @@ function openTranskrip(nis) {
 // 1. FUNGSI CETAK BIODATA (SUPER CEPAT & BISA ATUR MARGIN)
 // ==========================================
 async function cetakPDF(nis) { 
-    $('#loader').removeClass('hidden'); 
-    
     const s = globalSiswa.find(x => x[0] == nis);
-    if(!s) { $('#loader').addClass('hidden'); return; }
+    if(!s) return;
 
-    // 1. AMBIL LOGO (Cari di header profil, kalau tidak ada cari di preview pengaturan)
-    let imgInstansi = $('#headerLogoInstansi').attr('src') || $('#prevLogoInstansi').attr('src') || '';
-    let imgSekolah = $('#headerLogoSekolah').attr('src') || $('#prevLogoSekolah').attr('src') || '';
-    
-    // 2. FORMAT ALAMAT (Ubah tombol enter menjadi baris baru HTML)
-    let alamatSekolah = globalConf.alamat_sekolah ? globalConf.alamat_sekolah.replace(/\n/g, '<br>') : '-';
+    // PANGGIL POP-UP SEBELUM CETAK
+    promptCetak(async (tempatCetak, tglCetak) => {
+        $('#loader').removeClass('hidden'); 
+        
+        let imgInstansi = $('#headerLogoInstansi').attr('src') || $('#prevLogoInstansi').attr('src') || '';
+        let imgSekolah = $('#headerLogoSekolah').attr('src') || $('#prevLogoSekolah').attr('src') || '';
+        let alamatSekolah = globalConf.alamat_sekolah ? globalConf.alamat_sekolah.replace(/\n/g, '<br>') : '-';
+        let namaKepsek = globalConf.nama_kepsek || '.....................................';
+        let nipKepsek = globalConf.nip_kepsek ? 'NIP. ' + globalConf.nip_kepsek : 'NIP. -';
 
-    const imgMasukProm = s[35] ? callAPI('getImage', {id: s[35]}) : Promise.resolve('');
-    const imgKeluarProm = s[36] ? callAPI('getImage', {id: s[36]}) : Promise.resolve('');
-    const [imgMasuk, imgKeluar] = await Promise.all([imgMasukProm, imgKeluarProm]);
+        const imgMasukProm = s[35] ? callAPI('getImage', {id: s[35]}) : Promise.resolve('');
+        const imgKeluarProm = s[36] ? callAPI('getImage', {id: s[36]}) : Promise.resolve('');
+        const [imgMasuk, imgKeluar] = await Promise.all([imgMasukProm, imgKeluarProm]);
 
-    const tglSekarang = new Date().toLocaleDateString('id-ID', {day: 'numeric', month: 'long', year: 'numeric'});
+        const html = `
+            <div style="font-family: 'Arial', sans-serif; font-size: 11pt; color: #000; background: #fff;">
+                <table style="width: 100%; border-collapse: collapse; margin-bottom: 5px; border: none;">
+                    <tr>
+                        <td width="15%" align="center" style="border: none; vertical-align: middle;">
+                            ${imgInstansi ? `<img src="${imgInstansi}" style="width: 75px; height: 75px; object-fit: contain;">` : ''}
+                        </td>
+                        <td width="70%" style="text-align: center; line-height: 1.2; border: none; vertical-align: middle;">
+                            <div style="font-size:14pt; font-weight:bold; text-transform:uppercase; letter-spacing: 1px;">${globalConf.nama_instansi || ''}</div>
+                            ${globalConf.opd_dinas ? `<div style="font-size:13pt; font-weight:bold; text-transform:uppercase;">${globalConf.opd_dinas}</div>` : ''}
+                            <div style="font-size:17pt; font-weight:bold; text-transform:uppercase; margin: 3px 0;">${globalConf.nama_sekolah || ''}</div>
+                            <div style="font-size:10pt;">${alamatSekolah}</div>
+                            <div style="font-size:9pt; margin-top: 3px;">Telp: ${globalConf.telp_sekolah || '-'}  |  Email: ${globalConf.email_sekolah || '-'}  |  Web: ${globalConf.web_sekolah || '-'}</div>
+                        </td>
+                        <td width="15%" align="center" style="border: none; vertical-align: middle;">
+                            ${imgSekolah ? `<img src="${imgSekolah}" style="width: 75px; height: 75px; object-fit: contain;">` : ''}
+                        </td>
+                    </tr>
+                </table>
+                <div style="border-bottom: 4px double #000; margin: 5px 0 20px 0;"></div>
+                
+                <div style="text-align:center; font-weight:bold; text-decoration:underline; font-size:14pt; margin-bottom:20px;">LEMBAR BUKU INDUK SISWA</div>
+                
+                <table style="width: 100%; border-collapse: collapse; line-height: 1.5;">
+                    <tr><td style="width: 35%; vertical-align: top;">1. Nama Lengkap</td><td style="width: 2%;">:</td><td style="width: 63%; font-weight: bold;">${s[2]}</td></tr>
+                    <tr><td style="vertical-align: top;">2. NIS / NISN</td><td>:</td><td style="font-weight: bold;">${s[0]} / ${s[1]}</td></tr>
+                    <tr><td style="vertical-align: top;">3. NIK / No.KK</td><td>:</td><td style="font-weight: bold;">${s[3]} / ${s[4]}</td></tr>
+                    <tr><td style="vertical-align: top;">4. TTL</td><td>:</td><td style="font-weight: bold;">${s[5]}, ${formatTglIndoJS(s[6])}</td></tr>
+                    <tr><td style="vertical-align: top;">5. Jenis Kelamin</td><td>:</td><td style="font-weight: bold;">${s[7] == 'L' ? 'Laki-laki' : 'Perempuan'}</td></tr>
+                    <tr><td style="vertical-align: top;">6. Agama</td><td>:</td><td style="font-weight: bold;">${s[8]}</td></tr>
+                    <tr><td style="vertical-align: top;">7. Anak ke </td><td>:</td><td style="font-weight: bold;">${s[9]} dari ${s[10]} bersaudara</td></tr>
+                    <tr><td style="vertical-align: top;">8. Tinggi/Berat/Goldar</td><td>:</td><td style="font-weight: bold;">${s[16]} cm / ${s[17]} Kg / ${s[18]}</td></tr>
+                    <tr><td style="vertical-align: top;">9. Alamat</td><td>:</td><td style="font-weight: bold;">${s[12]}</td></tr>
+                    <tr><td style="vertical-align: top;">10. No.HP</td><td>:</td><td style="font-weight: bold;">${s[13]}</td></tr>
+                    <tr><td style="vertical-align: top;">11. Nama Ayah/Tgl.Lahir/Pek.</td><td>:</td><td style="font-weight: bold;">${s[20]} / ${s[21] || '-'} (${s[22]})</td></tr> 
+                    <tr><td style="vertical-align: top;">12. Nama Ibu/Tgl.Lahir/Pek.</td><td>:</td><td style="font-weight: bold;">${s[23]} / ${s[24] || '-'} (${s[25]})</td></tr>
+                    <tr><td style="vertical-align: top;">13. Pindahan/Lulusan dari</td><td>:</td><td style="font-weight: bold;">${s[26]} / ${s[27]}</td></tr>
+                    <tr><td style="vertical-align: top;">14. Diterima Tgl</td><td>:</td><td style="font-weight: bold;">${s[30]} di Kelas ${s[29]}</td></tr>
+                    <tr><td style="vertical-align: top;">15. Status Akhir</td><td>:</td><td style="font-weight: bold;">${s[31]}</td></tr>
+                    <tr><td style="vertical-align: top;">16. Lulus/Keluar Tgl</td><td>:</td><td style="font-weight: bold;">${s[32]}</td></tr>
+                    <tr><td style="vertical-align: top;">17. No. Ijazah SLTA</td><td>:</td><td style="font-weight: bold;">${s[34]} </td></tr>
+                </table>
+                <br><br>
+                
+                <table style="width: 100%; border-collapse: collapse; margin-top: 10px;">
+                    <tr>
+                        <td align="center" width="25%"><div>Foto Masuk</div><br>${imgMasuk ? `<img src="${imgMasuk}" style="width: 3cm; height: 4cm; border: 1px solid #000; object-fit: cover;">` : '<div style="width: 3cm; height: 4cm; border: 1px solid #000; line-height:4cm; text-align:center;">Tidak Ada</div>'}</td>
+                        <td align="center" width="25%"><div>Foto Keluar</div><br>${imgKeluar ? `<img src="${imgKeluar}" style="width: 3cm; height: 4cm; border: 1px solid #000; object-fit: cover;">` : '<div style="width: 3cm; height: 4cm; border: 1px solid #000; line-height:4cm; text-align:center;">Tidak Ada</div>'}</td>
+                        <td align="center" width="50%"> 
+                            <div style="float:right; text-align:center; width:90%; font-size: 11pt;">
+                                ${tempatCetak}, ${tglCetak} <br>
+                                Kepala Sekolah,<br><br><br><br><br>
+                                <b><u>${namaKepsek}</u></b><br>
+                                ${nipKepsek}
+                            </div>
+                        </td>
+                    </tr>
+                </table>
+            </div>
+        `;
 
-    const html = `
-        <div style="font-family: 'Arial', sans-serif; font-size: 11pt; color: #000; background: #fff;">
-            
-            <table style="width: 100%; border-collapse: collapse; margin-bottom: 5px; border: none;">
-                <tr>
-                    <td width="15%" align="center" style="border: none; vertical-align: middle;">
-                        ${imgInstansi && imgInstansi.length > 100 ? `<img src="${imgInstansi}" style="width: 75px; height: 75px; object-fit: contain;">` : ''}
-                    </td>
-                    <td width="70%" style="text-align: center; line-height: 1.2; border: none; vertical-align: middle;">
-                        <div style="font-size:14pt; font-weight:bold; text-transform:uppercase; letter-spacing: 1px;">${globalConf.nama_instansi || ''}</div>
-                        ${globalConf.opd_dinas ? `<div style="font-size:13pt; font-weight:bold; text-transform:uppercase;">${globalConf.opd_dinas}</div>` : ''}
-                        <div style="font-size:17pt; font-weight:bold; text-transform:uppercase; margin: 3px 0;">${globalConf.nama_sekolah || ''}</div>
-                        <div style="font-size:10pt;">${alamatSekolah}</div>
-                        <div style="font-size:9pt; margin-top: 3px;">Telp: ${globalConf.telp_sekolah || '-'}  |  Email: ${globalConf.email_sekolah || '-'}  |  Web: ${globalConf.web_sekolah || '-'}</div>
-                    </td>
-                    <td width="15%" align="center" style="border: none; vertical-align: middle;">
-                        ${imgSekolah && imgSekolah.length > 100 ? `<img src="${imgSekolah}" style="width: 75px; height: 75px; object-fit: contain;">` : ''}
-                    </td>
-                </tr>
-            </table>
-            <div style="border-bottom: 4px double #000; margin: 5px 0 20px 0;"></div>
-            
-            <div style="text-align:center; font-weight:bold; text-decoration:underline; font-size:14pt; margin-bottom:20px;">LEMBAR BUKU INDUK SISWA</div>
-            <table style="width: 100%; border-collapse: collapse; line-height: 1.5;">
-
-                <tr><td style="width: 35%; vertical-align: top;">1. Nama Lengkap</td><td style="width: 2%;">:</td><td style="width: 63%; font-weight: bold;">${s[2]}</td></tr>
-                <tr><td style="vertical-align: top;">2. NIS / NISN</td><td>:</td><td style="font-weight: bold;">${s[0]} / ${s[1]}</td></tr>
-                <tr><td style="vertical-align: top;">3. NIK / No.KK</td><td>:</td><td style="font-weight: bold;">${s[3]} / ${s[4]}</td></tr>
-                <tr><td style="vertical-align: top;">4. TTL</td><td>:</td><td style="font-weight: bold;">${s[5]}, ${formatTglIndoJS(s[6])}</td></tr>
-                <tr><td style="vertical-align: top;">5. Jenis Kelamin</td><td>:</td><td style="font-weight: bold;">${s[7] == 'L' ? 'Laki-laki' : 'Perempuan'}</td></tr>
-                <tr><td style="vertical-align: top;">6. Agama</td><td>:</td><td style="font-weight: bold;">${s[8]}</td></tr>
-                <tr><td style="vertical-align: top;">7. Anak ke </td><td>:</td><td style="font-weight: bold;">${s[9]} dari ${s[10]} bersaudara</td></tr>
-                <tr><td style="vertical-align: top;">8. Tinggi/Berat/Goldar</td><td>:</td><td style="font-weight: bold;">${s[16]} cm / ${s[17]} Kg / ${s[18]}</td></tr>
-                <tr><td style="vertical-align: top;">9. Alamat</td><td>:</td><td style="font-weight: bold;">${s[12]}</td></tr>
-                <tr><td style="vertical-align: top;">10. No.HP</td><td>:</td><td style="font-weight: bold;">${s[13]}</td></tr>
-                <tr><td style="vertical-align: top;">11. Nama Ayah/Tgl.Lahir/Pek.</td><td>:</td><td style="font-weight: bold;">${s[20]} / ${s[21] || '-'} (${s[22]})</td></tr> 
-                <tr><td style="vertical-align: top;">12. Nama Ibu/Tgl.Lahir/Pek.</td><td>:</td><td style="font-weight: bold;">${s[23]} / ${s[24] || '-'} (${s[25]})</td></tr>
-                <tr><td style="vertical-align: top;">13. Pindahan/Lulusan dari</td><td>:</td><td style="font-weight: bold;">${s[26]} / ${s[27]}</td></tr>
-                <tr><td style="vertical-align: top;">14. Diterima Tgl</td><td>:</td><td style="font-weight: bold;">${s[30]} di Kelas ${s[29]}</td></tr>
-                <tr><td style="vertical-align: top;">15. Status Akhir</td><td>:</td><td style="font-weight: bold;">${s[31]}</td></tr>
-                <tr><td style="vertical-align: top;">16. Lulus/Keluar Tgl</td><td>:</td><td style="font-weight: bold;">${s[32]}</td></tr>
-                <tr><td style="vertical-align: top;">17. No. Ijazah SLTA</td><td>:</td><td style="font-weight: bold;">${s[34]} </td></tr>
-            </table>
-            <br><br>
-            <table style="width: 100%; border-collapse: collapse; margin-top: 10px;">
-                <tr>
-                    <td align="center" width="25%"><div>Foto Masuk</div><br>${imgMasuk ? `<img src="${imgMasuk}" style="width: 3cm; height: 4cm; border: 1px solid #000; object-fit: cover;">` : '<div style="width: 3cm; height: 4cm; border: 1px solid #000; line-height:4cm; text-align:center;">Tidak Ada</div>'}</td>
-                    
-                    <td align="center" width="25%"><div>Foto Keluar</div><br>${imgKeluar ? `<img src="${imgKeluar}" style="width: 3cm; height: 4cm; border: 1px solid #000; object-fit: cover;">` : '<div style="width: 3cm; height: 4cm; border: 1px solid #000; line-height:4cm; text-align:center;">Tidak Ada</div>'}</td>
-
-                    <td align="center" width="50%"> <div style="float:right; text-align:center; width:90%;">
-                <a>.........................,${tglSekarang} <br>Kepala Sekolah,<br><br><br><br><br>
-                <b><u>${globalConf.nama_kepsek || '.......................'}</u></b><br>
-                NIP. ${globalConf.nip_kepsek || '-'} </a> </div></td>
-      
-              
-                </tr>
-            </table>
-            <br><br>
-            
-        </div>
-    `;
-
-   // --- PENGATURAN MARGIN & SCROLL (FIX) ---
-    var opt = { 
-        margin: [0.8, 1.4, 1, 1.4], 
-        filename: 'Biodata_' + s[2] + '.pdf', 
-        image: { type: 'jpeg', quality: 0.98 }, 
-        html2canvas: { scale: 2, scrollY: 0, windowY: 0 }, // <--- TAMBAHAN KUNCI SCROLL
-        jsPDF: { unit: 'cm', format: 'a4', orientation: 'portrait' } 
-    };
-    
-    html2pdf().set(opt).from(html).save().then(() => { $('#loader').addClass('hidden'); });
-
+        var opt = { 
+            margin: [0.8, 1.4, 1, 1.4], 
+            filename: 'Biodata_' + s[2] + '.pdf', 
+            image: { type: 'jpeg', quality: 0.98 }, 
+            html2canvas: { scale: 2, scrollY: 0, windowY: 0, useCORS: true }, 
+            jsPDF: { unit: 'cm', format: 'a4', orientation: 'portrait' } 
+        };
+        html2pdf().set(opt).from(html).save().then(() => { $('#loader').addClass('hidden'); });
+    });
 }
-
 
 // ==========================================
 // FUNGSI CETAK TRANSKRIP (DENGAN NIS/NISN)
@@ -567,109 +561,101 @@ async function cetakPDF(nis) {
 async function cetakTranskrip() { 
     const nis = $('#tNis').val(); 
     const namaSiswa = $('#tNamaSiswa').text().split(' (')[0]; 
-    
-    // Cari data siswa di memori untuk mendapatkan NISN
     const s = globalSiswa.find(x => x[0] == nis);
     const nisn = s ? s[1] : '-'; 
 
-    $('#loader').removeClass('hidden'); 
+    // PANGGIL POP-UP SEBELUM CETAK
+    promptCetak((tempatCetak, tglCetak) => {
+        $('#loader').removeClass('hidden'); 
 
-    // Ambil isi tabel dari HTML
-    const tbodyHtml = $('#tbodyTranskrip').html();
-    const tfootHtml = $('#tfootTranskrip').html();
+        const tbodyHtml = $('#tbodyTranskrip').html();
+        const tfootHtml = $('#tfootTranskrip').html();
 
-    // 1. AMBIL LOGO (Pasti muncul karena ambil dari header profil yang stabil)
-    let imgInstansi = $('#headerLogoInstansi').attr('src') || $('#prevLogoInstansi').attr('src') || '';
-    let imgSekolah = $('#headerLogoSekolah').attr('src') || $('#prevLogoSekolah').attr('src') || '';
-    
-    // 2. FORMAT ALAMAT (Ubah tombol enter menjadi baris baru HTML)
-    let alamatSekolah = globalConf.alamat_sekolah ? globalConf.alamat_sekolah.replace(/\n/g, '<br>') : '-';
-    const tglSekarang = new Date().toLocaleDateString('id-ID', {day: 'numeric', month: 'long', year: 'numeric'});
+        // 1. AMBIL LOGO (Tanpa validasi length agar dipaksa muncul apapun isinya)
+        let imgInstansi = $('#headerLogoInstansi').attr('src') || $('#prevLogoInstansi').attr('src') || '';
+        let imgSekolah = $('#headerLogoSekolah').attr('src') || $('#prevLogoSekolah').attr('src') || '';
+        
+        let alamatSekolah = globalConf.alamat_sekolah ? globalConf.alamat_sekolah.replace(/\n/g, '<br>') : '-';
+        let namaKepsek = globalConf.nama_kepsek || '.....................................';
+        let nipKepsek = globalConf.nip_kepsek ? 'NIP. ' + globalConf.nip_kepsek : 'NIP. -';
 
-    // 3. AMBIL NAMA & NIP KEPSEK DARI PENGATURAN
-    let namaKepsek = globalConf.nama_kepsek || '.....................................';
-    let nipKepsek = globalConf.nip_kepsek ? 'NIP. ' + globalConf.nip_kepsek : 'NIP. -';
-
-    const html = `
-        <div style="font-family: 'Arial', sans-serif; font-size: 9pt; color: #000; background: #fff; padding: 10px;">
-            
-            <style>
-                .tabel-nilai { width: 100%; border-collapse: collapse; text-align: center; font-size: 9pt; }
-                .tabel-nilai th, .tabel-nilai td { border: 1px solid #000 !important; padding: 5px; vertical-align: middle !important; }
-                .tabel-nilai th { background-color: #e2e8f0 !important; font-weight: bold; }
-                .col-mapel { width: 22%; text-align: left !important; padding-left: 8px !important; }
-                .text-end { text-align: right !important; padding-right: 10px !important; }
-            </style>
-            
-            <table style="width: 100%; border-collapse: collapse; margin-bottom: 5px; border: none;">
-                <tr>
-                    <td width="12%" align="center" style="border: none;">
-                        ${imgInstansi && imgInstansi.length > 100 ? `<img src="${imgInstansi}" style="width: 75px; height: 75px; object-fit: contain;">` : ''}
-                    </td>
-                    <td width="76%" style="text-align: center; line-height: 1.2; border: none;">
-                        <div style="font-size:14pt; font-weight:bold; text-transform:uppercase; letter-spacing: 1px;">${globalConf.nama_instansi || ''}</div>
-                        ${globalConf.opd_dinas ? `<div style="font-size:13pt; font-weight:bold; text-transform:uppercase;">${globalConf.opd_dinas}</div>` : ''}
-                        <div style="font-size:18pt; font-weight:bold; text-transform:uppercase; margin: 3px 0;">${globalConf.nama_sekolah || ''}</div>
-                        <div style="font-size:10pt;">${alamatSekolah}</div>
-                        <div style="font-size:9pt; margin-top: 3px;">Telp: ${globalConf.telp_sekolah || '-'} | Email: ${globalConf.email_sekolah || '-'} | Web: ${globalConf.web_sekolah || '-'}</div>
-                    </td>
-                    <td width="12%" align="center" style="border: none;">
-                        ${imgSekolah && imgSekolah.length > 100 ? `<img src="${imgSekolah}" style="width: 75px; height: 75px; object-fit: contain;">` : ''}
-                    </td>
-                </tr>
-            </table>
-            <div style="border-bottom: 4px double #000; margin: 5px 0 15px 0;"></div>
-            
-            <div style="text-align:center; font-weight:bold; margin:10px 0; font-size:14pt;">TRANSKRIP NILAI KOMPREHENSIF</div>
-            
-            <table style="width:100%; margin-bottom:10px; font-size:10pt;">
-                <tr>
-                    <td width="12%">Nama Siswa</td><td>: <b style="text-transform: uppercase;">${namaSiswa}</b></td>
-                    <td width="15%" style="text-align:right;">NIS / NISN</td><td>: <b>${nis} / ${nisn}</b></td>
-                </tr>
-            </table>
-            
-            <table class="tabel-nilai">
-                <thead>
+        const html = `
+            <div style="font-family: 'Arial', sans-serif; font-size: 9pt; color: #000; background: #fff; padding: 10px;">
+                <style>
+                    .tabel-nilai { width: 100%; border-collapse: collapse; text-align: center; font-size: 9pt; margin-top: 10px; }
+                    .tabel-nilai th, .tabel-nilai td { border: 1px solid #000 !important; padding: 5px; }
+                    .tabel-nilai th { background-color: #e2e8f0 !important; font-weight: bold; vertical-align: middle !important; }
+                    .col-mapel { width: 22%; text-align: left !important; padding-left: 8px !important; }
+                </style>
+                
+                <table style="width: 100%; border-collapse: collapse; margin-bottom: 5px; border: none;">
                     <tr>
-                        <th rowspan="2" class="col-mapel">Mata Pelajaran</th>
-                        <th colspan="3">Smt 1</th><th colspan="3">Smt 2</th><th colspan="3">Smt 3</th>
-                        <th colspan="3">Smt 4</th><th colspan="3">Smt 5</th><th colspan="3">Smt 6</th>
+                        <td width="12%" align="center" style="border: none;">
+                            ${imgInstansi ? `<img src="${imgInstansi}" style="width: 75px; height: 75px; object-fit: contain;">` : ''}
+                        </td>
+                        <td width="76%" style="text-align: center; line-height: 1.2; border: none;">
+                            <div style="font-size:14pt; font-weight:bold; text-transform:uppercase; letter-spacing: 1px;">${globalConf.nama_instansi || ''}</div>
+                            ${globalConf.opd_dinas ? `<div style="font-size:13pt; font-weight:bold; text-transform:uppercase;">${globalConf.opd_dinas}</div>` : ''}
+                            <div style="font-size:18pt; font-weight:bold; text-transform:uppercase; margin: 3px 0;">${globalConf.nama_sekolah || ''}</div>
+                            <div style="font-size:10pt;">${alamatSekolah}</div>
+                            <div style="font-size:9pt; margin-top: 3px;">Telp: ${globalConf.telp_sekolah || '-'} | Email: ${globalConf.email_sekolah || '-'} | Web: ${globalConf.web_sekolah || '-'}</div>
+                        </td>
+                        <td width="12%" align="center" style="border: none;">
+                            ${imgSekolah ? `<img src="${imgSekolah}" style="width: 75px; height: 75px; object-fit: contain;">` : ''}
+                        </td>
                     </tr>
+                </table>
+                <div style="border-bottom: 4px double #000; margin: 5px 0 15px 0;"></div>
+                
+                <div style="text-align:center; font-weight:bold; margin:10px 0; font-size:14pt;">TRANSKRIP NILAI KOMPREHENSIF</div>
+                
+                <table style="width:100%; margin-bottom:10px; font-size:10pt;">
                     <tr>
-                        <th>P</th><th>K</th><th>S</th><th>P</th><th>K</th><th>S</th><th>P</th><th>K</th><th>S</th>
-                        <th>P</th><th>K</th><th>S</th><th>P</th><th>K</th><th>S</th><th>P</th><th>K</th><th>S</th>
+                        <td width="15%">Nama Siswa</td><td>: <b style="text-transform: uppercase;">${namaSiswa}</b></td>
+                        <td width="15%" style="text-align:right;">NIS / NISN </td><td>: <b>${nis} / ${nisn}</b></td>
                     </tr>
-                </thead>
-                <tbody>${tbodyHtml.replace(/text-start/g, 'col-mapel')}</tbody>
-                <tfoot style="background-color:#e2e8f0; font-weight:bold;">${tfootHtml}</tfoot>
-            </table>
-            
-            <br>
-            <table style="width: 100%; border: none; margin-top: 15px;">
-                <tr>
-                    <td width="65%" style="border: none;"></td>
-                    <td width="35%" style="border: none; text-align: center; font-size: 11pt;">
-                        ..............................., ${tglSekarang}<br>
-                        Kepala Sekolah<br><br><br><br><br>
-                        <b><u>${namaKepsek}</u></b><br>
-                        ${nipKepsek}
-                    </td>
-                </tr>
-            </table>
-        </div>
-    `;
+                </table>
+                
+                <table class="tabel-nilai">
+                    <thead>
+                        <tr>
+                            <th rowspan="2" class="col-mapel"><div style="min-height:30px; display:flex; align-items:center;">Mata Pelajaran</div></th>
+                            <th colspan="3">Smt 1</th><th colspan="3">Smt 2</th><th colspan="3">Smt 3</th>
+                            <th colspan="3">Smt 4</th><th colspan="3">Smt 5</th><th colspan="3">Smt 6</th>
+                        </tr>
+                        <tr>
+                            <th>P</th><th>K</th><th>S</th><th>P</th><th>K</th><th>S</th><th>P</th><th>K</th><th>S</th>
+                            <th>P</th><th>K</th><th>S</th><th>P</th><th>K</th><th>S</th><th>P</th><th>K</th><th>S</th>
+                        </tr>
+                    </thead>
+                    <tbody>${tbodyHtml.replace(/text-start/g, 'col-mapel')}</tbody>
+                    <tfoot style="background-color:#e2e8f0; font-weight:bold;">${tfootHtml}</tfoot>
+                </table>
+                
+                <br>
+                <table style="width: 100%; border: none; margin-top: 15px;">
+                    <tr>
+                        <td width="65%" style="border: none;"></td>
+                        <td width="35%" style="border: none; text-align: center; font-size: 11pt;">
+                            ${tempatCetak}, ${tglCetak}<br>
+                            Kepala Sekolah<br><br><br><br><br>
+                            <b><u>${namaKepsek}</u></b><br>
+                            ${nipKepsek}
+                        </td>
+                    </tr>
+                </table>
+            </div>
+        `;
 
-    // 4. ATURAN CETAK (MARGIN & SKALA)
-    var opt = { 
-        margin: [1, 1, 1.5, 1], // [Atas, Kanan, Bawah, Kiri]
-        filename: 'Transkrip_' + namaSiswa + '.pdf', 
-        image: { type: 'jpeg', quality: 0.98 }, 
-        html2canvas: { scale: 2, useCORS: true, scrollY: 0, windowY: 0 }, 
-        jsPDF: { unit: 'cm', format: 'A4', orientation: 'landscape' } 
-    };
-    
-    html2pdf().set(opt).from(html).save().then(() => { $('#loader').addClass('hidden'); });
+        var opt = { 
+            margin: [1, 1, 1.5, 1],
+            filename: 'Transkrip_' + namaSiswa + '.pdf', 
+            image: { type: 'jpeg', quality: 0.98 }, 
+            html2canvas: { scale: 2, useCORS: true, scrollY: 0, windowY: 0 }, 
+            jsPDF: { unit: 'cm', format: 'A4', orientation: 'landscape' } 
+        };
+        html2pdf().set(opt).from(html).save().then(() => { $('#loader').addClass('hidden'); });
+    });
 }
 
 function loadMapel() { 
@@ -1719,153 +1705,189 @@ function cetakKlaperPDF() {
     if (!tahun) { Swal.fire('Data Kosong', 'Tidak ada data tahun yang bisa dicetak.', 'warning'); return; }
 
     $('#mdlKlaper').modal('hide');
-    $('#loader').removeClass('hidden'); 
-    $('#loaderText').text('Menyusun Buku Klaper PDF...');
 
-    // 1. Saring Data Berdasarkan Tahun & Status
-    let filteredData = globalSiswa.filter(r => {
-        if (!r[0]) return false;
-        let status = r[31];
-        if (tipe === 'Alumni' && status === 'Lulus') {
-            if (tahun === 'SEMUA') return true;
-            let thnLulus = r[32] ? String(r[32]).substring(0,4) : '';
-            return thnLulus === tahun;
-        } else if (tipe === 'Siswa Aktif' && status === 'Aktif') {
-            if (tahun === 'SEMUA') return true;
-            let thnMasuk = r[30] ? String(r[30]).substring(0,4) : '';
-            return thnMasuk === tahun;
+    // PANGGIL POP-UP SEBELUM CETAK
+    promptCetak((tempatCetak, tglCetak) => {
+        $('#loader').removeClass('hidden'); 
+        $('#loaderText').text('Menyusun Buku Klaper PDF...');
+
+        let filteredData = globalSiswa.filter(r => {
+            if (!r[0]) return false;
+            let status = r[31];
+            if (tipe === 'Alumni' && status === 'Lulus') {
+                if (tahun === 'SEMUA') return true;
+                let thnLulus = r[32] ? String(r[32]).substring(0,4) : '';
+                return thnLulus === tahun;
+            } else if (tipe === 'Siswa Aktif' && status === 'Aktif') {
+                if (tahun === 'SEMUA') return true;
+                let thnMasuk = r[30] ? String(r[30]).substring(0,4) : '';
+                return thnMasuk === tahun;
+            }
+            return false;
+        });
+
+        filteredData.sort((a, b) => String(a[2]).localeCompare(String(b[2])));
+
+        if (filteredData.length === 0) {
+            $('#loader').addClass('hidden');
+            Swal.fire('Kosong', 'Tidak ada siswa yang terdata.', 'info');
+            return;
         }
-        return false;
-    });
 
-    // 2. Sortir Abjad (A-Z) berdasarkan Nama (Kolom index 2)
-    filteredData.sort((a, b) => String(a[2]).localeCompare(String(b[2])));
-
-    if (filteredData.length === 0) {
-        $('#loader').addClass('hidden');
-        Swal.fire('Kosong', 'Tidak ada siswa yang terdata di tahun tersebut.', 'info');
-        return;
-    }
-
-    // 3. Susun Kop Surat & Judul (PERBAIKAN LOGO)
-    // Mengambil logo dari elemen header profil yang sudah dipastikan me-render Base64
-    const imgInstansi = $('#headerLogoInstansi').attr('src') || '';
-    const imgSekolah = $('#headerLogoSekolah').attr('src') || '';
-    
-    let judulSub = "";
-    if (tahun === 'SEMUA') {
-        judulSub = (tipe === 'Alumni') ? "SELURUH LULUSAN ALUMNI" : "SELURUH SISWA AKTIF";
-    } else {
-        if (tipe === 'Alumni') {
-            judulSub = "TAHUN PELAJARAN " + (parseInt(tahun) - 1) + "/" + tahun;
+        let imgInstansi = $('#headerLogoInstansi').attr('src') || $('#prevLogoInstansi').attr('src') || '';
+        let imgSekolah = $('#headerLogoSekolah').attr('src') || $('#prevLogoSekolah').attr('src') || '';
+        let alamatSekolah = globalConf.alamat_sekolah ? globalConf.alamat_sekolah.replace(/\n/g, '<br>') : '-';
+        let namaKepsek = globalConf.nama_kepsek || '.....................................';
+        let nipKepsek = globalConf.nip_kepsek ? 'NIP. ' + globalConf.nip_kepsek : 'NIP. -';
+        
+        let judulSub = "";
+        if (tahun === 'SEMUA') {
+            judulSub = (tipe === 'Alumni') ? "SELURUH LULUSAN ALUMNI" : "SELURUH SISWA AKTIF";
         } else {
-            judulSub = "ANGKATAN TAHUN MASUK " + tahun;
+            if (tipe === 'Alumni') {
+                judulSub = "TAHUN PELAJARAN " + (parseInt(tahun) - 1) + "/" + tahun;
+            } else {
+                judulSub = "ANGKATAN TAHUN MASUK " + tahun;
+            }
         }
-    }
 
-    // 4. Bangun Struktur HTML dengan CSS Internal yang Memaksa Border Muncul
-   let html = `
-<div style="font-family: 'Arial', sans-serif; color: #000; background: #fff; padding: 5px;">
-        
-        <style>
-            .tabel-klaper { width: 100%; border-collapse: collapse; font-size: 8pt; font-family: 'Arial', sans-serif; }
-            .tabel-klaper th, .tabel-klaper td { border: 1px solid #000 !important; padding: 5px; text-align: center; vertical-align: middle; }
-            .tabel-klaper th { background-color: #e2e8f0 !important; font-weight: bold; }
-            .text-left { text-align: left !important; }
-        </style>
+        let html = `
+        <div style="font-family: 'Arial', sans-serif; color: #000; background: #fff; padding: 5px;">
+            <style>
+                .tabel-klaper { width: 100%; border-collapse: collapse; font-size: 8pt; font-family: 'Arial', sans-serif; }
+                .tabel-klaper th, .tabel-klaper td { border: 1px solid #000 !important; padding: 5px; text-align: center; vertical-align: middle; }
+                .tabel-klaper th { background-color: #e2e8f0 !important; font-weight: bold; }
+                .text-left { text-align: left !important; }
+            </style>
 
-        <table style="width: 100%; border-collapse: collapse; margin-bottom: 5px; border: none;">
-            <tr>
-                <td width="12%" align="center" style="border: none;">${imgInstansi ? `<img src="${imgInstansi}" style="width: 70px; height: 70px; object-fit: contain;">` : ''}</td>
-                <td width="76%" style="text-align: center; line-height: 1.2; border: none;">
-                    <div style="font-size:14pt; font-weight:bold; text-transform:uppercase; letter-spacing: 1px;">${globalConf.nama_instansi || ''}</div>
-                    ${globalConf.opd_dinas ? `<div style="font-size:13pt; font-weight:bold; text-transform:uppercase;">${globalConf.opd_dinas}</div>` : ''}
-                    <div style="font-size:18pt; font-weight:bold; text-transform:uppercase; margin: 3px 0;">${globalConf.nama_sekolah || ''}</div>
-                    <div style="font-size:10pt;">${globalConf.alamat_sekolah || ''}</div>
-                </td>
-                <td width="12%" align="center" style="border: none;">${imgSekolah ? `<img src="${imgSekolah}" style="width: 70px; height: 70px; object-fit: contain;">` : ''}</td>
-            </tr>
-        </table>
-        <div style="border-bottom: 4px double #000; margin-bottom: 15px;"></div>
-        
-        <div style="text-align:center; font-weight:bold; font-size:15pt; margin-bottom: 3px; text-decoration: underline;">BUKU KLAPER SISWA</div>
-        <div style="text-align:center; font-weight:bold; font-size:12pt; margin-bottom: 20px;">${judulSub}</div>
-        
-        <table class="tabel-klaper">
-            <thead>
+            <table style="width: 100%; border-collapse: collapse; margin-bottom: 5px; border: none;">
                 <tr>
-                    <th rowspan="2" style="width: 3%;">Urut</th>
-                    <th rowspan="2" style="width: 10%;">Nomor Induk /<br>NISN</th>
-                    <th rowspan="2" style="width: 18%;">Nama Siswa</th>
-                    <th rowspan="2" style="width: 3%;">L/P</th>
-                    <th rowspan="2" style="width: 12%;">Tempat, Tgl Lahir</th>
-                    <th rowspan="2" style="width: 12%;">Nama Orangtua<br>Kandung</th>
-                    <th colspan="3">Tgl Naik / Masuk Kelas</th>
-                    <th rowspan="2" style="width: 8%;">Tanggal Tamat<br>Sekolah</th>
-                    <th rowspan="2" style="width: 10%;">Keterangan</th>
+                    <td width="12%" align="center" style="border: none;">
+                        ${imgInstansi ? `<img src="${imgInstansi}" style="width: 70px; height: 70px; object-fit: contain;">` : ''}
+                    </td>
+                    <td width="76%" style="text-align: center; line-height: 1.2; border: none;">
+                        <div style="font-size:14pt; font-weight:bold; text-transform:uppercase; letter-spacing: 1px;">${globalConf.nama_instansi || ''}</div>
+                        ${globalConf.opd_dinas ? `<div style="font-size:13pt; font-weight:bold; text-transform:uppercase;">${globalConf.opd_dinas}</div>` : ''}
+                        <div style="font-size:18pt; font-weight:bold; text-transform:uppercase; margin: 3px 0;">${globalConf.nama_sekolah || ''}</div>
+                        <div style="font-size:10pt;">${alamatSekolah}</div>
+                    </td>
+                    <td width="12%" align="center" style="border: none;">
+                        ${imgSekolah ? `<img src="${imgSekolah}" style="width: 70px; height: 70px; object-fit: contain;">` : ''}
+                    </td>
                 </tr>
-                <tr>
-                    <th style="width: 8%;">X</th>
-                    <th style="width: 8%;">XI</th>
-                    <th style="width: 8%;">XII</th>
-                </tr>
-            </thead>
-            <tbody>
-    `;
-
-    // 5. Isi Tabel Data (Looping)
-    filteredData.forEach((s, idx) => {
-        let nis_nisn = `<b>${s[0]}</b><br>${s[1] || '-'}`;
-        let nama = s[2];
-        let jk = s[7];
-        let ttl = `${s[5] || '-'},<br>${formatTglIndoJS(s[6])}`;
-        let ortu = s[20] ? s[20] : (s[23] ? s[23] : '-'); // Prioritas: Ayah, jika kosong Ibu
-        
-        // Logika Tanggal
-        let tglMasukX = s[30] ? formatTglIndoJS(s[30]) : '-'; 
-        let tglLulus = s[32] ? formatTglIndoJS(s[32]) : '-';
-        
-        html += `
-            <tr>
-                <td>${idx + 1}</td>
-                <td>${nis_nisn}</td>
-                <td class="text-left" style="text-transform: uppercase; font-weight: 600;">${nama}</td>
-                <td>${jk}</td>
-                <td class="text-left">${ttl}</td>
-                <td class="text-left">${ortu}</td>
-                <td>${tglMasukX}</td>
-                <td></td> <td></td> <td>${tipe === 'Alumni' ? tglLulus : '-'}</td>
-                <td class="text-left">${s[31] || '-'}</td>
-            </tr>
+            </table>
+            <div style="border-bottom: 4px double #000; margin-bottom: 15px;"></div>
+            
+            <div style="text-align:center; font-weight:bold; font-size:15pt; margin-bottom: 3px; text-decoration: underline;">BUKU KLAPER SISWA</div>
+            <div style="text-align:center; font-weight:bold; font-size:12pt; margin-bottom: 20px;">${judulSub}</div>
+            
+            <table class="tabel-klaper">
+                <thead>
+                    <tr>
+                        <th rowspan="2" style="width: 3%;">Urut</th>
+                        <th rowspan="2" style="width: 10%;">Nomor Induk /<br>NISN</th>
+                        <th rowspan="2" style="width: 18%;">Nama Siswa</th>
+                        <th rowspan="2" style="width: 3%;">L/P</th>
+                        <th rowspan="2" style="width: 12%;">Tempat, Tgl Lahir</th>
+                        <th rowspan="2" style="width: 12%;">Nama Orangtua<br>Kandung</th>
+                        <th colspan="3">Tgl Naik / Masuk Kelas</th>
+                        <th rowspan="2" style="width: 8%;">Tanggal Tamat<br>Sekolah</th>
+                        <th rowspan="2" style="width: 10%;">Keterangan</th>
+                    </tr>
+                    <tr>
+                        <th style="width: 8%;">X</th>
+                        <th style="width: 8%;">XI</th>
+                        <th style="width: 8%;">XII</th>
+                    </tr>
+                </thead>
+                <tbody>
         `;
-    });
 
-    // 6. Tanda Tangan Kepsek
-    const tglSekarang = new Date().toLocaleDateString('id-ID', {day: 'numeric', month: 'long', year: 'numeric'});
-    html += `
-            </tbody>
-        </table>
-        <br><br>
-        <div style="float:right; text-align:center; font-size:11pt; font-family: 'Arial', sans-serif; width:300px; margin-top: 10px;">
-            ..............................., ${tglSekarang}<br>
-            Kepala Sekolah<br><br><br><br><br>
-            <b><u>${globalConf.nama_kepsek || '.....................................'}</u></b><br>
-            NIP. ${globalConf.nip_kepsek || '-'}
+        filteredData.forEach((s, idx) => {
+            let nis_nisn = `<b>${s[0]}</b><br>${s[1] || '-'}`;
+            let ttl = `${s[5] || '-'},<br>${formatTglIndoJS(s[6])}`;
+            let ortu = s[20] ? s[20] : (s[23] ? s[23] : '-');
+            let tglMasukX = s[30] ? formatTglIndoJS(s[30]) : '-'; 
+            let tglLulus = s[32] ? formatTglIndoJS(s[32]) : '-';
+            
+            html += `
+                <tr>
+                    <td>${idx + 1}</td>
+                    <td>${nis_nisn}</td>
+                    <td class="text-left" style="text-transform: uppercase; font-weight: 600;">${s[2]}</td>
+                    <td>${s[7]}</td>
+                    <td class="text-left">${ttl}</td>
+                    <td class="text-left">${ortu}</td>
+                    <td>${tglMasukX}</td>
+                    <td></td>
+                    <td></td>
+                    <td>${tipe === 'Alumni' ? tglLulus : '-'}</td>
+                    <td class="text-left">${s[31] || '-'}</td>
+                </tr>
+            `;
+        });
+
+        html += `
+                </tbody>
+            </table>
+            <br><br>
+            <div style="float:right; text-align:center; font-size:11pt; font-family: 'Arial', sans-serif; width:300px; margin-top: 10px;">
+                ${tempatCetak}, ${tglCetak}<br>
+                Kepala Sekolah<br><br><br><br><br>
+                <b><u>${namaKepsek}</u></b><br>
+                ${nipKepsek}
+            </div>
         </div>
-    </div>
-    `;
+        `;
 
-    // 7. Eksekusi Print PDF
-    var opt = { 
-        margin: [1, 1, 1.5, 1], // [Atas, Kanan, Bawah, Kiri] dalam CM
-        filename: `Buku_Klaper_${tipe}_${tahun}.pdf`, 
-        image: { type: 'jpeg', quality: 0.98 }, 
-        html2canvas: { scale: 2, useCORS: true, scrollY: 0, windowY: 0 }, 
-        jsPDF: { unit: 'cm', format: 'A4', orientation: 'landscape' } 
-    };
+        var opt = { 
+            margin: [1, 1, 1.5, 1],
+            filename: `Buku_Klaper_${tipe}_${tahun}.pdf`, 
+            image: { type: 'jpeg', quality: 0.98 }, 
+            html2canvas: { scale: 2, useCORS: true, scrollY: 0, windowY: 0 }, 
+            jsPDF: { unit: 'cm', format: 'A4', orientation: 'landscape' } 
+        };
+        
+        html2pdf().set(opt).from(html).save().then(() => { 
+            $('#loader').addClass('hidden'); 
+            Swal.fire({ toast: true, position: 'top-end', icon: 'success', title: 'Buku Klaper Berhasil Diunduh', showConfirmButton: false, timer: 3000 });
+        });
+    });
+}
+
+
+// ==========================================
+// HELPER POP-UP CETAK (TEMPAT & TANGGAL)
+// ==========================================
+function promptCetak(callback) {
+    let today = new Date().toISOString().split('T')[0]; // Format kalender bawaan: YYYY-MM-DD
     
-    html2pdf().set(opt).from(html).save().then(() => { 
-        $('#loader').addClass('hidden'); 
-        Swal.fire({ toast: true, position: 'top-end', icon: 'success', title: 'Buku Klaper Berhasil Diunduh', showConfirmButton: false, timer: 3000 });
+    Swal.fire({
+        title: 'Atur Kolom Tanda Tangan',
+        html: `
+            <div class="text-start" style="font-family: Arial, sans-serif;">
+                <label class="small fw-bold mb-1">Tempat (Kota/Kab):</label>
+                <input id="swal-tempat" class="form-control mb-3" placeholder="Contoh: Jakarta" value="">
+                <label class="small fw-bold mb-1">Tanggal Cetak:</label>
+                <input type="date" id="swal-tanggal" class="form-control" value="${today}">
+            </div>
+        `,
+        showCancelButton: true,
+        confirmButtonText: '<i class="bi bi-printer"></i> Lanjutkan Cetak',
+        cancelButtonText: 'Batal',
+        confirmButtonColor: '#4e73df',
+        preConfirm: () => {
+            let tmpt = document.getElementById('swal-tempat').value.trim();
+            let tgl = document.getElementById('swal-tanggal').value;
+            if (!tmpt) tmpt = "....................."; // Jika dikosongkan, kembali ke titik-titik
+            if (!tgl) tgl = today;
+            return { tempat: tmpt, tanggal: tgl };
+        }
+    }).then((res) => {
+        if (res.isConfirmed) {
+            // Konversi format YYYY-MM-DD menjadi format Indonesia (Contoh: 21 Mei 2026)
+            let tglIndo = formatTglIndoJS(res.value.tanggal);
+            callback(res.value.tempat, tglIndo);
+        }
     });
 }
