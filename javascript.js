@@ -558,7 +558,17 @@ async function cetakPDF(nis) {
 // ==========================================
 // FUNGSI CETAK TRANSKRIP (DENGAN NIS/NISN)
 // ==========================================
-async function cetakTranskrip() { 
+// Ganti fungsi cetakTranskrip yang lama dengan ini:
+function cetakTranskrip() { 
+    // Kita panggil pop-up dulu
+    promptCetak((tempat, tgl) => {
+        // Pindahkan seluruh logika cetak Anda ke sini
+        prosesCetakTranskrip(tempat, tgl);
+    });
+}
+
+// Pindahkan semua kode cetak lama Anda ke fungsi baru bernama prosesCetakTranskrip
+async function prosesCetakTranskrip(tempatCetak, tglCetak) {
     const nis = $('#tNis').val(); 
     const namaSiswa = $('#tNamaSiswa').text().split(' (')[0]; 
     const s = globalSiswa.find(x => x[0] == nis);
@@ -1890,4 +1900,11 @@ function promptCetak(callback) {
             callback(res.value.tempat, tglIndo);
         }
     });
+}
+
+// Wrapper untuk Transkrip/Leger
+function jalankanCetakTranskrip() {
+    // Fungsi ini akan memanggil pop-up, lalu di dalamnya baru memanggil cetakTranskrip
+    // Tapi karena cetakTranskrip sudah kita modifikasi jadi butuh argumen, 
+    // kita perlu sedikit penyesuaian di fungsi cetakTranskrip yang lama.
 }
