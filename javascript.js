@@ -283,7 +283,6 @@ function nav(page, el, param) {
 }
 
 // --- OPTIMIZED LOAD SISWA VIA API & PEMISAH TABEL ---
-// --- OPTIMIZED LOAD SISWA VIA API & PEMISAH TABEL ---
 function loadSiswa() { 
     callAPI('getStudents').then(data => { 
         // PENGAMAN: Pastikan data yang ditarik adalah Array, jika error/kosong, jadikan array kosong []
@@ -335,9 +334,9 @@ function loadSiswa() {
                 htmlSiswa += `<tr><td>${nisGabung}</td><td>${nama}</td><td>${tgllahir}</td><td>${jk}</td><td>${badgeStatus}</td><td>${btnData}</td></tr>`;
             }
 
-            if (status === 'Lulus') {
-                // TAMBAHKAN TOMBOL CETAK PDF (btn-info) DI SINI
-                let btnDataAlumni = `<button class="btn btn-sm btn-info text-white me-1 shadow-sm" onclick="cetakPDF('${nis}')" title="Cetak Buku Induk"><i class="bi bi-file-pdf"></i></button> <button class="btn btn-sm btn-secondary me-1 shadow-sm" onclick="reviewSiswa('${nis}')" title="Lihat"><i class="bi bi-eye"></i></button> <button class="btn btn-sm btn-success me-1 shadow-sm" onclick="cetakKartuAdmin('${nis}')" title="Unduh Kartu"><i class="bi bi-card-heading"></i></button>`;
+           if (status === 'Lulus') {
+                // TOMBOL PDF (CETAK BUKU INDUK) DIHILANGKAN DARI SINI
+                let btnDataAlumni = `<button class="btn btn-sm btn-secondary me-1 shadow-sm" onclick="reviewSiswa('${nis}')" title="Lihat"><i class="bi bi-eye"></i></button> <button class="btn btn-sm btn-success me-1 shadow-sm" onclick="cetakKartuAdmin('${nis}')" title="Unduh Kartu"><i class="bi bi-card-heading"></i></button>`;
                 
                 if(isAdmin) btnDataAlumni += `<button class="btn btn-sm btn-danger shadow-sm" onclick="resetPassAdmin('${nis}')" title="Reset Password"><i class="bi bi-key"></i></button>`;
                 
@@ -381,6 +380,7 @@ function openModalSiswa(nis, readonly) {
 }
 
 function reviewSiswa(nis) { openModalSiswa(nis, true); }
+
 function editSiswa(nis) { openModalSiswa(nis, false); }
 // === FUNGSI BUKA MODAL TAMBAH SISWA (ANTI DATA HANTU) ===
 function modalSiswa() { 
@@ -1143,12 +1143,34 @@ function downloadKartuBelakang() {
 }
 
 // === CETAK MASSAL KERTAS A4 (DIPERBAIKI DENGAN TAB BARU) ===
+// === CETAK MASSAL KERTAS A4 (DIPERBAIKI DENGAN TAB BARU & FILTER TAHUN) ===
 function cetakKartuMassal(tipe) {
     let targetData = [];
-    if (tipe === 'alumni') targetData = globalSiswa.filter(r => r[31] === 'Lulus');
-    else targetData = globalSiswa.filter(r => r[31] !== 'Lulus' && r[31] !== 'Keluar');
+    
+    if (tipe === 'alumni') {
+        // Ambil nilai dari Dropdown Tahun Lulus
+        let selectedYear = $('#filterTahunAlumni').val();
+        
+        if (selectedYear && selectedYear !== "") {
+            // Jika dropdown dipilih (misal 2026), filter hanya alumni tahun tsb
+            targetData = globalSiswa.filter(r => {
+                let isLulus = (r[31] === 'Lulus');
+                let thnKeluar = r[32] ? String(r[32]).substring(0,4) : "";
+                return isLulus && (thnKeluar === String(selectedYear));
+            });
+        } else {
+            // Jika dropdown kosong (pilih semua), ambil semua alumni
+            targetData = globalSiswa.filter(r => r[31] === 'Lulus');
+        }
+    } else {
+        // Jika dari halaman Data Siswa (Siswa Aktif)
+        targetData = globalSiswa.filter(r => r[31] !== 'Lulus' && r[31] !== 'Keluar');
+    }
 
-    if(targetData.length === 0) { Swal.fire('Kosong', 'Tidak ada data untuk dicetak', 'warning'); return; }
+    if(targetData.length === 0) { 
+        Swal.fire('Kosong', 'Tidak ada data untuk dicetak pada pilihan tersebut', 'warning'); 
+        return; 
+    }
 
     $('#loader').removeClass('hidden'); 
     $('#loaderText').text('Menyiapkan file cetak A4...');
@@ -1966,13 +1988,13 @@ function loadAlumniByTahun() {
             let htmlAlumni = "";
             const isAdmin = ($('#uRole').text() == 'ADMINISTRATOR' || $('#uRole').text() == 'ADMIN');
             
-            // Render ulang khusus data alumni tahun tersebut
+           // Render ulang khusus data alumni tahun tersebut
             res.data.forEach(r => {
                 const nis = r[0], nisn = r[1], nama = r[2], jk = r[7], status = r[31], thnKeluar = r[32] ? String(r[32]).substring(0,4) : "-";
                 const nisGabung = nisn ? `${nis} / ${nisn}` : nis;
                 
-                // TAMBAHKAN TOMBOL CETAK PDF (btn-info) DI SINI
-                let btnDataAlumni = `<button class="btn btn-sm btn-info text-white me-1 shadow-sm" onclick="cetakPDF('${nis}')" title="Cetak Buku Induk"><i class="bi bi-file-pdf"></i></button> <button class="btn btn-sm btn-secondary me-1 shadow-sm" onclick="reviewSiswa('${nis}')" title="Lihat"><i class="bi bi-eye"></i></button> <button class="btn btn-sm btn-success me-1 shadow-sm" onclick="cetakKartuAdmin('${nis}')" title="Unduh Kartu"><i class="bi bi-card-heading"></i></button>`;
+                // TOMBOL PDF (CETAK BUKU INDUK) DIHILANGKAN DARI SINI
+                let btnDataAlumni = `<button class="btn btn-sm btn-secondary me-1 shadow-sm" onclick="reviewSiswa('${nis}')" title="Lihat"><i class="bi bi-eye"></i></button> <button class="btn btn-sm btn-success me-1 shadow-sm" onclick="cetakKartuAdmin('${nis}')" title="Unduh Kartu"><i class="bi bi-card-heading"></i></button>`;
                 
                 if(isAdmin) btnDataAlumni += `<button class="btn btn-sm btn-danger shadow-sm" onclick="resetPassAdmin('${nis}')" title="Reset Password"><i class="bi bi-key"></i></button>`;
                 
