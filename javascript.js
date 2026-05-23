@@ -47,9 +47,10 @@ if (tenantId && tenantConfig[tenantId]) {
 
 let globalConf = {}; // Menampung pengaturan sekolah
 let globalSiswa=[], curSmt=1, cropper, cropTarget, curPage='dash';
-let globalMapel = [];
+let globalMapel = []; // <--- KANTONG MAPEL
 let chartGender, chartStatus;
 
+// ==========================================
 // ==========================================
 // FUNGSI PUSAT PENGHUBUNG FRONTEND KE BACKEND
 // ==========================================
@@ -335,7 +336,9 @@ function loadSiswa() {
             }
 
             if (status === 'Lulus') {
-                let btnDataAlumni = `<button class="btn btn-sm btn-secondary me-1 shadow-sm" onclick="reviewSiswa('${nis}')" title="Lihat"><i class="bi bi-eye"></i></button> <button class="btn btn-sm btn-success me-1 shadow-sm" onclick="cetakKartuAdmin('${nis}')" title="Unduh Kartu"><i class="bi bi-card-heading"></i></button>`;
+                // TAMBAHKAN TOMBOL CETAK PDF (btn-info) DI SINI
+                let btnDataAlumni = `<button class="btn btn-sm btn-info text-white me-1 shadow-sm" onclick="cetakPDF('${nis}')" title="Cetak Buku Induk"><i class="bi bi-file-pdf"></i></button> <button class="btn btn-sm btn-secondary me-1 shadow-sm" onclick="reviewSiswa('${nis}')" title="Lihat"><i class="bi bi-eye"></i></button> <button class="btn btn-sm btn-success me-1 shadow-sm" onclick="cetakKartuAdmin('${nis}')" title="Unduh Kartu"><i class="bi bi-card-heading"></i></button>`;
+                
                 if(isAdmin) btnDataAlumni += `<button class="btn btn-sm btn-danger shadow-sm" onclick="resetPassAdmin('${nis}')" title="Reset Password"><i class="bi bi-key"></i></button>`;
                 
                 htmlAlumni += `<tr><td>${nisGabung}</td><td>${nama}</td><td>${jk}</td><td><span class="badge bg-success">Lulus</span></td><td>${thnKeluar}</td><td>${btnDataAlumni}</td></tr>`;
@@ -1404,33 +1407,41 @@ function hubungiAdminLupaPass() {
     }
 }
 
-
+// GANTI SEMUA FUNGSI cariDataAlumni() DENGAN KODE INI
+// GANTI SEMUA FUNGSI cariDataAlumni() DENGAN KODE INI
 function cariDataAlumni() {
-    // 1. Tarik daftar tahun dulu sebelum Pop-Up muncul
+    // 1. Munculkan loading dulu karena kita harus narik daftar tahun dari server
     $('#loader').removeClass('hidden'); 
-    $('#loaderText').text('Menyiapkan form pencarian...');
-    
+    $('#loaderText').text('Menyiapkan Data Pencarian...');
+
+    // 2. Panggil API untuk mendapatkan daftar tahun alumni
     callAPI('getTahunAlumni').then(tahunArr => {
         $('#loader').addClass('hidden');
-        
-        let optTahun = '<option value="">-- Pilih Tahun Lulus --</option>';
+
+        // Buat opsi HTML untuk dropdown
+        let optionHtml = '<option value="">-- Pilih Tahun Lulus --</option>';
         if (tahunArr && tahunArr.length > 0) {
-            tahunArr.forEach(t => optTahun += `<option value="${t}">${t}</option>`);
+            tahunArr.forEach(t => {
+                optionHtml += `<option value="${t}">${t}</option>`;
+            });
         } else {
-            optTahun = '<option value="">Belum ada data alumni</option>';
+            optionHtml = '<option value="">Belum Ada Data Alumni</option>';
         }
 
-        // 2. Tampilkan Pop-Up dengan tambahan Dropdown Tahun
+        // 3. Tampilkan SweetAlert dengan tambahan Dropdown
         Swal.fire({
             title: 'Cek Data Alumni',
             html: `
-                <select id="swal-input-tahun" class="swal2-input form-select" style="width: 85%; margin: 0 auto 15px auto; font-weight: bold; text-align: center;">
-                    ${optTahun}
-                </select>
-                <p class="text-muted small mb-1">Masukkan <b>salah satu</b> data di bawah ini:</p>
-                <input id="swal-input-nisn" class="swal2-input" placeholder="Masukkan NISN (10 Digit)">
-                <div class="text-muted fw-bold my-2" style="font-size: 14px;">ATAU</div>
-                <input id="swal-input-nis" class="swal2-input" placeholder="Masukkan NIS (Bebas)">
+                <div class="text-start mb-3">
+                    <label class="small fw-bold text-muted mb-1">Tahun Lulus *</label>
+                    <select id="swal-input-tahun" class="form-select border-primary shadow-sm mb-3">
+                        ${optionHtml}
+                    </select>
+                </div>
+                <p class="text-muted small mb-2 text-start">Masukkan <b>salah satu</b> data di bawah ini:</p>
+                <input id="swal-input-nisn" class="form-control text-center mb-2" placeholder="Masukkan NISN (10 Digit)">
+                <div class="text-muted fw-bold my-2" style="font-size: 12px;">ATAU</div>
+                <input id="swal-input-nis" class="form-control text-center" placeholder="Masukkan NIS">
             `,
             showCancelButton: true,
             confirmButtonText: '<i class="bi bi-search"></i> Cari Data',
@@ -1441,49 +1452,62 @@ function cariDataAlumni() {
                 const nisn = document.getElementById('swal-input-nisn').value.trim();
                 const nis = document.getElementById('swal-input-nis').value.trim();
                 
-                // Validasi agar tidak dikosongkan
-                if (!tahun) { Swal.showValidationMessage('Harap pilih Tahun Lulus terlebih dahulu!'); return false; }
-                if (!nisn && !nis) { Swal.showValidationMessage('Harap isi minimal NISN atau NIS!'); return false; }
-                
+                if (!tahun) {
+                    Swal.showValidationMessage('Harap pilih Tahun Lulus terlebih dahulu!');
+                    return false;
+                }
+                if (!nisn && !nis) {
+                    Swal.showValidationMessage('Harap isi minimal NISN atau NIS!');
+                    return false;
+                }
                 return { tahun: tahun, nisn: nisn, nis: nis };
             }
         }).then((result) => {
             if(result.isConfirmed && result.value) {
                 $('#loader').removeClass('hidden'); 
-                $('#loaderText').text(`Mencari Data di Arsip ${result.value.tahun}...`);
+                $('#loaderText').text('Mencari Data di Arsip Tahun ' + result.value.tahun + '...');
                 
-                // 3. Kirim data pencarian + tahun ke Backend
+                // Panggil API pencarian
                 callAPI('cariDataAlumniPublic', result.value).then(res => {
                     $('#loader').addClass('hidden');
                     
                     if(res.status === 'success') {
                         let d = res.data;
                         let statusTeks = d.isLengkap ? '<span class="badge bg-success">Data Lengkap</span>' : '<span class="badge bg-warning text-dark">Belum Lengkap</span>';
-                        let statusPendidikan = '<span class="badge bg-primary">LULUS</span>';
+                        let statusPendidikan = d.status === 'Lulus' ? '<span class="badge bg-primary">LULUS</span>' : `<span class="badge bg-danger">${d.status.toUpperCase()}</span>`;
+                        
+                        let petunjukHtml = `<div class="alert alert-info small text-start m-0 mt-3"><b>Petunjuk:</b><br>Silakan masuk ke sistem menggunakan <b>NISN</b> dan password. Jika lupa, hubungi admin sekolah.</div>`;
                         
                         Swal.fire({
                             title: 'Data Ditemukan!',
                             html: `
-                                <div class="text-start mb-3" style="font-size: 14px;">
+                                <div class="text-start mb-2" style="font-size: 14px;">
                                     <b>NISN:</b> ${d.nisn || '-'}<br>
                                     <b>NIS:</b> ${d.nis || '-'}<br>
                                     <b>Nama:</b> ${d.nama}<br>
                                     <b>Tahun Lulus:</b> ${d.thn_lulus}<br>
                                     <b>Status:</b> ${statusPendidikan}<br>
-                                    <b>Kelengkapan:</b> ${statusTeks}
+                                    <b>Kelengkapan Data:</b> ${statusTeks}
                                 </div>
-                                <div class="alert alert-info small text-start m-0"><b>Petunjuk:</b><br>Silakan login menggunakan <b>NISN</b> dan password standar <b>123456</b>. Demi keamanan, harap langsung ganti password!</div>
+                                ${petunjukHtml}
                             `,
                             icon: 'success'
                         });
                     } else if (res.status === 'not_found') {
-                        Swal.fire('Tidak Ditemukan', `Data NIS/NISN tersebut tidak ditemukan pada lulusan tahun ${result.value.tahun}.`, 'error');
+                        Swal.fire({
+                            title: 'Tidak Ditemukan',
+                            html: `Data dengan nomor tersebut tidak ditemukan pada lulusan tahun <b>${result.value.tahun}</b>.<br>Pastikan Anda memilih tahun yang tepat.`,
+                            icon: 'error'
+                        });
                     } else {
                         Swal.fire('Error', res.message, 'error');
                     }
                 });
             }
         });
+    }).catch(err => {
+        $('#loader').addClass('hidden');
+        Swal.fire('Error', 'Gagal memuat daftar tahun dari server.', 'error');
     });
 }
 
@@ -1947,28 +1971,14 @@ function loadAlumniByTahun() {
                 const nis = r[0], nisn = r[1], nama = r[2], jk = r[7], status = r[31], thnKeluar = r[32] ? String(r[32]).substring(0,4) : "-";
                 const nisGabung = nisn ? `${nis} / ${nisn}` : nis;
                 
-                // Di dalam fungsi loadAlumniByTahun(), cari bagian ini:
-let btnDataAlumni = `
-    <!-- TOMBOL CETAK PDF BUKU INDUK DITAMBAHKAN DI SINI -->
-    <button class="btn btn-sm btn-info text-white me-1 shadow-sm" onclick="cetakPDF('${nis}')" title="Cetak Buku Induk">
-        <i class="bi bi-file-pdf"></i>
-    </button>
-    <button class="btn btn-sm btn-secondary me-1 shadow-sm" onclick="reviewSiswa('${nis}')" title="Lihat Profil">
-        <i class="bi bi-eye"></i>
-    </button> 
-    <button class="btn btn-sm btn-success me-1 shadow-sm" onclick="cetakKartuAdmin('${nis}')" title="Unduh Kartu">
-        <i class="bi bi-card-heading"></i>
-    </button>
-`;
-
-if(isAdmin) {
-    btnDataAlumni += `<button class="btn btn-sm btn-danger shadow-sm" onclick="resetPassAdmin('${nis}')" title="Reset Password"><i class="bi bi-key"></i></button>`;
-}
+                // TAMBAHKAN TOMBOL CETAK PDF (btn-info) DI SINI
+                let btnDataAlumni = `<button class="btn btn-sm btn-info text-white me-1 shadow-sm" onclick="cetakPDF('${nis}')" title="Cetak Buku Induk"><i class="bi bi-file-pdf"></i></button> <button class="btn btn-sm btn-secondary me-1 shadow-sm" onclick="reviewSiswa('${nis}')" title="Lihat"><i class="bi bi-eye"></i></button> <button class="btn btn-sm btn-success me-1 shadow-sm" onclick="cetakKartuAdmin('${nis}')" title="Unduh Kartu"><i class="bi bi-card-heading"></i></button>`;
+                
+                if(isAdmin) btnDataAlumni += `<button class="btn btn-sm btn-danger shadow-sm" onclick="resetPassAdmin('${nis}')" title="Reset Password"><i class="bi bi-key"></i></button>`;
                 
                 htmlAlumni += `<tr><td>${nisGabung}</td><td>${nama}</td><td>${jk}</td><td><span class="badge bg-primary">${status}</span></td><td>${thnKeluar}</td><td>${btnDataAlumni}</td></tr>`;
                 
                 // Masukkan data ini sementara ke globalSiswa agar fungsi Lihat Kartu dsb tetap jalan
-                // Cek apakah sudah ada di globalSiswa, jika belum, push.
                 if(!globalSiswa.find(x => x[0] == nis)) {
                     globalSiswa.push(r);
                 }
