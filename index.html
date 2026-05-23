@@ -733,6 +733,7 @@ input, button, select, textarea {
     <div class="d-flex flex-wrap justify-content-between align-items-center mb-4 gap-2">
         <h3 class="m-0 text-secondary fw-bold">Data Siswa</h3>
         <div class="d-flex gap-2">
+            <!-- Tombol Klaper Baru -->
             <button class="btn btn-sm btn-info text-white shadow-sm fw-bold" onclick="bukaModalKlaper('Siswa Aktif')">
                 <i class="bi bi-journal-text"></i> Unduh Klaper
             </button>
@@ -741,36 +742,37 @@ input, button, select, textarea {
             </button>
         </div>
     </div>
-    <div class="card p-4 bg-white"> 
-        <div class="table-responsive">
-            <table id="tblDataSiswa" class="table table-hover w-100">
-                <thead class="table-light"><tr><th>NIS / NISN</th><th>Nama Lengkap</th><th>Tgl Lahir</th><th>L/P</th><th>Status</th><th>Aksi</th></tr></thead>
-                <tbody id="tbodyDataSiswa"></tbody>
-            </table>
-        </div>
-    </div>
-</div>
+                    <div class="table-responsive">
+                        <table id="tblDataSiswa" class="table table-hover w-100">
+                            <thead class="table-light"><tr><th>NIS / NISN</th><th>Nama Lengkap</th><th>Tgl Lahir</th><th>L/P</th><th>Status</th><th>Aksi</th></tr></thead>
+                            <tbody id="tbodyDataSiswa"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
 
-
+           <!-- === UNTUK DATA ALUMNI === -->
 <div id="view-alumni" class="hidden">
     <div class="d-flex flex-wrap justify-content-between align-items-center mb-4 gap-2">
         <h3 class="m-0 text-secondary fw-bold">Data Alumni</h3>
         
-        <!-- TAMBAHAN: FILTER TAHUN -->
-        <div class="d-flex align-items-center gap-2 bg-white p-2 rounded shadow-sm border">
-            <span class="small fw-bold text-muted mb-0"><i class="bi bi-funnel"></i> Tahun:</span>
-            <select id="filterTahunAlumni" class="form-select form-select-sm fw-bold text-primary border-0" onchange="loadAlumniByTahun()">
+        <!-- TAMBAHAN: Dropdown Filter Tahun & Tombol Arsip -->
+        <div class="d-flex align-items-center gap-2">
+            <select id="filterTahunAlumni" class="form-select form-select-sm fw-bold shadow-sm border-primary" style="width: 150px;" onchange="loadAlumniByTahun()">
                 <option value="">-- Pilih Tahun --</option>
             </select>
-        </div>
-
-        <div class="d-flex gap-2">
-            <!-- TAMBAHAN: TOMBOL ARSIPKAN (Hanya untuk Admin) -->
             <button class="btn btn-sm btn-warning shadow-sm fw-bold admin-only" onclick="prosesArsipLulusan()">
                 <i class="bi bi-archive"></i> Arsipkan Lulusan
             </button>
+        </div>
+
+        <div class="d-flex gap-2">
+            <!-- Tombol Klaper Baru -->
             <button class="btn btn-sm btn-info text-white shadow-sm fw-bold" onclick="bukaModalKlaper('Alumni')">
                 <i class="bi bi-journal-text"></i> Unduh Klaper
+            </button>
+            <button class="btn btn-sm btn-success shadow-sm fw-bold" onclick="cetakKartuMassal('alumni')">
+                <i class="bi bi-printer"></i> Unduh Kartu Semua
             </button>
         </div>
     </div>
@@ -1057,30 +1059,6 @@ input, button, select, textarea {
                 <p>Pihak sekolah berhak untuk memperbarui Kebijakan Privasi ini sewaktu-waktu guna menyesuaikan dengan regulasi pemerintah atau peningkatan fitur sistem keamanan terbaru. Dengan terus menggunakan aplikasi SiMISTerBIn, Anda dianggap telah menyetujui seluruh ketentuan pengelolaan data yang tertulis pada dokumen ini.</p>
             </div>
             <div class="modal-footer bg-light"><button type="button" class="btn btn-primary px-4 fw-bold" data-bs-dismiss="modal">SAYA MENGERTI</button></div>
-        </div>
-    </div>
-</div>
-
-<!-- MODAL UNDUH KLAPER -->
-<div class="modal fade" id="mdlKlaper" tabindex="-1">
-    <div class="modal-dialog modal-dialog-centered modal-sm">
-        <div class="modal-content border-0 shadow-lg">
-            <div class="modal-header bg-info text-white">
-                <h5 class="modal-title fw-bold"><i class="bi bi-journal-text me-2"></i>Cetak Buku Klaper</h5>
-                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
-            </div>
-            <div class="modal-body p-4 text-center">
-                <input type="hidden" id="klaperTipe">
-                <p class="text-muted small mb-2 text-start" id="lblKlaperTahun">Pilih Tahun Kelulusan:</p>
-                <div class="mb-4">
-                    <select id="klaperTahun" class="form-select fw-bold border-info shadow-sm text-center">
-                        <!-- Opsi tahun akan diisi otomatis oleh JavaScript -->
-                    </select>
-                </div>
-                <button class="btn btn-primary w-100 fw-bold shadow-sm rounded-pill" onclick="cetakKlaperPDF()">
-                    <i class="bi bi-file-earmark-pdf-fill me-1"></i> GENERATE PDF
-                </button>
-            </div>
         </div>
     </div>
 </div>
