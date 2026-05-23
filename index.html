@@ -752,17 +752,25 @@ input, button, select, textarea {
 </div>
 
 
-            <!-- === UNTUK DATA ALUMNI === -->
 <div id="view-alumni" class="hidden">
     <div class="d-flex flex-wrap justify-content-between align-items-center mb-4 gap-2">
         <h3 class="m-0 text-secondary fw-bold">Data Alumni</h3>
+        
+        <!-- TAMBAHAN: FILTER TAHUN -->
+        <div class="d-flex align-items-center gap-2 bg-white p-2 rounded shadow-sm border">
+            <span class="small fw-bold text-muted mb-0"><i class="bi bi-funnel"></i> Tahun:</span>
+            <select id="filterTahunAlumni" class="form-select form-select-sm fw-bold text-primary border-0" onchange="loadAlumniByTahun()">
+                <option value="">-- Pilih Tahun --</option>
+            </select>
+        </div>
+
         <div class="d-flex gap-2">
-            <!-- Tombol Klaper Baru -->
+            <!-- TAMBAHAN: TOMBOL ARSIPKAN (Hanya untuk Admin) -->
+            <button class="btn btn-sm btn-warning shadow-sm fw-bold admin-only" onclick="prosesArsipLulusan()">
+                <i class="bi bi-archive"></i> Arsipkan Lulusan
+            </button>
             <button class="btn btn-sm btn-info text-white shadow-sm fw-bold" onclick="bukaModalKlaper('Alumni')">
                 <i class="bi bi-journal-text"></i> Unduh Klaper
-            </button>
-            <button class="btn btn-sm btn-success shadow-sm fw-bold" onclick="cetakKartuMassal('alumni')">
-                <i class="bi bi-printer"></i> Unduh Kartu Semua
             </button>
         </div>
     </div>
@@ -1100,11 +1108,7 @@ input, button, select, textarea {
                     </table>
                 </div>
             </div>
-            <div class="modal-footer bg-light"><button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Tutup</button>
-            <button class="btn btn-danger fw-bold" onclick="jalankanCetakTranskrip()">
-    <i class="bi bi-file-pdf me-1"></i> Cetak PDF
-</button>
-            </div><button class="btn btn-warning fw-bold" onclick="mintaAnalisisAI()"><i class="bi bi-robot me-1"></i> Analisis AI</button>
+            <div class="modal-footer bg-light"><button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Tutup</button><button class="btn btn-danger fw-bold" onclick="cetakTranskrip()"><i class="bi bi-file-pdf me-1"></i> Cetak PDF</button></div><button class="btn btn-warning fw-bold" onclick="mintaAnalisisAI()"><i class="bi bi-robot me-1"></i> Analisis AI</button>
         </div>
     </div>
 </div>
