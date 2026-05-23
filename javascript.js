@@ -1430,27 +1430,21 @@ function hubungiAdminLupaPass() {
 }
 
 // GANTI SEMUA FUNGSI cariDataAlumni() DENGAN KODE INI
-// GANTI SEMUA FUNGSI cariDataAlumni() DENGAN KODE INI
+// GANTI SEMUA FUNGSI cariDataAlumni() DENGAN KODE SUPER AMAN INI
 function cariDataAlumni() {
-    // 1. Munculkan loading dulu karena kita harus narik daftar tahun dari server
     $('#loader').removeClass('hidden'); 
-    $('#loaderText').text('Menyiapkan Data Pencarian...');
+    $('#loaderText').text('Menyiapkan Data...');
 
-    // 2. Panggil API untuk mendapatkan daftar tahun alumni
     callAPI('getTahunAlumni').then(tahunArr => {
         $('#loader').addClass('hidden');
 
-        // Buat opsi HTML untuk dropdown
         let optionHtml = '<option value="">-- Pilih Tahun Lulus --</option>';
-        if (tahunArr && tahunArr.length > 0) {
-            tahunArr.forEach(t => {
-                optionHtml += `<option value="${t}">${t}</option>`;
-            });
+        if (Array.isArray(tahunArr) && tahunArr.length > 0) {
+            tahunArr.forEach(t => { optionHtml += `<option value="${t}">${t}</option>`; });
         } else {
             optionHtml = '<option value="">Belum Ada Data Alumni</option>';
         }
 
-        // 3. Tampilkan SweetAlert dengan tambahan Dropdown
         Swal.fire({
             title: 'Cek Data Alumni',
             html: `
@@ -1474,56 +1468,71 @@ function cariDataAlumni() {
                 const nisn = document.getElementById('swal-input-nisn').value.trim();
                 const nis = document.getElementById('swal-input-nis').value.trim();
                 
-                if (!tahun) {
-                    Swal.showValidationMessage('Harap pilih Tahun Lulus terlebih dahulu!');
-                    return false;
-                }
-                if (!nisn && !nis) {
-                    Swal.showValidationMessage('Harap isi minimal NISN atau NIS!');
-                    return false;
-                }
+                if (!tahun) { Swal.showValidationMessage('Harap pilih Tahun Lulus terlebih dahulu!'); return false; }
+                if (!nisn && !nis) { Swal.showValidationMessage('Harap isi minimal NISN atau NIS!'); return false; }
                 return { tahun: tahun, nisn: nisn, nis: nis };
             }
         }).then((result) => {
             if(result.isConfirmed && result.value) {
                 $('#loader').removeClass('hidden'); 
-                $('#loaderText').text('Mencari Data di Arsip Tahun ' + result.value.tahun + '...');
+                $('#loaderText').text('Mencari Data...');
                 
                 // Panggil API pencarian
                 callAPI('cariDataAlumniPublic', result.value).then(res => {
-                    $('#loader').addClass('hidden');
-                    
-                    if(res.status === 'success') {
-                        let d = res.data;
-                        let statusTeks = d.isLengkap ? '<span class="badge bg-success">Data Lengkap</span>' : '<span class="badge bg-warning text-dark">Belum Lengkap</span>';
-                        let statusPendidikan = d.status === 'Lulus' ? '<span class="badge bg-primary">LULUS</span>' : `<span class="badge bg-danger">${d.status.toUpperCase()}</span>`;
+                    try {
+                        // 1. PASTIKAN LOADER MATI APAPUN YANG TERJADI
+                        $('#loader').addClass('hidden');
                         
-                        let petunjukHtml = `<div class="alert alert-info small text-start m-0 mt-3"><b>Petunjuk:</b><br>Silakan masuk ke sistem menggunakan <b>NISN</b> dan password. Jika lupa, hubungi admin sekolah.</div>`;
-                        
-                        Swal.fire({
-                            title: 'Data Ditemukan!',
-                            html: `
-                                <div class="text-start mb-2" style="font-size: 14px;">
-                                    <b>NISN:</b> ${d.nisn || '-'}<br>
-                                    <b>NIS:</b> ${d.nis || '-'}<br>
-                                    <b>Nama:</b> ${d.nama}<br>
-                                    <b>Tahun Lulus:</b> ${d.thn_lulus}<br>
-                                    <b>Status:</b> ${statusPendidikan}<br>
-                                    <b>Kelengkapan Data:</b> ${statusTeks}
-                                </div>
-                                ${petunjukHtml}
-                            `,
-                            icon: 'success'
-                        });
-                    } else if (res.status === 'not_found') {
-                        Swal.fire({
-                            title: 'Tidak Ditemukan',
-                            html: `Data dengan nomor tersebut tidak ditemukan pada lulusan tahun <b>${result.value.tahun}</b>.<br>Pastikan Anda memilih tahun yang tepat.`,
-                            icon: 'error'
-                        });
-                    } else {
-                        Swal.fire('Error', res.message, 'error');
+                        // 2. CEK RESPONS SERVER
+                        if (!res) {
+                            Swal.fire('Error', 'Tidak ada respon dari server database.', 'error');
+                            return;
+                        }
+
+                        // 3. LOGIKA JIKA KETEMU, TIDAK KETEMU, ATAU ERROR
+                        if (res.status === 'success') {
+                            let d = res.data;
+                            let statusTeks = d.isLengkap ? '<span class="badge bg-success">Data Lengkap</span>' : '<span class="badge bg-warning text-dark">Belum Lengkap</span>';
+                            let statusPendidikan = d.status === 'Lulus' ? '<span class="badge bg-primary">LULUS</span>' : `<span class="badge bg-danger">${String(d.status).toUpperCase()}</span>`;
+                            
+                            let petunjukHtml = `<div class="alert alert-info small text-start m-0 mt-3"><b>Petunjuk:</b><br>Silakan masuk ke sistem menggunakan <b>NISN</b> dan password. Jika lupa, hubungi admin sekolah.</div>`;
+                            
+                            Swal.fire({
+                                title: 'Data Ditemukan!',
+                                html: `
+                                    <div class="text-start mb-2" style="font-size: 14px;">
+                                        <b>NISN:</b> ${d.nisn || '-'}<br>
+                                        <b>NIS:</b> ${d.nis || '-'}<br>
+                                        <b>Nama:</b> ${d.nama || '-'}<br>
+                                        <b>Tahun Lulus:</b> ${d.thn_lulus || '-'}<br>
+                                        <b>Status:</b> ${statusPendidikan}<br>
+                                        <b>Kelengkapan Data:</b> ${statusTeks}
+                                    </div>
+                                    ${petunjukHtml}
+                                `,
+                                icon: 'success'
+                            });
+                        } else if (res.status === 'not_found') {
+                            // JIKA TIDAK KETEMU MUNCULKAN INI
+                            Swal.fire({
+                                title: 'Tidak Ditemukan',
+                                html: `Data dengan nomor tersebut tidak terdaftar pada lulusan tahun <b>${result.value.tahun}</b>.<br>Pastikan Anda memasukkan nomor dan memilih tahun yang tepat.`,
+                                icon: 'error'
+                            });
+                        } else {
+                            // ERROR DARI BACKEND (Contoh: Sheet belum ada)
+                            Swal.fire('Peringatan Sistem', res.message || 'Terjadi kesalahan tidak dikenal.', 'warning');
+                        }
+                    } catch (e) {
+                        // JIKA ADA ERROR JAVASCRIPT SILUMAN
+                        $('#loader').addClass('hidden');
+                        console.error(e);
+                        Swal.fire('Error Internal', 'Kesalahan pada sistem: ' + e.message, 'error');
                     }
+                }).catch(err => {
+                    // JIKA KONEKSI TERPUTUS/GAGAL FETCH
+                    $('#loader').addClass('hidden');
+                    Swal.fire('Error Koneksi', 'Gagal terhubung ke server. Periksa jaringan internet Anda.', 'error');
                 });
             }
         });
@@ -1532,6 +1541,7 @@ function cariDataAlumni() {
         Swal.fire('Error', 'Gagal memuat daftar tahun dari server.', 'error');
     });
 }
+
 
 // --- FITUR CEK DATA KOSONG (DI DALAM PROFIL ALUMNI) ---
 function lihatDataKosong() {
