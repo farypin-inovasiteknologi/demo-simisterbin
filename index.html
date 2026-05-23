@@ -728,31 +728,35 @@ input, button, select, textarea {
                 </div>
             </div>
 
-            <!-- === UNTUK DATA SISWA AKTIF === -->
-<div id="view-datasiswa" class="hidden">
-    <div class="d-flex flex-wrap justify-content-between align-items-center mb-4 gap-2">
-        <h3 class="m-0 text-secondary fw-bold">Data Siswa</h3>
-        <div class="d-flex gap-2">
-            <!-- Tombol Klaper Baru -->
-            <button class="btn btn-sm btn-info text-white shadow-sm fw-bold" onclick="bukaModalKlaper('Siswa Aktif')">
-                <i class="bi bi-journal-text"></i> Unduh Klaper
-            </button>
-            <button class="btn btn-sm btn-success shadow-sm fw-bold" onclick="cetakKartuMassal('siswa')">
-                <i class="bi bi-printer"></i> Unduh Kartu Semua
-            </button>
-        </div>
-    </div>
+<!-- === UNTUK DATA SISWA AKTIF === -->
+            <div id="view-datasiswa" class="hidden">
+                <div class="d-flex flex-wrap justify-content-between align-items-center mb-4 gap-2">
+                    <h3 class="m-0 text-secondary fw-bold">Data Siswa</h3>
+                    <div class="d-flex gap-2">
+                        <!-- Tombol Klaper Baru -->
+                        <button class="btn btn-sm btn-info text-white shadow-sm fw-bold" onclick="bukaModalKlaper('Siswa Aktif')">
+                            <i class="bi bi-journal-text"></i> Unduh Klaper
+                        </button>
+                        <button class="btn btn-sm btn-success shadow-sm fw-bold" onclick="cetakKartuMassal('siswa')">
+                            <i class="bi bi-printer"></i> Unduh Kartu Semua
+                        </button>
+                    </div>
+                </div>
+                
+                <!-- PERBAIKAN: Menambahkan div card yang hilang agar tampilan rapi -->
                 <div class="card p-4 bg-white">
                     <div class="table-responsive">
                         <table id="tblDataSiswa" class="table table-hover w-100">
-                            <thead class="table-light"><tr><th>NIS / NISN</th><th>Nama Lengkap</th><th>Tgl Lahir</th><th>L/P</th><th>Status</th><th>Aksi</th></tr></thead>
+                            <thead class="table-light">
+                                <tr><th>NIS / NISN</th><th>Nama Lengkap</th><th>Tgl Lahir</th><th>L/P</th><th>Status</th><th>Aksi</th></tr>
+                            </thead>
                             <tbody id="tbodyDataSiswa"></tbody>
                         </table>
                     </div>
-                </div>
-            </div>
-
-           <!-- === UNTUK DATA ALUMNI === -->
+                </div> <!-- Penutup card -->
+            </div> <!-- Penutup view-datasiswa -->
+            
+            <!-- === UNTUK DATA ALUMNI === -->
 
 <div id="view-alumni" class="hidden">
     <div class="d-flex flex-wrap justify-content-between align-items-center mb-4 gap-2">
