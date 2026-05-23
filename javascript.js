@@ -47,10 +47,9 @@ if (tenantId && tenantConfig[tenantId]) {
 
 let globalConf = {}; // Menampung pengaturan sekolah
 let globalSiswa=[], curSmt=1, cropper, cropTarget, curPage='dash';
-let globalMapel = []; // <--- KANTONG MAPEL
+let globalMapel = [];
 let chartGender, chartStatus;
 
-// ==========================================
 // ==========================================
 // FUNGSI PUSAT PENGHUBUNG FRONTEND KE BACKEND
 // ==========================================
@@ -89,6 +88,7 @@ $(document).ready(function() {
 });
 
 // FUNGSI UNTUK MENGEMBALIKAN SESI (RELOAD)
+// FUNGSI UNTUK MENGEMBALIKAN SESI (RELOAD / LOGIN SUKSES)
 function restoreSession(res) {
     $('#loginPage').addClass('hidden'); 
     $('#appPage').removeClass('hidden'); 
@@ -100,11 +100,11 @@ function restoreSession(res) {
     
     if (res.role === 'siswa') {
         // Tampilan khusus Siswa & Alumni
-        $('#mobileTopBar').removeClass('d-none'); // Munculkan bar atas
-        $('#mobileSemester').addClass('d-none');  // Sembunyikan pilihan semester
-        $('#mobTopSetting').hide();               // Sembunyikan icon gear
-        $('#mobTopLogout').hide();                // Sembunyikan Logout atas (karena sudah di bawah)
-        $('#mobTopCekData').addClass('hidden');   // Default sembunyikan cek data
+        $('#mobileTopBar').removeClass('d-none');
+        $('#mobileSemester').addClass('d-none');  
+        $('#mobTopSetting').hide();               
+        $('#mobTopLogout').hide();               
+        $('#mobTopCekData').addClass('hidden');   
         
         $('#botSiswa').removeClass('d-none').addClass('d-flex');
         $('#botAdmin, #botWaka').removeClass('d-flex').addClass('d-none');
@@ -127,26 +127,27 @@ function restoreSession(res) {
         $('#profil_ttl').text((d.tmplahir || '-') + ', ' + (d.tgllahir_indo || '-'));
         $('#profil_jk').text(d.jk === 'L' ? 'Laki-laki' : 'Perempuan');
         $('#profil_agama').text(d.agama || '-');
-        // Ambil 10 angka pertama saja untuk Tahun Masuk
+        
         let thnMasukStr = d.thn_masuk ? String(d.thn_masuk).substring(0,10) : '-';
         $('#profil_kelas').text((d.kls_masuk || '-') + ' / ' + thnMasukStr);
         $('#profil_alamat').text(d.alamat || '-'); $('#profil_hp').text(d.nohp || '-');
         $('#profil_ortu').text((d.ayah || '-') + ' / ' + (d.ibu || '-'));
         $('#profil_status').text(d.status_akhir);
+        
         if(d.status_akhir === 'Aktif') $('#profil_status').removeClass('text-danger').addClass('text-success');
         else $('#profil_status').removeClass('text-success').addClass('text-danger');
         
-       let isAlumni = (d.status_akhir === 'Lulus');
+        let isAlumni = (d.status_akhir === 'Lulus');
         
-        // MUNCULKAN DATA & NOTIFIKASI KHUSUS ALUMNI
         if(isAlumni) {
             $('#row-alumni-lulus, #row-alumni-ijazah').removeClass('hidden');
             $('#btnCekKelengkapan').removeClass('hidden'); 
-            $('#mobTopCekData').removeClass('hidden'); // MUNCULKAN CEK DATA DI KANAN ATAS
+            $('#mobTopCekData').removeClass('hidden');
         } else {
             $('#row-alumni-lulus, #row-alumni-ijazah').addClass('hidden');
             $('#mobTopCekData').addClass('hidden');
         }
+        
         let fotoProfilTampil = isAlumni ? (d.foto_keluar || d.foto_id) : d.foto_id;
 
         $('#profil_foto').attr('src', '');
@@ -154,15 +155,16 @@ function restoreSession(res) {
         
         window.siswaAktif = d;
     } else {
-      $('#mobileTopBar').removeClass('d-none'); // Munculkan bar atas
+        // Tampilan khusus Admin & Waka Kurikulum
+        $('#mobileTopBar').removeClass('d-none'); 
         if(res.role === 'admin') {
             $('#botAdmin').removeClass('d-none').addClass('d-flex');
             $('#botSiswa, #botWaka').removeClass('d-flex').addClass('d-none');
-            $('#mobTopSetting, #mobTopLogout').show(); // Tampilkan Icon Setting & Logout
+            $('#mobTopSetting, #mobTopLogout').show(); 
         } else if (res.role === 'wakakurikulum') {
             $('#botWaka').removeClass('d-none').addClass('d-flex');
             $('#botAdmin, #botSiswa').removeClass('d-flex').addClass('d-none');
-            $('#mobTopSetting, #mobTopLogout').hide(); // Sembunyikan Icon Setting & Logout
+            $('#mobTopSetting, #mobTopLogout').hide(); 
         }
 
         $('#mainSidebar').removeClass('hidden');
@@ -175,6 +177,10 @@ function restoreSession(res) {
         
         nav('dash', null);
         loadSiswa();
+        
+        // --- INI PENAMBAHANNYA ---
+        // Perintahkan sistem mengambil daftar tahun alumni ke server
+        inisialisasiDropdownAlumni();
     }
 }
 
@@ -558,17 +564,7 @@ async function cetakPDF(nis) {
 // ==========================================
 // FUNGSI CETAK TRANSKRIP (DENGAN NIS/NISN)
 // ==========================================
-// Ganti fungsi cetakTranskrip yang lama dengan ini:
-function cetakTranskrip() { 
-    // Kita panggil pop-up dulu
-    promptCetak((tempat, tgl) => {
-        // Pindahkan seluruh logika cetak Anda ke sini
-        prosesCetakTranskrip(tempat, tgl);
-    });
-}
-
-// Pindahkan semua kode cetak lama Anda ke fungsi baru bernama prosesCetakTranskrip
-async function prosesCetakTranskrip(tempatCetak, tglCetak) {
+async function cetakTranskrip() { 
     const nis = $('#tNis').val(); 
     const namaSiswa = $('#tNamaSiswa').text().split(' (')[0]; 
     const s = globalSiswa.find(x => x[0] == nis);
@@ -1407,76 +1403,87 @@ function hubungiAdminLupaPass() {
         Swal.fire('Info', 'Nomor telepon admin belum diatur di sistem.', 'info');
     }
 }
-// GANTI SEMUA FUNGSI cariDataAlumni() DENGAN KODE INI
+
+
 function cariDataAlumni() {
-    Swal.fire({
-        title: 'Cek Data Alumni',
-        html: `
-            <p class="text-muted small">Masukkan <b>salah satu</b> data di bawah ini:</p>
-            <input id="swal-input-nisn" class="swal2-input" placeholder="Masukkan NISN (10 Digit)">
-            <div class="text-muted fw-bold my-2" style="font-size: 14px;">ATAU</div>
-            <input id="swal-input-nis" class="swal2-input" placeholder="Masukkan NIS (Bebas)">
-        `,
-        showCancelButton: true,
-        confirmButtonText: '<i class="bi bi-search"></i> Cari Data',
-        cancelButtonText: 'Batal',
-        confirmButtonColor: '#4e73df',
-        preConfirm: () => {
-            const nisn = document.getElementById('swal-input-nisn').value.trim();
-            const nis = document.getElementById('swal-input-nis').value.trim();
-            if (!nisn && !nis) {
-                Swal.showValidationMessage('Harap isi minimal NISN atau NIS!');
-            }
-            return { nisn: nisn, nis: nis };
+    // 1. Tarik daftar tahun dulu sebelum Pop-Up muncul
+    $('#loader').removeClass('hidden'); 
+    $('#loaderText').text('Menyiapkan form pencarian...');
+    
+    callAPI('getTahunAlumni').then(tahunArr => {
+        $('#loader').addClass('hidden');
+        
+        let optTahun = '<option value="">-- Pilih Tahun Lulus --</option>';
+        if (tahunArr && tahunArr.length > 0) {
+            tahunArr.forEach(t => optTahun += `<option value="${t}">${t}</option>`);
+        } else {
+            optTahun = '<option value="">Belum ada data alumni</option>';
         }
-    }).then((result) => {
-        if(result.isConfirmed && result.value) {
-            $('#loader').removeClass('hidden'); $('#loaderText').text('Mencari Data di Buku Induk...');
-            callAPI('cariDataAlumniPublic', result.value).then(res => {
-                $('#loader').addClass('hidden');
+
+        // 2. Tampilkan Pop-Up dengan tambahan Dropdown Tahun
+        Swal.fire({
+            title: 'Cek Data Alumni',
+            html: `
+                <select id="swal-input-tahun" class="swal2-input form-select" style="width: 85%; margin: 0 auto 15px auto; font-weight: bold; text-align: center;">
+                    ${optTahun}
+                </select>
+                <p class="text-muted small mb-1">Masukkan <b>salah satu</b> data di bawah ini:</p>
+                <input id="swal-input-nisn" class="swal2-input" placeholder="Masukkan NISN (10 Digit)">
+                <div class="text-muted fw-bold my-2" style="font-size: 14px;">ATAU</div>
+                <input id="swal-input-nis" class="swal2-input" placeholder="Masukkan NIS (Bebas)">
+            `,
+            showCancelButton: true,
+            confirmButtonText: '<i class="bi bi-search"></i> Cari Data',
+            cancelButtonText: 'Batal',
+            confirmButtonColor: '#4e73df',
+            preConfirm: () => {
+                const tahun = document.getElementById('swal-input-tahun').value;
+                const nisn = document.getElementById('swal-input-nisn').value.trim();
+                const nis = document.getElementById('swal-input-nis').value.trim();
                 
-                if(res.status === 'success') {
-                    let d = res.data;
-                    let statusTeks = d.isLengkap ? '<span class="badge bg-success">Data Lengkap</span>' : '<span class="badge bg-warning text-dark">Belum Lengkap</span>';
-                    let statusPendidikan = d.status === 'Lulus' ? '<span class="badge bg-primary">LULUS</span>' : `<span class="badge bg-danger">${d.status.toUpperCase()}</span>`;
+                // Validasi agar tidak dikosongkan
+                if (!tahun) { Swal.showValidationMessage('Harap pilih Tahun Lulus terlebih dahulu!'); return false; }
+                if (!nisn && !nis) { Swal.showValidationMessage('Harap isi minimal NISN atau NIS!'); return false; }
+                
+                return { tahun: tahun, nisn: nisn, nis: nis };
+            }
+        }).then((result) => {
+            if(result.isConfirmed && result.value) {
+                $('#loader').removeClass('hidden'); 
+                $('#loaderText').text(`Mencari Data di Arsip ${result.value.tahun}...`);
+                
+                // 3. Kirim data pencarian + tahun ke Backend
+                callAPI('cariDataAlumniPublic', result.value).then(res => {
+                    $('#loader').addClass('hidden');
                     
-                    let petunjukHtml = "";
-                    if(d.status === 'Keluar' || d.status === 'Pindah') {
-                        petunjukHtml = `<div class="alert alert-danger small text-start m-0"><b>Peringatan:</b><br>Maaf, Anda tidak bisa login karena berstatus <b>${d.status}</b>.</div>`;
+                    if(res.status === 'success') {
+                        let d = res.data;
+                        let statusTeks = d.isLengkap ? '<span class="badge bg-success">Data Lengkap</span>' : '<span class="badge bg-warning text-dark">Belum Lengkap</span>';
+                        let statusPendidikan = '<span class="badge bg-primary">LULUS</span>';
+                        
+                        Swal.fire({
+                            title: 'Data Ditemukan!',
+                            html: `
+                                <div class="text-start mb-3" style="font-size: 14px;">
+                                    <b>NISN:</b> ${d.nisn || '-'}<br>
+                                    <b>NIS:</b> ${d.nis || '-'}<br>
+                                    <b>Nama:</b> ${d.nama}<br>
+                                    <b>Tahun Lulus:</b> ${d.thn_lulus}<br>
+                                    <b>Status:</b> ${statusPendidikan}<br>
+                                    <b>Kelengkapan:</b> ${statusTeks}
+                                </div>
+                                <div class="alert alert-info small text-start m-0"><b>Petunjuk:</b><br>Silakan login menggunakan <b>NISN</b> dan password standar <b>123456</b>. Demi keamanan, harap langsung ganti password!</div>
+                            `,
+                            icon: 'success'
+                        });
+                    } else if (res.status === 'not_found') {
+                        Swal.fire('Tidak Ditemukan', `Data NIS/NISN tersebut tidak ditemukan pada lulusan tahun ${result.value.tahun}.`, 'error');
                     } else {
-                        petunjukHtml = `<div class="alert alert-info small text-start m-0"><b>Petunjuk:</b><br>Silakan kembali dan login menggunakan <b>NISN</b> dan password standar <b>123456</b>. Demi keamanan, harap langsung mengganti password Anda!</div>`;
+                        Swal.fire('Error', res.message, 'error');
                     }
-                    
-                    Swal.fire({
-                        title: 'Data Ditemukan!',
-                        html: `
-                            <div class="text-start mb-3" style="font-size: 14px;">
-                                <b>NISN:</b> ${d.nisn || '-'}<br>
-                                <b>NIS:</b> ${d.nis || '-'}<br>
-                                <b>Nama:</b> ${d.nama}<br>
-                                <b>Tahun Lulus/Keluar:</b> ${d.thn_lulus}<br>
-                                <b>Status:</b> ${statusPendidikan}<br>
-                                <b>Kelengkapan Data:</b> ${statusTeks}
-                            </div>
-                            ${petunjukHtml}
-                        `,
-                        icon: 'success'
-                    });
-                } else if (res.status === 'not_found') {
-                    let noWA = globalConf.telp_sekolah ? String(globalConf.telp_sekolah).replace(/\D/g,'').replace(/^0/,'62') : '';
-                    let teksWA = `Halo Admin, saya alumni ${globalConf.nama_sekolah || ''}, butuh bantuan utk cek data di aplikasi SiMISTerBIN.`;
-                    let waLink = noWA ? `<button class="btn btn-success mt-3 fw-bold w-100" onclick="window.open('https://wa.me/${noWA}?text=${encodeURIComponent(teksWA)}', '_blank')"><i class="bi bi-whatsapp"></i> Lapor via WhatsApp Admin</button>` : '';
-                    
-                    Swal.fire({
-                        title: 'Tidak Ditemukan',
-                        html: `Data tidak ditemukan di database Alumni.<br>Pastikan nomor benar, atau hubungi Admin.<br>${waLink}`,
-                        icon: 'error'
-                    });
-                } else {
-                    Swal.fire('Error', res.message, 'error');
-                }
-            });
-        }
+                });
+            }
+        });
     });
 }
 
@@ -1715,156 +1722,156 @@ function cetakKlaperPDF() {
     if (!tahun) { Swal.fire('Data Kosong', 'Tidak ada data tahun yang bisa dicetak.', 'warning'); return; }
 
     $('#mdlKlaper').modal('hide');
+    $('#loader').removeClass('hidden'); 
+    $('#loaderText').text('Menyusun Buku Klaper PDF...');
 
-    // PANGGIL POP-UP SEBELUM CETAK
-    promptCetak((tempatCetak, tglCetak) => {
-        $('#loader').removeClass('hidden'); 
-        $('#loaderText').text('Menyusun Buku Klaper PDF...');
-
-        let filteredData = globalSiswa.filter(r => {
-            if (!r[0]) return false;
-            let status = r[31];
-            if (tipe === 'Alumni' && status === 'Lulus') {
-                if (tahun === 'SEMUA') return true;
-                let thnLulus = r[32] ? String(r[32]).substring(0,4) : '';
-                return thnLulus === tahun;
-            } else if (tipe === 'Siswa Aktif' && status === 'Aktif') {
-                if (tahun === 'SEMUA') return true;
-                let thnMasuk = r[30] ? String(r[30]).substring(0,4) : '';
-                return thnMasuk === tahun;
-            }
-            return false;
-        });
-
-        filteredData.sort((a, b) => String(a[2]).localeCompare(String(b[2])));
-
-        if (filteredData.length === 0) {
-            $('#loader').addClass('hidden');
-            Swal.fire('Kosong', 'Tidak ada siswa yang terdata.', 'info');
-            return;
+    // 1. Saring Data Berdasarkan Tahun & Status
+    let filteredData = globalSiswa.filter(r => {
+        if (!r[0]) return false;
+        let status = r[31];
+        if (tipe === 'Alumni' && status === 'Lulus') {
+            if (tahun === 'SEMUA') return true;
+            let thnLulus = r[32] ? String(r[32]).substring(0,4) : '';
+            return thnLulus === tahun;
+        } else if (tipe === 'Siswa Aktif' && status === 'Aktif') {
+            if (tahun === 'SEMUA') return true;
+            let thnMasuk = r[30] ? String(r[30]).substring(0,4) : '';
+            return thnMasuk === tahun;
         }
+        return false;
+    });
 
-        let imgInstansi = $('#headerLogoInstansi').attr('src') || $('#prevLogoInstansi').attr('src') || '';
-        let imgSekolah = $('#headerLogoSekolah').attr('src') || $('#prevLogoSekolah').attr('src') || '';
-        let alamatSekolah = globalConf.alamat_sekolah ? globalConf.alamat_sekolah.replace(/\n/g, '<br>') : '-';
-        let namaKepsek = globalConf.nama_kepsek || '.....................................';
-        let nipKepsek = globalConf.nip_kepsek ? 'NIP. ' + globalConf.nip_kepsek : 'NIP. -';
-        
-        let judulSub = "";
-        if (tahun === 'SEMUA') {
-            judulSub = (tipe === 'Alumni') ? "SELURUH LULUSAN ALUMNI" : "SELURUH SISWA AKTIF";
+    // 2. Sortir Abjad (A-Z) berdasarkan Nama (Kolom index 2)
+    filteredData.sort((a, b) => String(a[2]).localeCompare(String(b[2])));
+
+    if (filteredData.length === 0) {
+        $('#loader').addClass('hidden');
+        Swal.fire('Kosong', 'Tidak ada siswa yang terdata di tahun tersebut.', 'info');
+        return;
+    }
+
+    // 3. Susun Kop Surat & Judul (PERBAIKAN LOGO)
+    // Mengambil logo dari elemen header profil yang sudah dipastikan me-render Base64
+    const imgInstansi = $('#headerLogoInstansi').attr('src') || '';
+    const imgSekolah = $('#headerLogoSekolah').attr('src') || '';
+    
+    let judulSub = "";
+    if (tahun === 'SEMUA') {
+        judulSub = (tipe === 'Alumni') ? "SELURUH LULUSAN ALUMNI" : "SELURUH SISWA AKTIF";
+    } else {
+        if (tipe === 'Alumni') {
+            judulSub = "TAHUN PELAJARAN " + (parseInt(tahun) - 1) + "/" + tahun;
         } else {
-            if (tipe === 'Alumni') {
-                judulSub = "TAHUN PELAJARAN " + (parseInt(tahun) - 1) + "/" + tahun;
-            } else {
-                judulSub = "ANGKATAN TAHUN MASUK " + tahun;
-            }
+            judulSub = "ANGKATAN TAHUN MASUK " + tahun;
         }
+    }
 
-        let html = `
-        <div style="font-family: 'Arial', sans-serif; color: #000; background: #fff; padding: 5px;">
-            <style>
-                .tabel-klaper { width: 100%; border-collapse: collapse; font-size: 8pt; font-family: 'Arial', sans-serif; }
-                .tabel-klaper th, .tabel-klaper td { border: 1px solid #000 !important; padding: 5px; text-align: center; vertical-align: middle; }
-                .tabel-klaper th { background-color: #e2e8f0 !important; font-weight: bold; }
-                .text-left { text-align: left !important; }
-            </style>
-
-            <table style="width: 100%; border-collapse: collapse; margin-bottom: 5px; border: none;">
-                <tr>
-                    <td width="12%" align="center" style="border: none;">
-                        ${imgInstansi ? `<img src="${imgInstansi}" style="width: 70px; height: 70px; object-fit: contain;">` : ''}
-                    </td>
-                    <td width="76%" style="text-align: center; line-height: 1.2; border: none;">
-                        <div style="font-size:14pt; font-weight:bold; text-transform:uppercase; letter-spacing: 1px;">${globalConf.nama_instansi || ''}</div>
-                        ${globalConf.opd_dinas ? `<div style="font-size:13pt; font-weight:bold; text-transform:uppercase;">${globalConf.opd_dinas}</div>` : ''}
-                        <div style="font-size:18pt; font-weight:bold; text-transform:uppercase; margin: 3px 0;">${globalConf.nama_sekolah || ''}</div>
-                        <div style="font-size:10pt;">${alamatSekolah}</div>
-                    </td>
-                    <td width="12%" align="center" style="border: none;">
-                        ${imgSekolah ? `<img src="${imgSekolah}" style="width: 70px; height: 70px; object-fit: contain;">` : ''}
-                    </td>
-                </tr>
-            </table>
-            <div style="border-bottom: 4px double #000; margin-bottom: 15px;"></div>
-            
-            <div style="text-align:center; font-weight:bold; font-size:15pt; margin-bottom: 3px; text-decoration: underline;">BUKU KLAPER SISWA</div>
-            <div style="text-align:center; font-weight:bold; font-size:12pt; margin-bottom: 20px;">${judulSub}</div>
-            
-            <table class="tabel-klaper">
-                <thead>
-                    <tr>
-                        <th rowspan="2" style="width: 3%;">Urut</th>
-                        <th rowspan="2" style="width: 10%;">Nomor Induk /<br>NISN</th>
-                        <th rowspan="2" style="width: 18%;">Nama Siswa</th>
-                        <th rowspan="2" style="width: 3%;">L/P</th>
-                        <th rowspan="2" style="width: 12%;">Tempat, Tgl Lahir</th>
-                        <th rowspan="2" style="width: 12%;">Nama Orangtua<br>Kandung</th>
-                        <th colspan="3">Tgl Naik / Masuk Kelas</th>
-                        <th rowspan="2" style="width: 8%;">Tanggal Tamat<br>Sekolah</th>
-                        <th rowspan="2" style="width: 10%;">Keterangan</th>
-                    </tr>
-                    <tr>
-                        <th style="width: 8%;">X</th>
-                        <th style="width: 8%;">XI</th>
-                        <th style="width: 8%;">XII</th>
-                    </tr>
-                </thead>
-                <tbody>
-        `;
-
-        filteredData.forEach((s, idx) => {
-            let nis_nisn = `<b>${s[0]}</b><br>${s[1] || '-'}`;
-            let ttl = `${s[5] || '-'},<br>${formatTglIndoJS(s[6])}`;
-            let ortu = s[20] ? s[20] : (s[23] ? s[23] : '-');
-            let tglMasukX = s[30] ? formatTglIndoJS(s[30]) : '-'; 
-            let tglLulus = s[32] ? formatTglIndoJS(s[32]) : '-';
-            
-            html += `
-                <tr>
-                    <td>${idx + 1}</td>
-                    <td>${nis_nisn}</td>
-                    <td class="text-left" style="text-transform: uppercase; font-weight: 600;">${s[2]}</td>
-                    <td>${s[7]}</td>
-                    <td class="text-left">${ttl}</td>
-                    <td class="text-left">${ortu}</td>
-                    <td>${tglMasukX}</td>
-                    <td></td>
-                    <td></td>
-                    <td>${tipe === 'Alumni' ? tglLulus : '-'}</td>
-                    <td class="text-left">${s[31] || '-'}</td>
-                </tr>
-            `;
-        });
-
-        html += `
-                </tbody>
-            </table>
-            <br><br>
-            <div style="float:right; text-align:center; font-size:11pt; font-family: 'Arial', sans-serif; width:300px; margin-top: 10px;">
-                ${tempatCetak}, ${tglCetak}<br>
-                Kepala Sekolah<br><br><br><br><br>
-                <b><u>${namaKepsek}</u></b><br>
-                ${nipKepsek}
-            </div>
-        </div>
-        `;
-
-        var opt = { 
-            margin: [1, 1, 1.5, 1],
-            filename: `Buku_Klaper_${tipe}_${tahun}.pdf`, 
-            image: { type: 'jpeg', quality: 0.98 }, 
-            html2canvas: { scale: 2, useCORS: true, scrollY: 0, windowY: 0 }, 
-            jsPDF: { unit: 'cm', format: 'A4', orientation: 'landscape' } 
-        };
+    // 4. Bangun Struktur HTML dengan CSS Internal yang Memaksa Border Muncul
+   let html = `
+<div style="font-family: 'Arial', sans-serif; color: #000; background: #fff; padding: 5px;">
         
-        html2pdf().set(opt).from(html).save().then(() => { 
-            $('#loader').addClass('hidden'); 
-            Swal.fire({ toast: true, position: 'top-end', icon: 'success', title: 'Buku Klaper Berhasil Diunduh', showConfirmButton: false, timer: 3000 });
-        });
+        <style>
+            .tabel-klaper { width: 100%; border-collapse: collapse; font-size: 8pt; font-family: 'Arial', sans-serif; }
+            .tabel-klaper th, .tabel-klaper td { border: 1px solid #000 !important; padding: 5px; text-align: center; vertical-align: middle; }
+            .tabel-klaper th { background-color: #e2e8f0 !important; font-weight: bold; }
+            .text-left { text-align: left !important; }
+        </style>
+
+        <table style="width: 100%; border-collapse: collapse; margin-bottom: 5px; border: none;">
+            <tr>
+                <td width="12%" align="center" style="border: none;">${imgInstansi ? `<img src="${imgInstansi}" style="width: 70px; height: 70px; object-fit: contain;">` : ''}</td>
+                <td width="76%" style="text-align: center; line-height: 1.2; border: none;">
+                    <div style="font-size:14pt; font-weight:bold; text-transform:uppercase; letter-spacing: 1px;">${globalConf.nama_instansi || ''}</div>
+                    ${globalConf.opd_dinas ? `<div style="font-size:13pt; font-weight:bold; text-transform:uppercase;">${globalConf.opd_dinas}</div>` : ''}
+                    <div style="font-size:18pt; font-weight:bold; text-transform:uppercase; margin: 3px 0;">${globalConf.nama_sekolah || ''}</div>
+                    <div style="font-size:10pt;">${globalConf.alamat_sekolah || ''}</div>
+                </td>
+                <td width="12%" align="center" style="border: none;">${imgSekolah ? `<img src="${imgSekolah}" style="width: 70px; height: 70px; object-fit: contain;">` : ''}</td>
+            </tr>
+        </table>
+        <div style="border-bottom: 4px double #000; margin-bottom: 15px;"></div>
+        
+        <div style="text-align:center; font-weight:bold; font-size:15pt; margin-bottom: 3px; text-decoration: underline;">BUKU KLAPER SISWA</div>
+        <div style="text-align:center; font-weight:bold; font-size:12pt; margin-bottom: 20px;">${judulSub}</div>
+        
+        <table class="tabel-klaper">
+            <thead>
+                <tr>
+                    <th rowspan="2" style="width: 3%;">Urut</th>
+                    <th rowspan="2" style="width: 10%;">Nomor Induk /<br>NISN</th>
+                    <th rowspan="2" style="width: 18%;">Nama Siswa</th>
+                    <th rowspan="2" style="width: 3%;">L/P</th>
+                    <th rowspan="2" style="width: 12%;">Tempat, Tgl Lahir</th>
+                    <th rowspan="2" style="width: 12%;">Nama Orangtua<br>Kandung</th>
+                    <th colspan="3">Tgl Naik / Masuk Kelas</th>
+                    <th rowspan="2" style="width: 8%;">Tanggal Tamat<br>Sekolah</th>
+                    <th rowspan="2" style="width: 10%;">Keterangan</th>
+                </tr>
+                <tr>
+                    <th style="width: 8%;">X</th>
+                    <th style="width: 8%;">XI</th>
+                    <th style="width: 8%;">XII</th>
+                </tr>
+            </thead>
+            <tbody>
+    `;
+
+    // 5. Isi Tabel Data (Looping)
+    filteredData.forEach((s, idx) => {
+        let nis_nisn = `<b>${s[0]}</b><br>${s[1] || '-'}`;
+        let nama = s[2];
+        let jk = s[7];
+        let ttl = `${s[5] || '-'},<br>${formatTglIndoJS(s[6])}`;
+        let ortu = s[20] ? s[20] : (s[23] ? s[23] : '-'); // Prioritas: Ayah, jika kosong Ibu
+        
+        // Logika Tanggal
+        let tglMasukX = s[30] ? formatTglIndoJS(s[30]) : '-'; 
+        let tglLulus = s[32] ? formatTglIndoJS(s[32]) : '-';
+        
+        html += `
+            <tr>
+                <td>${idx + 1}</td>
+                <td>${nis_nisn}</td>
+                <td class="text-left" style="text-transform: uppercase; font-weight: 600;">${nama}</td>
+                <td>${jk}</td>
+                <td class="text-left">${ttl}</td>
+                <td class="text-left">${ortu}</td>
+                <td>${tglMasukX}</td>
+                <td></td> <td></td> <td>${tipe === 'Alumni' ? tglLulus : '-'}</td>
+                <td class="text-left">${s[31] || '-'}</td>
+            </tr>
+        `;
+    });
+
+    // 6. Tanda Tangan Kepsek
+    const tglSekarang = new Date().toLocaleDateString('id-ID', {day: 'numeric', month: 'long', year: 'numeric'});
+    html += `
+            </tbody>
+        </table>
+        <br><br>
+        <div style="float:right; text-align:center; font-size:11pt; font-family: 'Arial', sans-serif; width:300px; margin-top: 10px;">
+            ..............................., ${tglSekarang}<br>
+            Kepala Sekolah<br><br><br><br><br>
+            <b><u>${globalConf.nama_kepsek || '.....................................'}</u></b><br>
+            NIP. ${globalConf.nip_kepsek || '-'}
+        </div>
+    </div>
+    `;
+
+    // 7. Eksekusi Print PDF
+    var opt = { 
+        margin: [1, 1, 1.5, 1], // [Atas, Kanan, Bawah, Kiri] dalam CM
+        filename: `Buku_Klaper_${tipe}_${tahun}.pdf`, 
+        image: { type: 'jpeg', quality: 0.98 }, 
+        html2canvas: { scale: 2, useCORS: true, scrollY: 0, windowY: 0 }, 
+        jsPDF: { unit: 'cm', format: 'A4', orientation: 'landscape' } 
+    };
+    
+    html2pdf().set(opt).from(html).save().then(() => { 
+        $('#loader').addClass('hidden'); 
+        Swal.fire({ toast: true, position: 'top-end', icon: 'success', title: 'Buku Klaper Berhasil Diunduh', showConfirmButton: false, timer: 3000 });
     });
 }
-
 
 // ==========================================
 // HELPER POP-UP CETAK (TEMPAT & TANGGAL)
@@ -1902,9 +1909,105 @@ function promptCetak(callback) {
     });
 }
 
-// Wrapper untuk Transkrip/Leger
-function jalankanCetakTranskrip() {
-    // Fungsi ini akan memanggil pop-up, lalu di dalamnya baru memanggil cetakTranskrip
-    // Tapi karena cetakTranskrip sudah kita modifikasi jadi butuh argumen, 
-    // kita perlu sedikit penyesuaian di fungsi cetakTranskrip yang lama.
+// Memuat daftar tahun saat aplikasi pertama kali berjalan
+function inisialisasiDropdownAlumni() {
+    callAPI('getTahunAlumni').then(tahunArr => {
+        let sel = $('#filterTahunAlumni').empty();
+        sel.append('<option value="">-- Pilih Tahun --</option>');
+        tahunArr.forEach(t => {
+            sel.append(`<option value="${t}">${t}</option>`);
+        });
+        
+        // Pilih tahun terbaru secara otomatis jika ada
+        if(tahunArr.length > 0) {
+            sel.val(tahunArr[0]);
+            loadAlumniByTahun(); // Otomatis panggil data tahun terbaru
+        }
+    });
+}
+
+// Fungsi menarik data alumni khusus tahun yang dipilih
+function loadAlumniByTahun() {
+    const tahun = $('#filterTahunAlumni').val();
+    if (!tahun) return; // Jika tidak ada tahun, diam saja
+    
+    $('#loader').removeClass('hidden');
+    $('#loaderText').text(`Memuat Alumni Tahun ${tahun}...`);
+    
+    callAPI('getAlumniByTahun', { tahun: tahun }).then(res => {
+        $('#loader').addClass('hidden');
+        if ($.fn.DataTable.isDataTable('#tblAlumni')) $('#tblAlumni').DataTable().destroy();
+        
+        if (res.status === 'success') {
+            let htmlAlumni = "";
+            const isAdmin = ($('#uRole').text() == 'ADMINISTRATOR' || $('#uRole').text() == 'ADMIN');
+            
+            // Render ulang khusus data alumni tahun tersebut
+            res.data.forEach(r => {
+                const nis = r[0], nisn = r[1], nama = r[2], jk = r[7], status = r[31], thnKeluar = r[32] ? String(r[32]).substring(0,4) : "-";
+                const nisGabung = nisn ? `${nis} / ${nisn}` : nis;
+                
+                // Di dalam fungsi loadAlumniByTahun(), cari bagian ini:
+let btnDataAlumni = `
+    <!-- TOMBOL CETAK PDF BUKU INDUK DITAMBAHKAN DI SINI -->
+    <button class="btn btn-sm btn-info text-white me-1 shadow-sm" onclick="cetakPDF('${nis}')" title="Cetak Buku Induk">
+        <i class="bi bi-file-pdf"></i>
+    </button>
+    <button class="btn btn-sm btn-secondary me-1 shadow-sm" onclick="reviewSiswa('${nis}')" title="Lihat Profil">
+        <i class="bi bi-eye"></i>
+    </button> 
+    <button class="btn btn-sm btn-success me-1 shadow-sm" onclick="cetakKartuAdmin('${nis}')" title="Unduh Kartu">
+        <i class="bi bi-card-heading"></i>
+    </button>
+`;
+
+if(isAdmin) {
+    btnDataAlumni += `<button class="btn btn-sm btn-danger shadow-sm" onclick="resetPassAdmin('${nis}')" title="Reset Password"><i class="bi bi-key"></i></button>`;
+}
+                
+                htmlAlumni += `<tr><td>${nisGabung}</td><td>${nama}</td><td>${jk}</td><td><span class="badge bg-primary">${status}</span></td><td>${thnKeluar}</td><td>${btnDataAlumni}</td></tr>`;
+                
+                // Masukkan data ini sementara ke globalSiswa agar fungsi Lihat Kartu dsb tetap jalan
+                // Cek apakah sudah ada di globalSiswa, jika belum, push.
+                if(!globalSiswa.find(x => x[0] == nis)) {
+                    globalSiswa.push(r);
+                }
+            });
+            
+            $('#tbodyAlumni').html(htmlAlumni);
+            $('#tblAlumni').DataTable({ language: { search: "Cari:", lengthMenu: "_MENU_ data", info: "_START_-_END_ dari _TOTAL_" }});
+        } else {
+            $('#tbodyAlumni').html(`<tr><td colspan="6" class="text-center text-danger">${res.message}</td></tr>`);
+        }
+    });
+}
+
+// Fungsi Tombol Arsip (Admin)
+function prosesArsipLulusan() {
+    Swal.fire({
+        title: 'Arsipkan Lulusan',
+        html: '<p class="small text-muted">Sistem akan memindahkan siswa dengan status <b>"Lulus"</b> dari Buku Induk ke Sheet khusus Alumni untuk meringankan beban aplikasi.</p>',
+        input: 'number',
+        inputLabel: 'Masukkan Tahun Kelulusan yang ingin diarsipkan:',
+        inputPlaceholder: 'Contoh: 2026',
+        showCancelButton: true,
+        confirmButtonText: 'Proses Arsip',
+        confirmButtonColor: '#f6c23e',
+    }).then((res) => {
+        if (res.isConfirmed && res.value) {
+            $('#loader').removeClass('hidden');
+            $('#loaderText').text(`Sedang mengarsipkan data tahun ${res.value}...`);
+            
+            callAPI('arsipkanLulusan', { tahun: res.value }).then(r => {
+                $('#loader').addClass('hidden');
+                if(r.status === 'success') {
+                    Swal.fire('Berhasil!', r.message, 'success');
+                    inisialisasiDropdownAlumni(); // Refresh dropdown
+                    loadSiswa(); // Refresh buku induk (Siswa lulus sudah hilang dari sana)
+                } else {
+                    Swal.fire('Gagal', r.message, 'error');
+                }
+            });
+        }
+    });
 }
