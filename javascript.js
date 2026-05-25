@@ -5,7 +5,7 @@
 
 // 1. Buat "Buku Alamat" untuk masing-masing sekolah
 const tenantConfig = {
-    "demo": "https://script.google.com/macros/s/AKfycbwBG1pGv_nCHsa6gun7lrYf_mDtL6eL9jkpMOsaw4VZVid73kSMr0NmVnlRT2Ugq-PKJQ/exec",
+    "demo": "https://script.google.com/macros/s/AKfycbzO4-NpXy0tVF_Woy1f5ndEmyqZktMAWp-R7k_0BXFaBm7ThyYosRfvHmj0HTqOlEs7WQ/exec",
     "sma1": "https://script.google.com/macros/s/ID_API_SEKOLAH_2/exec",
     "smk2": "https://script.google.com/macros/s/ID_API_SEKOLAH_3/exec"
     // Tambahkan sekolah lain di sini sesuai kebutuhan
@@ -47,10 +47,9 @@ if (tenantId && tenantConfig[tenantId]) {
 
 let globalConf = {}; // Menampung pengaturan sekolah
 let globalSiswa=[], curSmt=1, cropper, cropTarget, curPage='dash';
-let globalMapel = []; // <--- KANTONG MAPEL
+let globalMapel = [];
 let chartGender, chartStatus;
 
-// ==========================================
 // ==========================================
 // FUNGSI PUSAT PENGHUBUNG FRONTEND KE BACKEND
 // ==========================================
