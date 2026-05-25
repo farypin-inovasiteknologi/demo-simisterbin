@@ -2094,36 +2094,83 @@ function getBase64Async(file) {
     });
 }
 
-// FUNGSI UTAMA: Proses Daftar Ulang
+// FUNGSI UTAMA: Proses Kirim Data Daftar Ulang dengan Validasi Ketat
 async function submitDaftarUlang(e) {
     e.preventDefault();
     
-    // Pastikan NISN dan Nama diisi untuk pembuatan nama file
-    if (!$('#du_nisn').val() || !$('#du_nama').val()) {
-        Swal.fire('Data Kurang', 'NISN dan Nama wajib diisi terlebih dahulu!', 'warning');
+    // 1. Ambil Nilai Input untuk Validasi
+    const noSpmb = $('input[name="no_spmb"]').val() ? $('input[name="no_spmb"]').val().trim() : "";
+    const nisn = $('#du_nisn').val() ? $('#du_nisn').val().trim() : "";
+    const nama = $('#du_nama').val() ? $('#du_nama').val().trim() : "";
+    const nohp = $('#mdlDaftarUlang input[name="nohp"]').val() ? $('#mdlDaftarUlang input[name="nohp"]').val().trim() : "";
+    const nik = $('#mdlDaftarUlang input[name="nik"]').val() ? $('#mdlDaftarUlang input[name="nik"]').val().trim() : "";
+    const nokk = $('#mdlDaftarUlang input[name="nokk"]').val() ? $('#mdlDaftarUlang input[name="nokk"]').val().trim() : "";
+
+    // 2. Validasi Kolom Wajib Isi (Mandatory) via JavaScript
+    if (!noSpmb) { 
+        Swal.fire('Data Belum Lengkap', 'Nomor Bukti Diterima SPMB wajib diisi!', 'warning'); 
+        return; 
+    }
+    if (!nisn) { 
+        Swal.fire('Data Belum Lengkap', 'NISN wajib diisi!', 'warning'); 
+        return; 
+    }
+    if (nisn.length !== 10) {
+        Swal.fire('Format Salah', `NISN harus tepat 10 digit angka! (Input saat ini: ${nisn.length} digit)`, 'warning');
+        return;
+    }
+    if (!nama) { 
+        Swal.fire('Data Belum Lengkap', 'Nama Lengkap Pendaftar wajib diisi!', 'warning'); 
+        return; 
+    }
+    if (!nohp) { 
+        Swal.fire('Data Belum Lengkap', 'Nomor HP/WA Aktif wajib diisi! Silakan periksa kembali pada <b>Tab Fisik & Alamat</b>.', 'warning'); 
+        return; 
+    }
+
+    // 3. Validasi Kolom Opsional (Jika diisi, jumlah digit harus benar)
+    if (nik !== "" && nik.length !== 16) {
+        Swal.fire('Format Salah', `NIK harus tepat 16 digit atau kosongkan saja! (Input saat ini: ${nik.length} digit)`, 'warning');
+        return;
+    }
+    if (nokk !== "" && nokk.length !== 16) {
+        Swal.fire('Format Salah', `Nomor Kartu Keluarga harus tepat 16 digit atau kosongkan saja! (Input saat ini: ${nokk.length} digit)`, 'warning');
         return;
     }
 
+    // 4. Validasi Fisik Berkas Upload
+    const fIjazah = document.getElementById('file_ijazah').files[0];
+    const fKk = document.getElementById('file_kk').files[0];
+    const fAkta = document.getElementById('file_akta').files[0];
+    const fBukti = document.getElementById('file_bukti').files[0];
+
+    if (!fIjazah || !fKk || !fAkta || !fBukti) {
+        Swal.fire('Berkas Tidak Lengkap', 'Semua dokumen pendukung pendaftaran (Ijazah, KK, Akta, dan Bukti SPMB) wajib diunggah!', 'warning');
+        return;
+    }
+
+    // 5. Jika Lolos Validasi, Mulai Proses Upload
     $('#loader').removeClass('hidden'); 
-    $('#loaderText').text('Mengenkripsi Berkas & Mengirim Data (Ini butuh beberapa detik)...');
+    $('#loaderText').text('Mengenkripsi Berkas & Mengirim Data (Mohon tunggu)...');
     
     const d = {}; 
-    $.each($('#frmDaftarUlang').serializeArray(), (_, k) => d[k.name] = k.value); 
+    $.each($('#frmDaftarUlang').serializeArray(), (_, k) => {
+        // Otomatis ubah nilai kolom teks tertentu menjadi HURUF KAPITAL sebelum dikirim ke DB
+        if(k.name === 'nama' || k.name === 'tmplahir' || k.name === 'pindahan' || k.name === 'lulusan') {
+            d[k.name] = k.value.toUpperCase();
+        } else {
+            d[k.name] = k.value;
+        }
+    }); 
     
     try {
-        // Ambil File Fisik dari Input HTML
-        const fIjazah = document.getElementById('file_ijazah').files[0];
-        const fKk = document.getElementById('file_kk').files[0];
-        const fAkta = document.getElementById('file_akta').files[0];
-        const fBukti = document.getElementById('file_bukti').files[0];
-
-        // Ubah semua jadi tulisan panjang (Base64)
+        // Konversi file fisik menjadi string Base64 secara asinkron
         d.b64_ijazah = await getBase64Async(fIjazah);
         d.b64_kk = await getBase64Async(fKk);
         d.b64_akta = await getBase64Async(fAkta);
         d.b64_bukti = await getBase64Async(fBukti);
 
-        // Tembak ke Backend (Google Apps Script)
+        // Kirim data akhir ke Backend
         const r = await callAPI('saveDaftarUlang', d);
         
         $('#loader').addClass('hidden'); 
@@ -2132,16 +2179,18 @@ async function submitDaftarUlang(e) {
         if(r.status === 'success') { 
             bootstrap.Modal.getInstance(document.getElementById('mdlDaftarUlang')).hide(); 
             Swal.fire({
-                title: 'Pendaftaran Berhasil!',
-                text: 'Data dan seluruh berkas Anda telah berhasil masuk ke sistem kami.',
+                title: 'Daftar Ulang Sukses!',
+                text: 'Data dan dokumen Anda telah berhasil dikirim ke server. Silakan tunggu pemeriksaan oleh panitia sekolah.',
                 icon: 'success'
             }); 
+            $('#frmDaftarUlang')[0].reset();
         } else {
-            showCoolAlert('Peringatan!', r.message, 'warning'); 
+            showCoolAlert('Gagal Menyimpan', r.message, 'error'); 
         }
     } catch(error) {
         $('#loader').addClass('hidden');
-        Swal.fire('Error Berkas', 'Terjadi kesalahan saat memproses file Anda. Pastikan format file sesuai.', 'error');
+        console.error(error);
+        Swal.fire('Error Berkas', 'Terjadi kegagalan enkripsi berkas saat pengiriman. Coba gunakan file PDF dengan ukuran yang lebih kecil.', 'error');
     }
 }
 
