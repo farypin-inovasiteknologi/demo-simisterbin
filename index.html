@@ -1124,7 +1124,7 @@ input, button, select, textarea {
                         </div>
                     </div>
                     
-                    <div class="card p-4 mb-4 border-0 shadow-sm" style="border-left: 5px solid #f6c23e !important;">
+                    <div class="card p-4 mb-4 border-0 shadow-sm" style="border-left: 5px solid #f6c23e !important;" id="du_berkas_upload">
                         <h6 class="fw-bold text-warning border-bottom pb-2"><i class="bi bi-file-earmark-arrow-up"></i> Unggah Berkas Pendukung (Maks. 300KB/file)</h6>
                         <div class="row g-3">
                             <div class="col-md-6">
@@ -1146,76 +1146,108 @@ input, button, select, textarea {
                         </div>
                     </div>
 
-                    <div class="card p-4 border-0 shadow-sm">
-                        <h6 class="fw-bold text-primary border-bottom pb-2">Biodata Diri Lengkap</h6>
-                         <div class="modal-body p-0 bg-white">
-                    <ul class="nav nav-tabs nav-fill bg-white pt-3 px-3 border-bottom sticky-top" style="top:0; z-index:10;">
-                        <li class="nav-item"><a class="nav-link active fw-bold" data-bs-toggle="tab" href="#t1">Pribadi</a></li>
-                        <li class="nav-item"><a class="nav-link fw-bold" data-bs-toggle="tab" href="#t2">Fisik & Alamat</a></li>
-                        <li class="nav-item"><a class="nav-link fw-bold" data-bs-toggle="tab" href="#t3">Orang Tua</a></li>
-                        <li class="nav-item"><a class="nav-link fw-bold" data-bs-toggle="tab" href="#t4">Akademik</a></li>
-                    </ul>
-                    <div class="tab-content p-4">
-                        <div class="tab-pane fade show active" id="t1"><div class="row g-3">
-                          
-                          <div class="col-md-4">
-    <label class="form-label small fw-bold">*NIS</label>
-    <input name="nis" class="form-control bg-light" required placeholder="NIS auto 3 digit" onblur="formatAndValidateNIS(this)">
-</div>
-
-<div class="col-md-8">
-    <label class="form-label small fw-bold" style="line-height: 1.1;">*NISN (Isi NIS jika tidak punya)</label>
-    <input name="nisn" class="form-control" placeholder="NISN auto 10 digit" onblur="formatAndValidateNISN(this)">
-</div>
-
-<div class="col-md-12">
-    <label class="form-label small fw-bold">*Nama Lengkap (sesuai Ijazah)</label>
-    <input name="nama" class="form-control fw-bold border-primary" required placeholder="Nama Lengkap Siswa">
-</div>
-
-<div class="col-md-4">
-    <label class="form-label small fw-bold">NIK (Kosongkan jika tidak ada)</label>
-    <input name="nik" class="form-control" placeholder="16 digit angka atau kosongkan" onblur="formatAndValidateNIK_KK(this, 'NIK')">
-</div>
-
-<div class="col-md-4">
-    <label class="form-label small fw-bold">No. KK (Kosongkan jika tidak ada)</label>
-    <input name="nokk" class="form-control" placeholder="16 digit angka atau kosongkan" onblur="formatAndValidateNIK_KK(this, 'No. KK')">
-</div>
+                    <div class="card p-0 border-0 shadow-sm">
+                        <div class="p-4 border-bottom bg-white rounded-top"><h6 class="fw-bold text-primary m-0">Biodata Diri Lengkap</h6></div>
                         
-                        <div class="col-md-4"><label class="form-label small fw-bold">Agama</label>
-                        <select name="agama" class="form-select">
-                            <option value="">- Pilih -</option>
-                            <option value="Islam">Islam</option>
-                            <option value="Kristen">Kristen</option>
-                            <option value="Katolik">Katolik</option>
-                            <option value="Hindu">Hindu</option>
-                            <option value="Buddha">Buddha</option>
-                            <option value="Khonghucu">Khonghucu</option>
-                        </select>
-                        </div><div class="col-md-4"><label class="form-label small fw-bold">Tempat Lahir</label><input name="tmplahir" class="form-control"></div><div class="col-md-4"><label class="form-label small fw-bold">Tanggal Lahir</label><input type="date" name="tgllahir" class="form-control"></div><div class="col-md-4"><label class="form-label small fw-bold">Jenis Kelamin</label><select name="jk" class="form-select"><option value="L">Laki-laki</option><option value="P">Perempuan</option></select></div></div></div>
-                        <div class="tab-pane fade" id="t2"><div class="row g-3"><div class="col-md-8"><label class="form-label small fw-bold">Alamat Lengkap</label><textarea name="alamat" class="form-control" rows="2"></textarea></div><div class="col-md-4"><label class="form-label small fw-bold">No. HP/WA</label><input name="nohp" class="form-control"></div><div class="col-md-3"><label class="form-label small fw-bold">Jarak (Km)</label><input name="jarak" class="form-control"></div><div class="col-md-3"><label class="form-label small fw-bold">Transportasi</label><input name="transport" class="form-control"></div><div class="col-md-3"><label class="form-label small fw-bold">Anak Ke</label><input name="anakke" class="form-control"></div><div class="col-md-3"><label class="form-label small fw-bold">Jml. Bersaudara</label><input name="jmlsdr" class="form-control"></div><div class="col-md-3"><label class="form-label small fw-bold">Tinggi (Cm)</label><input name="tinggi" class="form-control"></div><div class="col-md-3"><label class="form-label small fw-bold">Berat (Kg)</label><input name="berat" class="form-control"></div><div class="col-md-3"><label class="form-label small fw-bold">Gol. Darah</label>
-                        <select name="goldar" class="form-select">
-                            <option value="-">-</option>
-                            <option value="A">A</option>
-                            <option value="B">B</option>
-                            <option value="AB">AB</option>
-                            <option value="O">O</option>
-                        </select>
-                        </div><div class="col-md-3"><label class="form-label small fw-bold">Bahasa sehari-hari</label><input name="bahasa" class="form-control"></div><div class="col-12"><label class="form-label small fw-bold">Penyakit (kosongkan jika tidak ada)</label><input name="penyakit" class="form-control"></div></div></div>
-                        <div class="tab-pane fade" id="t3"><div class="row g-3"><div class="col-md-6 border-end"><h6 class="text-primary fw-bold mb-3">DATA AYAH</h6><div class="mb-2"><label class="small fw-bold">Nama Ayah</label><input name="nama_ayah" class="form-control"></div><div class="mb-2"><label class="small fw-bold">Tgl. Lahir Ayah</label><input type="date" name="tgllahir_ayah" class="form-control"></div><div class="mb-2"><label class="small fw-bold">Pekerjaan</label><input name="kerja_ayah" class="form-control"></div></div><div class="col-md-6"><h6 class="text-primary fw-bold mb-3">DATA IBU</h6><div class="mb-2"><label class="small fw-bold">Nama Ibu</label><input name="nama_ibu" class="form-control"></div><div class="mb-2"><label class="small fw-bold">Tgl. Lahir Ibu</label><input type="date" name="tgllahir_ibu" class="form-control"></div><div class="mb-2"><label class="small fw-bold">Pekerjaan</label><input name="kerja_ibu" class="form-control"></div></div></div></div>
-                        <div class="tab-pane fade" id="t4"><div class="row g-3"><div class="col-md-6"><label class="small fw-bold mb-2">Foto Masuk (3:4)</label><input type="file" class="form-control mb-2" onchange="cropImage(this, 'masuk')"><input type="hidden" name="id_foto_masuk" id="id_foto_masuk">
+                        <ul class="nav nav-tabs nav-fill bg-white pt-2 px-3 sticky-top" style="top:0; z-index:10;">
+                            <li class="nav-item"><a class="nav-link active fw-bold" data-bs-toggle="tab" href="#du_t1">Pribadi</a></li>
+                            <li class="nav-item"><a class="nav-link fw-bold" data-bs-toggle="tab" href="#du_t2">Fisik & Alamat</a></li>
+                            <li class="nav-item"><a class="nav-link fw-bold" data-bs-toggle="tab" href="#du_t3">Orang Tua</a></li>
+                            <li class="nav-item"><a class="nav-link fw-bold" data-bs-toggle="tab" href="#du_t4">Akademik & Foto</a></li>
+                        </ul>
                         
-                        <div class="d-flex justify-content-center"><img id="prev_masuk" class="student-photo hidden" style="width: 80px !important; height: 106px !important; border-radius: 6px;"></div></div><div class="col-md-6"><label class="small fw-bold mb-2">Foto Keluar (3:4)</label><input type="file" class="form-control mb-2" onchange="cropImage(this, 'keluar')"><input type="hidden" name="id_foto_keluar" id="id_foto_keluar"><div class="d-flex justify-content-center"><img id="prev_keluar" class="student-photo hidden" style="width: 80px !important; height: 106px !important; border-radius: 6px;"></div>
+                        <div class="tab-content p-4 bg-white rounded-bottom">
+                            <div class="tab-pane fade show active" id="du_t1">
+                                <div class="row g-3">
+                                    <div class="col-md-4">
+                                        <label class="form-label small fw-bold">NIK (Kosongkan jika tidak ada)</label>
+                                        <input name="nik" class="form-control" placeholder="16 digit angka" onblur="formatAndValidateNIK_KK(this, 'NIK')">
+                                    </div>
+                                    <div class="col-md-4">
+                                        <label class="form-label small fw-bold">No. KK (Kosongkan jika tidak ada)</label>
+                                        <input name="nokk" class="form-control" placeholder="16 digit angka" onblur="formatAndValidateNIK_KK(this, 'No. KK')">
+                                    </div>
+                                    <div class="col-md-4">
+                                        <label class="form-label small fw-bold">Agama</label>
+                                        <select name="agama" class="form-select">
+                                            <option value="">- Pilih -</option>
+                                            <option value="Islam">Islam</option>
+                                            <option value="Kristen">Kristen</option>
+                                            <option value="Katolik">Katolik</option>
+                                            <option value="Hindu">Hindu</option>
+                                            <option value="Buddha">Buddha</option>
+                                            <option value="Khonghucu">Khonghucu</option>
+                                        </select>
+                                    </div>
+                                    <div class="col-md-4"><label class="form-label small fw-bold">Tempat Lahir</label><input name="tmplahir" class="form-control"></div>
+                                    <div class="col-md-4"><label class="form-label small fw-bold">Tanggal Lahir</label><input type="date" name="tgllahir" class="form-control"></div>
+                                    <div class="col-md-4">
+                                        <label class="form-label small fw-bold">Jenis Kelamin</label>
+                                        <select name="jk" class="form-select"><option value="L">Laki-laki</option><option value="P">Perempuan</option></select>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="tab-pane fade" id="du_t2">
+                                <div class="row g-3">
+                                    <div class="col-md-8"><label class="form-label small fw-bold">Alamat Lengkap</label><textarea name="alamat" class="form-control" rows="2"></textarea></div>
+                                    <div class="col-md-4"><label class="form-label small fw-bold">No. HP/WA Aktif</label><input name="nohp" class="form-control" required></div>
+                                    <div class="col-md-3"><label class="form-label small fw-bold">Jarak (Km)</label><input name="jarak" class="form-control"></div>
+                                    <div class="col-md-3"><label class="form-label small fw-bold">Transportasi</label><input name="transport" class="form-control"></div>
+                                    <div class="col-md-3"><label class="form-label small fw-bold">Anak Ke</label><input name="anakke" class="form-control"></div>
+                                    <div class="col-md-3"><label class="form-label small fw-bold">Jml. Bersaudara</label><input name="jmlsdr" class="form-control"></div>
+                                    <div class="col-md-3"><label class="form-label small fw-bold">Tinggi (Cm)</label><input name="tinggi" class="form-control"></div>
+                                    <div class="col-md-3"><label class="form-label small fw-bold">Berat (Kg)</label><input name="berat" class="form-control"></div>
+                                    <div class="col-md-3">
+                                        <label class="form-label small fw-bold">Gol. Darah</label>
+                                        <select name="goldar" class="form-select">
+                                            <option value="-">-</option><option value="A">A</option><option value="B">B</option><option value="AB">AB</option><option value="O">O</option>
+                                        </select>
+                                    </div>
+                                    <div class="col-md-3"><label class="form-label small fw-bold">Bahasa sehari-hari</label><input name="bahasa" class="form-control"></div>
+                                    <div class="col-12"><label class="form-label small fw-bold">Penyakit (kosongkan jika tidak ada)</label><input name="penyakit" class="form-control"></div>
+                                </div>
+                            </div>
+                            
+                            <div class="tab-pane fade" id="du_t3">
+                                <div class="row g-3">
+                                    <div class="col-md-6 border-end">
+                                        <h6 class="text-primary fw-bold mb-3">DATA AYAH</h6>
+                                        <div class="mb-2"><label class="small fw-bold">Nama Ayah</label><input name="nama_ayah" class="form-control"></div>
+                                        <div class="mb-2"><label class="small fw-bold">Tgl. Lahir Ayah</label><input type="date" name="tgllahir_ayah" class="form-control"></div>
+                                        <div class="mb-2"><label class="small fw-bold">Pekerjaan</label><input name="kerja_ayah" class="form-control"></div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <h6 class="text-primary fw-bold mb-3">DATA IBU</h6>
+                                        <div class="mb-2"><label class="small fw-bold">Nama Ibu</label><input name="nama_ibu" class="form-control"></div>
+                                        <div class="mb-2"><label class="small fw-bold">Tgl. Lahir Ibu</label><input type="date" name="tgllahir_ibu" class="form-control"></div>
+                                        <div class="mb-2"><label class="small fw-bold">Pekerjaan</label><input name="kerja_ibu" class="form-control"></div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="tab-pane fade" id="du_t4">
+                                <div class="row g-3">
+                                    <div class="col-md-6">
+                                        <label class="small fw-bold mb-2">Foto Diri (Akan diverifikasi admin)</label>
+                                        <input type="file" class="form-control mb-2" id="du_file_foto_masuk" onchange="cropImage(this, 'du_masuk')">
+                                        <input type="hidden" name="id_foto_masuk" id="du_id_foto_masuk">
+                                        <div class="d-flex justify-content-center">
+                                            <img id="du_prev_masuk" class="student-photo hidden" style="width: 80px !important; height: 106px !important; border-radius: 6px;">
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6"></div> <div class="col-md-4"><label class="small fw-bold">Kelas Masuk (Sesuai SPMB)</label><input name="kls_masuk" class="form-control"></div>
+                                    <div class="col-md-4"><label class="small fw-bold">Pindahan / Lulusan Dari</label><input name="lulusan" class="form-control" placeholder="Contoh: SMPN 1"></div>
+                                    <div class="col-md-4"><label class="small fw-bold">No. Ijazah Sebelumnya</label><input name="noijazah_sltp" class="form-control"></div>
+                                </div>
+                            </div>
                         </div>
-                        <div class="col-md-4"><label class="small fw-bold">Kelas Masuk</label><input name="kls_masuk" class="form-control"></div><div class="col-md-4"><label class="small fw-bold">Tgl. Masuk</label><input type="date" name="tgl_masuk" class="form-control"></div><div class="col-md-4"><label class="small fw-bold">Pindahan dari</label><input name="pindahan" class="form-control"></div><div class="col-md-6"><label class="small fw-bold">Lulusan dari</label><input name="lulusan" class="form-control"></div><div class="col-md-6"><label class="small fw-bold">No. Ijazah SLTP</label><input name="noijazah_sltp" class="form-control"></div><div class="col-md-3"><label class="small fw-bold">Status Akhir</label><select name="status_akhir" class="form-select"><option value="Aktif">Aktif</option><option value="Lulus">Lulus</option><option value="Keluar">Keluar</option></select></div><div class="col-md-3"><label class="small fw-bold">Tgl. Keluar</label><input type="date" name="tgl_keluar" class="form-control"></div><div class="col-md-3"><label class="small fw-bold">Lanjut Ke</label><input name="lanjut_ke" class="form-control"></div><div class="col-md-3"><label class="small fw-bold">No. Ijazah SLTA</label><input name="noijazah_sma" class="form-control"></div></div></div>
                     </div>
-                </div>
 
                 </div>
                 <div class="modal-footer bg-white">
-                    <button type="button" class="btn btn-light border fw-bold" data-bs-dismiss="modal">Batal</button>
-                    <button type="submit" class="btn btn-warning px-5 fw-bold shadow-sm text-dark">KIRIM PENDAFTARAN</button>
+                    <button type="button" class="btn btn-light border fw-bold" data-bs-dismiss="modal">Tutup</button>
+                    <button type="submit" id="btnSubmitDaftarUlang" class="btn btn-warning px-5 fw-bold shadow-sm text-dark">KIRIM PENDAFTARAN</button>
                 </div>
             </form>
         </div>
