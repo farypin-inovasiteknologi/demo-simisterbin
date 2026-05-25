@@ -2061,37 +2061,89 @@ function prosesArsipLulusan() {
 
 let globalDaftarUlang = [];
 
-// 1. Membuka Modal Daftar Ulang (Dari Halaman Login)
+// 1. Membuka Modal Daftar Ulang untuk Calon Siswa (Mode Isi Data)
 function bukaModalDaftarUlang() {
     $('#frmDaftarUlang')[0].reset();
+    
+    // Pastikan semua kolom bisa diketik dan tombol submit muncul
+    $('#frmDaftarUlang input, #frmDaftarUlang select, #frmDaftarUlang textarea').prop('disabled', false);
+    $('#frmDaftarUlang button[type="submit"]').show();
+    $('#mdlDaftarUlang .modal-title').text("Formulir Daftar Ulang Siswa Baru");
+    
     new bootstrap.Modal('#mdlDaftarUlang').show();
 }
 
 // 2. Fungsi Submit Data dari Pendaftar
-function submitDaftarUlang(e) {
+// Helper: Peringatan jika file > 300KB
+function checkFileSize(input) {
+    if (input.files && input.files[0]) {
+        if (input.files[0].size > 300 * 1024) { // 300 KB = 300 * 1024 Bytes
+            Swal.fire('Ukuran Terlalu Besar', 'Maksimal ukuran file adalah 300KB! Silakan kompres file Anda terlebih dahulu.', 'error');
+            input.value = ''; // Reset input agar dikosongkan
+        }
+    }
+}
+
+// Helper: Ubah File menjadi kode tulisan (Base64)
+function getBase64Async(file) {
+    return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.readAsDataURL(file);
+        reader.onload = () => resolve(reader.result);
+        reader.onerror = error => reject(error);
+    });
+}
+
+// FUNGSI UTAMA: Proses Daftar Ulang
+async function submitDaftarUlang(e) {
     e.preventDefault();
+    
+    // Pastikan NISN dan Nama diisi untuk pembuatan nama file
+    if (!$('#du_nisn').val() || !$('#du_nama').val()) {
+        Swal.fire('Data Kurang', 'NISN dan Nama wajib diisi terlebih dahulu!', 'warning');
+        return;
+    }
+
     $('#loader').removeClass('hidden'); 
-    $('#loaderText').text('Mengirim Data Pendaftaran...');
+    $('#loaderText').text('Mengenkripsi Berkas & Mengirim Data (Ini butuh beberapa detik)...');
     
     const d = {}; 
     $.each($('#frmDaftarUlang').serializeArray(), (_, k) => d[k.name] = k.value); 
     
-    callAPI('saveDaftarUlang', d).then(r => {
+    try {
+        // Ambil File Fisik dari Input HTML
+        const fIjazah = document.getElementById('file_ijazah').files[0];
+        const fKk = document.getElementById('file_kk').files[0];
+        const fAkta = document.getElementById('file_akta').files[0];
+        const fBukti = document.getElementById('file_bukti').files[0];
+
+        // Ubah semua jadi tulisan panjang (Base64)
+        d.b64_ijazah = await getBase64Async(fIjazah);
+        d.b64_kk = await getBase64Async(fKk);
+        d.b64_akta = await getBase64Async(fAkta);
+        d.b64_bukti = await getBase64Async(fBukti);
+
+        // Tembak ke Backend (Google Apps Script)
+        const r = await callAPI('saveDaftarUlang', d);
+        
         $('#loader').addClass('hidden'); 
         $('#loaderText').text('Memuat Data, Tunggu Sebentar...');
+        
         if(r.status === 'success') { 
             bootstrap.Modal.getInstance(document.getElementById('mdlDaftarUlang')).hide(); 
             Swal.fire({
                 title: 'Pendaftaran Berhasil!',
-                text: 'Data Anda telah masuk ke sistem kami. Silakan tunggu konfirmasi dari Admin Sekolah.',
+                text: 'Data dan seluruh berkas Anda telah berhasil masuk ke sistem kami.',
                 icon: 'success'
             }); 
         } else {
             showCoolAlert('Peringatan!', r.message, 'warning'); 
         }
-    }); 
+    } catch(error) {
+        $('#loader').addClass('hidden');
+        Swal.fire('Error Berkas', 'Terjadi kesalahan saat memproses file Anda. Pastikan format file sesuai.', 'error');
+    }
 }
-
 
 function loadDaftarUlang() {
     $('#loader').removeClass('hidden');
@@ -2164,14 +2216,56 @@ function eksekusiSetujui(noSpmb, nisBaru) {
     });
 }
 
-// Opsional: Fungsi melihat data (Read Only)
+
+
+// Opsional: Fungsi melihat data bagi Admin (Mode Read-Only)
 function reviewDaftarUlang(noSpmb) {
     const s = globalDaftarUlang.find(x => String(x[0]) === String(noSpmb));
     if(!s) return;
-    // Tampilkan data ini ke dalam alert atau buka modal `mdlDaftarUlang` lalu diset disabled
-    Swal.fire({
-        title: 'Detail Calon Siswa',
-        html: `<div class="text-start"><b>Nama:</b> ${s[2]}<br><b>NISN:</b> ${s[1]}<br><b>TTL:</b> ${s[5]}, ${s[6]}<br><b>Asal Sekolah:</b> ${s[27] || '-'}</div>`,
-        icon: 'info'
-    });
+    
+    const f = document.forms['frmDaftarUlang'];
+    $('#frmDaftarUlang')[0].reset();
+    
+    // KUNCI: Matikan semua kolom agar tidak bisa diedit oleh admin (Read-Only)
+    $('#frmDaftarUlang input, #frmDaftarUlang select, #frmDaftarUlang textarea').prop('disabled', true);
+    
+    // Sembunyikan tombol Kirim Pendaftaran, ubah judul modal
+    $('#frmDaftarUlang button[type="submit"]').hide();
+    $('#mdlDaftarUlang .modal-title').text("Detail Data Calon Siswa (Read-Only)");
+
+    // Lempar data dari database sementara ke dalam form HTML
+    f.no_spmb.value = s[0];
+    f.nisn.value = s[1];
+    f.nama.value = s[2];
+    f.nik.value = s[3];
+    f.nokk.value = s[4];
+    f.tmplahir.value = s[5];
+    if(s[6]) f.tgllahir.value = s[6];
+    f.jk.value = s[7];
+    f.agama.value = s[8];
+    f.anakke.value = s[9];
+    f.jmlsdr.value = s[10];
+    f.bahasa.value = s[11];
+    f.alamat.value = s[12];
+    f.nohp.value = s[13];
+    f.jarak.value = s[14];
+    f.transport.value = s[15];
+    f.tinggi.value = s[16];
+    f.berat.value = s[17];
+    f.goldar.value = s[18];
+    f.penyakit.value = s[19];
+    f.nama_ayah.value = s[20];
+    if(s[21]) f.tgllahir_ayah.value = s[21];
+    f.kerja_ayah.value = s[22];
+    f.nama_ibu.value = s[23];
+    if(s[24]) f.tgllahir_ibu.value = s[24];
+    f.kerja_ibu.value = s[25];
+    f.pindahan.value = s[26];
+    f.lulusan.value = s[27];
+    f.noijazah_sltp.value = s[28];
+    f.kls_masuk.value = s[29];
+    if(s[30]) f.tgl_masuk.value = s[30];
+
+    // Tampilkan Modal
+    new bootstrap.Modal('#mdlDaftarUlang').show();
 }
