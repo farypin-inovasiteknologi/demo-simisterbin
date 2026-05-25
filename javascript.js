@@ -259,9 +259,11 @@ function nav(page, el, param) {
     
     if($(window).width() < 768) { $('#mainSidebar').removeClass('show'); $('.sidebar-overlay').removeClass('show'); }
     $('[id^=view-]').addClass('hidden'); $('#view-'+page).removeClass('hidden'); 
-    
 
-    else if(page == 'daftarulang') loadDaftarUlang();
+    // --- PERBAIKAN DI SINI (Gunakan if, bukan else if) ---
+    if(page == 'daftarulang') {
+        loadDaftarUlang();
+    }
 
     if(page=='mapel') {
        if(globalMapel.length === 0) loadMapel(); 
