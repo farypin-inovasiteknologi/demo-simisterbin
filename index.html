@@ -586,13 +586,18 @@ input, button, select, textarea {
             
             <div class="divider-text">LAYANAN PUBLIK</div>
             
-            <button type="button" class="btn btn-success w-100 rounded-pill py-2 fw-bold shadow-sm mb-2" onclick="openScannerPublic()">
-                <i class="bi bi-qr-code-scan"></i> SCAN VALIDASI KARTU
+            <button type="button" class="btn w-100 rounded-pill py-2 fw-bold shadow-sm mb-3" style="background: linear-gradient(135deg, #f6c23e, #f4a200); color: #fff; border: none;" onclick="bukaModalDaftarUlang()">
+                <i class="bi bi-person-plus-fill"></i> DAFTAR ULANG MURID BARU
             </button>
             
-            <button type="button" class="btn btn-outline-primary w-100 rounded-pill py-2 fw-bold shadow-sm bg-white" onclick="cariDataAlumni()">
-                <i class="bi bi-search"></i> CEK DATA ALUMNI
-            </button>
+            <div class="d-flex gap-2">
+                <button type="button" class="btn btn-success w-50 rounded-pill py-2 fw-bold shadow-sm" onclick="openScannerPublic()">
+                    <i class="bi bi-qr-code-scan"></i> SCAN KARTU
+                </button>
+                <button type="button" class="btn btn-outline-primary w-50 rounded-pill py-2 fw-bold shadow-sm bg-white" onclick="cariDataAlumni()">
+                    <i class="bi bi-search"></i> CEK ALUMNI
+                </button>
+            </div>
         </form>
     </div>
 </div>
@@ -625,6 +630,7 @@ input, button, select, textarea {
             <a href="javascript:void(0)" onclick="nav('dash', this)" class="m-nav-item text-center text-decoration-none active text-primary" style="transform: translateY(-15px);"><div class="bg-primary text-white rounded-circle d-flex align-items-center justify-content-center mx-auto shadow-lg border border-3 border-white" style="width:50px; height:50px;"><i class="bi bi-house-door-fill fs-3"></i></div><span class="mt-1" style="font-size: 10px; font-weight: bold;">Home</span></a>
 
             <a href="javascript:void(0)" onclick="nav('alumni', this)" class="m-nav-item text-center text-decoration-none"><i class="bi bi-mortarboard-fill fs-4 d-block mb-1" style="line-height: 1;"></i><span style="font-size: 10px; font-weight: bold;">Alumni</span></a>
+
             <a href="javascript:void(0)" onclick="nav('mapel', this)" class="m-nav-item text-center text-decoration-none"><i class="bi bi-book-half fs-4 d-block mb-1" style="line-height: 1;"></i><span style="font-size: 10px; font-weight: bold;">Mapel</span></a>
         </div>
 
@@ -665,6 +671,7 @@ input, button, select, textarea {
         <a href="javascript:void(0)" onclick="nav('siswa', this)"><i class="bi bi-journal-bookmark-fill me-2"></i> Buku Induk</a>
         <a href="javascript:void(0)" onclick="nav('datasiswa', this)"><i class="bi bi-people-fill me-2"></i> Data Siswa</a>
         <a href="javascript:void(0)" onclick="nav('alumni', this)"><i class="bi bi-mortarboard-fill me-2"></i> Data Alumni</a>
+        <a href="javascript:void(0)" onclick="nav('daftarulang', this)" class="admin-only"><i class="bi bi-person-lines-fill me-2"></i> Daftar Ulang SPMB</a>
         
         <div class="admin-only">
              <a href="javascript:void(0)" onclick="nav('mapel', this)"><i class="bi bi-book-half me-2"></i> Data Mapel</a>
@@ -723,6 +730,22 @@ input, button, select, textarea {
                         <table id="tblSiswa" class="table table-hover w-100">
                             <thead class="table-light"><tr><th>NIS</th><th>Nama Lengkap</th><th>Tgl Lahir</th><th>L/P</th><th>Thn Masuk</th><th>Aksi</th></tr></thead>
                             <tbody id="tbodySiswa"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <div id="view-daftarulang" class="hidden">
+                <div class="d-flex flex-wrap justify-content-between align-items-center mb-4 gap-2">
+                    <h3 class="m-0 text-secondary fw-bold">Antrean Daftar Ulang SPMB</h3>
+                    <button class="btn btn-sm btn-primary shadow-sm fw-bold" onclick="refreshPage()"><i class="bi bi-arrow-clockwise"></i> Segarkan</button>
+                </div>
+                <div class="alert alert-info small shadow-sm"><i class="bi bi-info-circle-fill"></i> <b>Petunjuk:</b> Tabel ini berisi calon siswa yang baru melakukan daftar ulang via halaman login. Klik <b>Setujui</b> untuk meresmikannya dan memberikan NIS.</div>
+                <div class="card p-4 bg-white">
+                    <div class="table-responsive">
+                        <table id="tblDaftarUlang" class="table table-hover w-100">
+                            <thead class="table-light"><tr><th>No Pendaftaran SPMB</th><th>NISN</th><th>Nama Calon Siswa</th><th>Tgl Daftar</th><th>Aksi</th></tr></thead>
+                            <tbody id="tbodyDaftarUlang"></tbody>
                         </table>
                     </div>
                 </div>
@@ -1064,6 +1087,52 @@ input, button, select, textarea {
                 <p>Pihak sekolah berhak untuk memperbarui Kebijakan Privasi ini sewaktu-waktu guna menyesuaikan dengan regulasi pemerintah atau peningkatan fitur sistem keamanan terbaru. Dengan terus menggunakan aplikasi SiMISTerBIn, Anda dianggap telah menyetujui seluruh ketentuan pengelolaan data yang tertulis pada dokumen ini.</p>
             </div>
             <div class="modal-footer bg-light"><button type="button" class="btn btn-primary px-4 fw-bold" data-bs-dismiss="modal">SAYA MENGERTI</button></div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="mdlDaftarUlang" tabindex="-1">
+    <div class="modal-dialog modal-xl modal-dialog-scrollable">
+        <div class="modal-content border-0 shadow-lg">
+            <form id="frmDaftarUlang" onsubmit="submitDaftarUlang(event)">
+                <div class="modal-header text-white" style="background: linear-gradient(135deg, #f6c23e, #f4a200);">
+                    <h5 class="modal-title fw-bold">Formulir Daftar Ulang Siswa Baru</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body bg-light p-4">
+                    <div class="alert alert-warning small border-warning"><i class="bi bi-exclamation-triangle-fill"></i> Harap isi data sesuai dengan berkas aslinya. Data ini akan divalidasi oleh sekolah.</div>
+                    
+                    <div class="card p-4 mb-4 border-0 shadow-sm">
+                        <h6 class="fw-bold text-primary border-bottom pb-2">Informasi Penerimaan</h6>
+                        <div class="row g-3">
+                            <div class="col-md-4">
+                                <label class="small fw-bold">*Nomor Bukti Diterima SPMB</label>
+                                <input name="no_spmb" class="form-control" required placeholder="Contoh: SPMB-2026-001">
+                            </div>
+                            <div class="col-md-4">
+                                <label class="small fw-bold">*NISN (10 Digit)</label>
+                                <input name="nisn" class="form-control" required placeholder="10 Digit Angka" onblur="formatAndValidateNISN(this)">
+                            </div>
+                            <div class="col-md-4">
+                                <label class="small fw-bold">*Nama Lengkap Pendaftar</label>
+                                <input name="nama" class="form-control" required placeholder="Sesuai Akte Kelahiran">
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="card p-4 border-0 shadow-sm">
+                        <h6 class="fw-bold text-primary border-bottom pb-2">Biodata Diri Lengkap</h6>
+                        <div id="containerCopyBiodata">
+                            <p class="text-muted small"><i>Form diisi persis seperti data Buku Induk...</i></p>
+                        </div>
+                    </div>
+
+                </div>
+                <div class="modal-footer bg-white">
+                    <button type="button" class="btn btn-light border fw-bold" data-bs-dismiss="modal">Batal</button>
+                    <button type="submit" class="btn btn-warning px-5 fw-bold shadow-sm text-dark">KIRIM PENDAFTARAN</button>
+                </div>
+            </form>
         </div>
     </div>
 </div>
