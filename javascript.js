@@ -260,6 +260,9 @@ function nav(page, el, param) {
     if($(window).width() < 768) { $('#mainSidebar').removeClass('show'); $('.sidebar-overlay').removeClass('show'); }
     $('[id^=view-]').addClass('hidden'); $('#view-'+page).removeClass('hidden'); 
     
+
+    else if(page == 'daftarulang') loadDaftarUlang();
+
     if(page=='mapel') {
        if(globalMapel.length === 0) loadMapel(); 
        else renderMapelTable(globalMapel); 
@@ -2051,5 +2054,123 @@ function prosesArsipLulusan() {
                 }
             });
         }
+    });
+}
+
+
+let globalDaftarUlang = [];
+
+// 1. Membuka Modal Daftar Ulang (Dari Halaman Login)
+function bukaModalDaftarUlang() {
+    $('#frmDaftarUlang')[0].reset();
+    new bootstrap.Modal('#mdlDaftarUlang').show();
+}
+
+// 2. Fungsi Submit Data dari Pendaftar
+function submitDaftarUlang(e) {
+    e.preventDefault();
+    $('#loader').removeClass('hidden'); 
+    $('#loaderText').text('Mengirim Data Pendaftaran...');
+    
+    const d = {}; 
+    $.each($('#frmDaftarUlang').serializeArray(), (_, k) => d[k.name] = k.value); 
+    
+    callAPI('saveDaftarUlang', d).then(r => {
+        $('#loader').addClass('hidden'); 
+        $('#loaderText').text('Memuat Data, Tunggu Sebentar...');
+        if(r.status === 'success') { 
+            bootstrap.Modal.getInstance(document.getElementById('mdlDaftarUlang')).hide(); 
+            Swal.fire({
+                title: 'Pendaftaran Berhasil!',
+                text: 'Data Anda telah masuk ke sistem kami. Silakan tunggu konfirmasi dari Admin Sekolah.',
+                icon: 'success'
+            }); 
+        } else {
+            showCoolAlert('Peringatan!', r.message, 'warning'); 
+        }
+    }); 
+}
+
+
+function loadDaftarUlang() {
+    $('#loader').removeClass('hidden');
+    callAPI('getDaftarUlang').then(res => {
+        $('#loader').addClass('hidden');
+        globalDaftarUlang = res.data;
+        
+        if ($.fn.DataTable.isDataTable('#tblDaftarUlang')) $('#tblDaftarUlang').DataTable().destroy(); 
+        
+        let html = "";
+        globalDaftarUlang.forEach(r => {
+            const noSpmb = r[0], nisn = r[1], nama = r[2], tglDaftar = r[32] ? String(r[32]).substring(0, 10) : '-';
+            
+            // Tombol Setujui
+            let btnAksi = `<button class="btn btn-sm btn-secondary me-1 shadow-sm" onclick="reviewDaftarUlang('${noSpmb}')" title="Lihat Data"><i class="bi bi-eye"></i></button>`;
+            btnAksi += `<button class="btn btn-sm btn-success shadow-sm fw-bold" onclick="promptSetujuiSiswa('${noSpmb}', '${nama}')"><i class="bi bi-check-circle"></i> Setujui</button>`;
+            
+            html += `<tr><td><span class="badge bg-warning text-dark">${noSpmb}</span></td><td>${nisn}</td><td>${nama}</td><td>${tglDaftar}</td><td>${btnAksi}</td></tr>`;
+        });
+        
+        $('#tbodyDaftarUlang').html(html);
+        $('#tblDaftarUlang').DataTable({ language: { search: "Cari:", lengthMenu: "_MENU_ data", info: "_START_-_END_ dari _TOTAL_" } });
+    });
+}
+
+// 4. Fungsi Prompt Persetujuan oleh Admin
+function promptSetujuiSiswa(noSpmb, namaSiswa) {
+    Swal.fire({
+        title: 'Pengesahan Siswa',
+        html: `Anda akan mensahkan pendaftar <b>${namaSiswa}</b> ke dalam Buku Induk.<br><br>Silakan tentukan <b>Nomor Induk Siswa (NIS)</b> untuknya:`,
+        input: 'text',
+        inputPlaceholder: 'Contoh: 1520',
+        showCancelButton: true,
+        confirmButtonColor: '#1cc88a',
+        confirmButtonText: '<i class="bi bi-check-circle"></i> Sahkan Siswa',
+        cancelButtonText: 'Batal',
+        preConfirm: (nisInput) => {
+            if (!nisInput) {
+                Swal.showValidationMessage('NIS tidak boleh kosong!');
+                return false;
+            }
+            if (!/^\d+$/.test(nisInput.trim())) {
+                Swal.showValidationMessage('NIS hanya boleh berisi angka!');
+                return false;
+            }
+            return nisInput.trim();
+        }
+    }).then((res) => {
+        if (res.isConfirmed && res.value) {
+            eksekusiSetujui(noSpmb, res.value);
+        }
+    });
+}
+
+// 5. Eksekusi API Pemindahan Data
+function eksekusiSetujui(noSpmb, nisBaru) {
+    $('#loader').removeClass('hidden'); 
+    $('#loaderText').text('Mengenkripsi & Memindahkan Data...');
+    
+    callAPI('approveDaftarUlang', { noSpmb: noSpmb, nisBaru: nisBaru }).then(r => {
+        $('#loader').addClass('hidden');
+        $('#loaderText').text('Memuat Data, Tunggu Sebentar...');
+        if(r.status === 'success') {
+            Swal.fire('Disetujui!', r.message, 'success');
+            loadDaftarUlang(); // Refresh tabel antrean
+            // Catatan: globalSiswa di background akan otomatis diperbarui saat masuk tab Buku Induk
+        } else {
+            Swal.fire('Gagal', r.message, 'error');
+        }
+    });
+}
+
+// Opsional: Fungsi melihat data (Read Only)
+function reviewDaftarUlang(noSpmb) {
+    const s = globalDaftarUlang.find(x => String(x[0]) === String(noSpmb));
+    if(!s) return;
+    // Tampilkan data ini ke dalam alert atau buka modal `mdlDaftarUlang` lalu diset disabled
+    Swal.fire({
+        title: 'Detail Calon Siswa',
+        html: `<div class="text-start"><b>Nama:</b> ${s[2]}<br><b>NISN:</b> ${s[1]}<br><b>TTL:</b> ${s[5]}, ${s[6]}<br><b>Asal Sekolah:</b> ${s[27] || '-'}</div>`,
+        icon: 'info'
     });
 }
