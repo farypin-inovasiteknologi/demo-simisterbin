@@ -1118,9 +1118,10 @@ input, button, select, textarea {
                                 <input name="nisn" id="du_nisn" class="form-control" required placeholder="10 Digit Angka" onblur="formatAndValidateNISN(this)">
                             </div>
                             <div class="col-md-4">
-                                <label class="small fw-bold">*Nama Lengkap Pendaftar</label>
-                                <input name="nama" id="du_nama" class="form-control" required placeholder="Sesuai Akte Kelahiran">
-                            </div>
+    <label class="small fw-bold">*Nama Lengkap Pendaftar</label>
+    <!-- Ditambah id du_nama dan fungsi otomatis Uppercase -->
+    <input name="nama" id="du_nama" class="form-control" placeholder="Sesuai Akte Kelahiran" oninput="this.value = this.value.toUpperCase()">
+</div>
                         </div>
                     </div>
                     
