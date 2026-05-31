@@ -2222,6 +2222,7 @@ function bukaModalDaftarUlang() {
 }
 
 // 2. Fungsi Admin untuk Melihat Data
+// 2. Fungsi Admin untuk Melihat Data
 function reviewDaftarUlang(noSpmb) {
     const s = globalDaftarUlang.find(x => String(x[0]) === String(noSpmb));
     if(!s) return;
@@ -2242,9 +2243,12 @@ function reviewDaftarUlang(noSpmb) {
     
     $('#mdlDaftarUlang .modal-title').text("Detail Data Calon Siswa & Verifikasi Berkas");
 
-    // Lempar data ke HTML dengan aman
-    const setValSafe = (namaKolom, nilai) => { if(f[namaKolom]) f[namaKolom].value = nilai; };
+    // --- PERBAIKAN: Gunakan jQuery Find agar elemen mutlak ketemu tanpa bentrok ---
+    const setValSafe = (namaKolom, nilai) => { 
+        $(f).find(`[name="${namaKolom}"]`).val(nilai); 
+    };
 
+    // Lempar data ke HTML
     setValSafe('no_spmb', s[0]); setValSafe('nisn', s[1]); setValSafe('nama', s[2]);
     setValSafe('nik', s[3]); setValSafe('nokk', s[4]); setValSafe('tmplahir', s[5]);
     if(s[6]) setValSafe('tgllahir', s[6]);
@@ -2252,11 +2256,24 @@ function reviewDaftarUlang(noSpmb) {
     setValSafe('jmlsdr', s[10]); setValSafe('bahasa', s[11]); setValSafe('alamat', s[12]);
     setValSafe('nohp', s[13]); setValSafe('jarak', s[14]); setValSafe('transport', s[15]);
     setValSafe('tinggi', s[16]); setValSafe('berat', s[17]); setValSafe('goldar', s[18]);
-    setValSafe('penyakit', s[19]); setValSafe('nama_ayah', s[20]);
+    setValSafe('penyakit', s[19]); 
+    
+    // Data Ayah
+    setValSafe('nama_ayah', s[20]);
     if(s[21]) setValSafe('tgllahir_ayah', s[21]);
-    setValSafe('kerja_ayah', s[22]); setValSafe('nama_ibu', s[23]);
+    setValSafe('kerja_ayah', s[22]); 
+    
+    // Data Ibu
+    setValSafe('nama_ibu', s[23]);
     if(s[24]) setValSafe('tgllahir_ibu', s[24]);
     setValSafe('kerja_ibu', s[25]);
+
+    // Akademik
+    setValSafe('pindahan', s[26]);
+    setValSafe('lulusan', s[27]); // Pasti masuk sekarang!
+    setValSafe('noijazah_sltp', s[28]);
+    setValSafe('kls_masuk', s[29]);
+    if(s[30]) setValSafe('tgl_masuk', s[30]);
 
     // GENERATE TOMBOL BUKA DOKUMEN DRIVE (Index 33 = Ijazah, 34 = KK, 35 = Akta, 36 = Bukti)
     let linksHtml = "";
