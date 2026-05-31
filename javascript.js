@@ -239,6 +239,12 @@ function restoreSession(res) {
         
         let isAlumni = (d.status_akhir === 'Lulus');
         
+        // --- INJEKSI TEKS KE BANNER SELAMAT DATANG ---
+        $('#wb_nama').text(d.nama);
+        $('#wb_status').text(isAlumni ? 'Alumni' : 'Siswa');
+        $('#wb_sekolah').text(globalConf.nama_sekolah || 'Sekolah');
+        // ---------------------------------------------
+        
         if(isAlumni) {
             $('#row-alumni-lulus, #row-alumni-ijazah').removeClass('hidden');
             $('#btnCekKelengkapan').removeClass('hidden'); 
@@ -2592,4 +2598,39 @@ function cekDigitPas(input, exactDigit, namaKolom) {
         // Kembalikan warna kotak ke normal jika sudah pas atau kosong
         input.style.borderColor = "#dee2e6";
     }
+}
+
+// ==========================================
+// FUNGSI PROSES LUPA PASSWORD VIA EMAIL
+// ==========================================
+function prosesLupaPassword(e) {
+    e.preventDefault();
+    const nisn = $('#lp_nisn').val().trim();
+    const email = $('#lp_email').val().trim();
+
+    if(nisn.length !== 10) {
+        Swal.fire('Format Salah', 'NISN harus tepat 10 digit angka!', 'warning'); 
+        return;
+    }
+
+    $('#mdlLupaPass').modal('hide');
+    $('#loader').removeClass('hidden');
+    $('#loaderText').text('Mencari data dan mengirim email...');
+
+    callAPI('resetPasswordViaEmail', {nisn: nisn, email: email}).then(res => {
+        $('#loader').addClass('hidden');
+        $('#loaderText').text('Memuat Data, Tunggu Sebentar...');
+        
+        if(res.status === 'success') {
+            Swal.fire({
+                title: 'Email Terkirim!',
+                text: 'Password sementara telah dikirim ke email Anda. Silakan cek Kotak Masuk atau folder Spam.',
+                icon: 'success'
+            });
+            $('#lp_nisn').val('');
+            $('#lp_email').val('');
+        } else {
+            Swal.fire('Akses Ditolak', res.message, 'error');
+        }
+    });
 }
