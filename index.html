@@ -830,6 +830,16 @@ input, button, select, textarea {
                     </div>
                 </div>
 
+                <div id="welcomeBanner" class="alert shadow-sm border-0 mb-4 text-dark" style="border-radius: 16px; background: linear-gradient(135deg, #e0f2fe 0%, #bfdbfe 100%);">
+                    <div class="d-flex align-items-center">
+                        <div class="fs-1 text-primary me-3"><i class="bi bi-emoji-smile"></i></div>
+                        <div>
+                            <h5 class="fw-bold mb-1">Selamat Datang, <span id="wb_nama" class="text-primary">Siswa</span>!</h5>
+                            <p class="mb-0 small text-secondary">Di Dashboard <b id="wb_status">Siswa</b> <b id="wb_sekolah">Sekolah</b>. Semoga harimu menyenangkan dan tetap semangat! 🚀</p>
+                        </div>
+                    </div>
+                </div>
+
                 <div class="d-flex justify-content-between align-items-center mb-3">
                     <h4 class="text-secondary fw-bold m-0">Profil Elektronik Siswa</h4>
                     <button class="btn btn-danger btn-sm fw-bold shadow-sm" onclick="logout()"><i class="bi bi-box-arrow-left"></i> Keluar</button>
@@ -1473,18 +1483,29 @@ input, button, select, textarea {
 
 <div class="modal fade" id="mdlLupaPass" tabindex="-1">
     <div class="modal-dialog modal-dialog-centered modal-sm">
-        <div class="modal-content border-0 shadow">
-            <div class="modal-header bg-danger text-white">
-                <h5 class="modal-title fw-bold">Lupa Password?</h5>
-                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
-            </div>
-            <div class="modal-body text-center p-4">
-                <i class="bi bi-exclamation-circle text-warning mb-2" style="font-size: 3rem;"></i>
-               <p class="text-muted small mb-3">Untuk alasan keamanan, reset password hanya bisa dilakukan oleh Admin Sekolah. Silakan hubungi admin untuk meminta password baru.</p>
-                <button type="button" class="btn btn-success w-100 fw-bold shadow-sm rounded-pill" onclick="hubungiAdminLupaPass()">
-                    <i class="bi bi-whatsapp"></i> Hubungi Admin
-                </button>
-            </div>
+        <div class="modal-content border-0 shadow-lg" style="border-radius: 20px;">
+            <form onsubmit="prosesLupaPassword(event)">
+                <div class="modal-header bg-danger text-white" style="border-radius: 20px 20px 0 0;">
+                    <h5 class="modal-title fw-bold"><i class="bi bi-envelope-check me-2"></i>Lupa Password</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body p-4 text-center">
+                    <p class="text-muted small mb-3 text-start">Masukkan NISN dan Email Aktif Anda. Password sementara akan dikirimkan ke email tersebut.</p>
+                    
+                    <div class="mb-3 text-start">
+                        <label class="small fw-bold text-muted mb-1">NISN (10 Digit)</label>
+                        <input type="text" id="lp_nisn" class="form-control rounded-3" placeholder="Masukkan NISN" required maxlength="10" oninput="this.value = this.value.replace(/\\D/g, '')">
+                    </div>
+                    <div class="mb-4 text-start">
+                        <label class="small fw-bold text-muted mb-1">Email Terdaftar</label>
+                        <input type="email" id="lp_email" class="form-control rounded-3" placeholder="contoh@gmail.com" required>
+                    </div>
+                    
+                    <button type="submit" class="btn btn-danger w-100 fw-bold rounded-pill py-2 shadow-sm mb-2">KIRIM PASSWORD</button>
+                    
+                    <a id="btnWAAdminLupaPass" href="#" target="_blank" class="small text-decoration-none text-muted">Lupa Email? Hubungi Admin</a>
+                </div>
+            </form>
         </div>
     </div>
 </div>
