@@ -228,7 +228,9 @@ function restoreSession(res) {
         
         let thnMasukStr = d.thn_masuk ? String(d.thn_masuk).substring(0,10) : '-';
         $('#profil_kelas').text((d.kls_masuk || '-') + ' / ' + thnMasukStr);
-        $('#profil_alamat').text(d.alamat || '-'); $('#profil_hp').text(d.nohp || '-');
+        $('#profil_alamat').text(d.alamat || '-'); 
+        $('#profil_hp').text(d.nohp || '-');
+        $('#profil_email').text(d.email || '-');
         $('#profil_ortu').text((d.ayah || '-') + ' / ' + (d.ibu || '-'));
         $('#profil_status').text(d.status_akhir);
         
@@ -471,7 +473,7 @@ function openModalSiswa(nis, readonly) {
     $('#frmSiswa input, #frmSiswa select, #frmSiswa textarea').prop('disabled', readonly);
     $('#btnSimpanSiswa').toggle(!readonly); $('#lblModalSiswa').text(readonly ? "Detail Data Siswa" : "Edit Data Siswa");
     $('#btnLihatNilai').toggleClass('hidden', !readonly).off('click').click(() => openTranskrip(nis));
-    f.nis.value=s[0]; f.nisn.value=s[1]; f.nama.value=s[2]; f.nik.value=s[3]; f.nokk.value=s[4]; f.tmplahir.value=s[5]; if(s[6]) f.tgllahir.value = s[6]; f.jk.value=s[7]; f.agama.value=s[8]; f.anakke.value=s[9]; f.jmlsdr.value=s[10]; f.bahasa.value=s[11]; f.alamat.value=s[12]; f.nohp.value=s[13]; f.jarak.value=s[14]; f.transport.value=s[15]; f.tinggi.value=s[16]; f.berat.value=s[17]; f.goldar.value=s[18]; f.penyakit.value=s[19]; f.nama_ayah.value=s[20]; if(s[21]) f.tgllahir_ayah.value = s[21]; f.kerja_ayah.value=s[22]; f.nama_ibu.value=s[23]; if(s[24]) f.tgllahir_ibu.value = s[24]; f.kerja_ibu.value=s[25]; f.pindahan.value=s[26]; f.lulusan.value=s[27]; f.noijazah_sltp.value=s[28]; f.kls_masuk.value=s[29]; if(s[30]) f.tgl_masuk.value=s[30]; f.status_akhir.value=s[31]; if(s[32]) f.tgl_keluar.value=s[32]; f.lanjut_ke.value=s[33]; f.noijazah_sma.value=s[34];
+    f.nis.value=s[0]; f.nisn.value=s[1]; f.nama.value=s[2]; f.nik.value=s[3]; f.nokk.value=s[4]; f.tmplahir.value=s[5]; if(s[6]) f.tgllahir.value = s[6]; f.jk.value=s[7]; f.agama.value=s[8]; f.anakke.value=s[9]; f.jmlsdr.value=s[10]; f.bahasa.value=s[11]; f.alamat.value=s[12]; f.nohp.value=s[13]; f.jarak.value=s[14]; f.transport.value=s[15]; f.tinggi.value=s[16]; f.berat.value=s[17]; f.goldar.value=s[18]; f.penyakit.value=s[19]; f.nama_ayah.value=s[20]; if(s[21]) f.tgllahir_ayah.value = s[21]; f.kerja_ayah.value=s[22]; f.nama_ibu.value=s[23]; if(s[24]) f.tgllahir_ibu.value = s[24]; f.kerja_ibu.value=s[25]; f.pindahan.value=s[26]; f.lulusan.value=s[27]; f.noijazah_sltp.value=s[28]; f.kls_masuk.value=s[29]; if(s[30]) f.tgl_masuk.value=s[30]; f.status_akhir.value=s[31]; if(s[32]) f.tgl_keluar.value=s[32]; f.lanjut_ke.value=s[33]; f.noijazah_sma.value=s[34]; f.email.value = s[39] || '';
     
     $('#id_foto_masuk').val(s[35]); 
     if(s[35]) callAPI('getImage', {id: s[35]}).then(b=>{ if(b) $('#prev_masuk').attr('src',b).removeClass('hidden'); }); 
@@ -529,14 +531,22 @@ function saveSiswa(e) {
 }
 
 function delSiswa(nis) { 
-    Swal.fire({ title: 'Hapus Data?', text: "Data yang dihapus tidak bisa dikembalikan!", icon: 'warning', showCancelButton: true, confirmButtonColor: '#d33', confirmButtonText: 'Ya, Hapus!' }).then((result) => { 
-        if (result.isConfirmed) { 
-            callAPI('deleteStudent', {nis: nis}).then(() => { 
-                showCoolAlert('Terhapus!', '', 'success'); 
-                loadSiswa(); 
-            }); 
-        } 
-    }); 
+  var lock = LockService.getScriptLock();
+  try {
+    if (!lock.tryLock(30000)) return { status: "error", message: "Sistem sibuk." };
+    const ss = SpreadsheetApp.openById(SPREADSHEET_ID);
+    let lokasi = cariLokasiSiswaLintasSheet(ss, nis);
+    
+    if (lokasi) {
+      // Hapus foto profil dari Drive sebelum data dihapus
+      hapusFileDriveAman(lokasi.dataAsli[35]); // Foto Masuk
+      hapusFileDriveAman(lokasi.dataAsli[36]); // Foto Keluar
+      
+      lokasi.sheet.deleteRow(lokasi.baris);
+      return {status: "success"};
+    }
+    return {status: "error", message: "NIS tidak ditemukan di sistem"};
+  } catch(e) { return {status: "error", message: e.toString()}; } finally { lock.releaseLock(); }
 }
 
 function downloadPDFBase64(base64, filename) {
@@ -2254,7 +2264,9 @@ function reviewDaftarUlang(noSpmb) {
     if(s[6]) setValSafe('tgllahir', s[6]);
     setValSafe('jk', s[7]); setValSafe('agama', s[8]); setValSafe('anakke', s[9]);
     setValSafe('jmlsdr', s[10]); setValSafe('bahasa', s[11]); setValSafe('alamat', s[12]);
-    setValSafe('nohp', s[13]); setValSafe('jarak', s[14]); setValSafe('transport', s[15]);
+    setValSafe('nohp', s[13]);
+    setValSafe('email', s[37] || '');
+    setValSafe('jarak', s[14]); setValSafe('transport', s[15]);
     setValSafe('tinggi', s[16]); setValSafe('berat', s[17]); setValSafe('goldar', s[18]);
     setValSafe('penyakit', s[19]); 
     
