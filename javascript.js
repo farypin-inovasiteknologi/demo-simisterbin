@@ -358,7 +358,16 @@ function showPrivacy() { $('#mdlPrivacy').modal('show'); }
 function showCoolAlert(title, text, icon) { Swal.fire({ title: title, text: text, icon: icon, showClass: { popup: 'animate__animated animate__fadeInDown' }, hideClass: { popup: 'animate__animated animate__fadeOutUp' }, confirmButtonColor: '#4e73df', backdrop: `rgba(0,0,123,0.4)` }); }
 function validateInput(el) { let val = parseFloat(el.value); if(val > 100) { showCoolAlert('Nilai Invalid', 'Maksimal 100!', 'warning'); el.value = 100; return false; } if(val < 0) { showCoolAlert('Nilai Invalid', 'Minimal 0!', 'warning'); el.value = 0; return false; } if(el.value.includes('.')) { if(el.value.split('.')[1].length > 2) { showCoolAlert('Format Salah', 'Maks 2 desimal', 'warning'); el.value = parseFloat(val).toFixed(2); return false; } } return true; }
 function calc() { let sumP=0, sumK=0, count=0; $('#tbodyNilai tr').each(function() { let elP = $(this).find('.np'); let elK = $(this).find('.nk'); sumP += parseFloat(elP.val()) || 0; sumK += parseFloat(elK.val()) || 0; count++; }); $('#footP').text(sumP.toFixed(2)); $('#footK').text(sumK.toFixed(2)); $('#avgP').text(count>0 ? (sumP/count).toFixed(2) : 0); $('#avgK').text(count>0 ? (sumK/count).toFixed(2) : 0); }
-function refreshPage() { if(curPage == 'siswa') loadSiswa(); else if(curPage == 'mapel') loadMapel(); else if(curPage == 'nilai') { if($('#selSiswa').val()) $('#selSiswa').change(); } else if(curPage == 'dash') loadSiswa(); Swal.fire({ toast: true, position: 'top-end', icon: 'success', title: 'Data diperbarui', timer: 1000, showConfirmButton: false }); }
+
+function refreshPage() { 
+    if(curPage == 'siswa') loadSiswa(); 
+    else if(curPage == 'mapel') loadMapel(); 
+    else if(curPage == 'nilai') { if($('#selSiswa').val()) $('#selSiswa').change(); } 
+    else if(curPage == 'dash') loadSiswa(); 
+    else if(curPage == 'daftarulang') loadDaftarUlang();
+    
+    Swal.fire({ toast: true, position: 'top-end', icon: 'success', title: 'Data diperbarui', timer: 1000, showConfirmButton: false }); 
+}
 
 function nav(page, el, param) { 
     curPage = page; 
@@ -375,7 +384,13 @@ function nav(page, el, param) {
 
     // --- PERBAIKAN DI SINI (Gunakan if, bukan else if) ---
     if(page == 'daftarulang') {
-        loadDaftarUlang();
+        // Jika data antrean masih kosong, panggil dari server
+        if (globalDaftarUlang.length === 0) {
+            loadDaftarUlang(); 
+        } else {
+            // Jika data sudah ada, langsung tampilkan tanpa loading!
+            renderDaftarUlangTable(); 
+        }
     }
 
     if(page=='mapel') {
@@ -2509,27 +2524,39 @@ async function submitDaftarUlang(e) {
 }
 
 function loadDaftarUlang() {
-    $('#loader').removeClass('hidden');
+    // 1. Tampilkan tulisan loading kecil di dalam tabel saja (layar tidak terkunci)
+    $('#tbodyDaftarUlang').html('<tr><td colspan="5" class="text-center py-4"><div class="spinner-border text-primary spinner-border-sm align-middle me-2"></div> <span class="text-muted fw-bold">Memuat antrean pendaftar...</span></td></tr>');
+    
     callAPI('getDaftarUlang').then(res => {
-        $('#loader').addClass('hidden');
-        globalDaftarUlang = res.data;
-        
-        if ($.fn.DataTable.isDataTable('#tblDaftarUlang')) $('#tblDaftarUlang').DataTable().destroy(); 
-        
-        let html = "";
-        globalDaftarUlang.forEach(r => {
-            const noSpmb = r[0], nisn = r[1], nama = r[2], tglDaftar = r[32] ? String(r[32]).substring(0, 10) : '-';
-            
-            // Tombol Setujui
-            let btnAksi = `<button class="btn btn-sm btn-secondary me-1 shadow-sm" onclick="reviewDaftarUlang('${noSpmb}')" title="Lihat Data"><i class="bi bi-eye"></i></button>`;
-            btnAksi += `<button class="btn btn-sm btn-success shadow-sm fw-bold" onclick="promptSetujuiSiswa('${noSpmb}', '${nama}')"><i class="bi bi-check-circle"></i> Setujui</button>`;
-            
-            html += `<tr><td><span class="badge bg-warning text-dark">${noSpmb}</span></td><td>${nisn}</td><td>${nama}</td><td>${tglDaftar}</td><td>${btnAksi}</td></tr>`;
-        });
-        
-        $('#tbodyDaftarUlang').html(html);
-        $('#tblDaftarUlang').DataTable({ language: { search: "Cari:", lengthMenu: "_MENU_ data", info: "_START_-_END_ dari _TOTAL_" } });
+        // PENGAMANAN BUG: Mencegah crash jika data kosong
+        if (res.status === 'success' && res.data) {
+            globalDaftarUlang = res.data;
+            renderDaftarUlangTable(); // Panggil pembuat tabel
+        } else {
+            globalDaftarUlang = [];
+            $('#tbodyDaftarUlang').html('<tr><td colspan="5" class="text-center py-4 text-muted">Belum ada antrean daftar ulang.</td></tr>');
+        }
+    }).catch(err => {
+        $('#tbodyDaftarUlang').html('<tr><td colspan="5" class="text-center text-danger py-4">Gagal memuat data. Periksa koneksi internet Anda.</td></tr>');
     });
+}
+
+// 2. FUNGSI BARU: Khusus untuk merender tabel secepat kilat dari memori
+function renderDaftarUlangTable() {
+    if ($.fn.DataTable.isDataTable('#tblDaftarUlang')) $('#tblDaftarUlang').DataTable().destroy(); 
+    
+    let html = "";
+    globalDaftarUlang.forEach(r => {
+        const noSpmb = r[0], nisn = r[1], nama = r[2], tglDaftar = r[32] ? String(r[32]).substring(0, 10) : '-';
+        
+        let btnAksi = `<button class="btn btn-sm btn-secondary me-1 shadow-sm" onclick="reviewDaftarUlang('${noSpmb}')" title="Lihat Data"><i class="bi bi-eye"></i></button>`;
+        btnAksi += `<button class="btn btn-sm btn-success shadow-sm fw-bold" onclick="promptSetujuiSiswa('${noSpmb}', '${nama}')"><i class="bi bi-check-circle"></i> Setujui</button>`;
+        
+        html += `<tr><td><span class="badge bg-warning text-dark">${noSpmb}</span></td><td>${nisn}</td><td>${nama}</td><td>${tglDaftar}</td><td>${btnAksi}</td></tr>`;
+    });
+    
+    $('#tbodyDaftarUlang').html(html);
+    $('#tblDaftarUlang').DataTable({ language: { search: "Cari:", lengthMenu: "_MENU_ data", info: "_START_-_END_ dari _TOTAL_" } });
 }
 
 // 4. Fungsi Prompt Persetujuan oleh Admin
