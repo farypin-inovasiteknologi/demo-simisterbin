@@ -84,43 +84,77 @@ function validasiKhususNISN(input) {
     }
 }
 
-// 2. Trik Jitu: Cegat pengguna saat mencoba pindah Tab HTML
 $(document).ready(function() {
-    $('a[data-bs-toggle="tab"]').on('hide.bs.tab', function (e) {
-        // Jangan jalankan jika form sedang mode read-only (saat admin review pendaftar)
-        if ($('#frmDaftarUlang input').prop('disabled')) return;
+    
+    // 1. SENSOR MELEWATI KOLOM (ON BLUR)
+    // Setiap kali user meninggalkan kolom yang WAJIB ISI dalam keadaan kosong
+    $('#frmDaftarUlang').on('blur', 'input[required], select[required]', function() {
+        if ($('#frmDaftarUlang input').prop('disabled')) return; // Abaikan jika Admin sedang mereview
         
-        let currentTabId = $(e.target).attr('href');
-        let tabContainer = $(currentTabId);
-        
-        // Cari semua input/select yang punya atribut 'required' di dalam tab YANG SEDANG DIBUKA
-        let requiredInputs = tabContainer.find('input[required], select[required], textarea[required]');
-        
-        let isComplete = true;
-        let firstEmpty = null;
-        
-        requiredInputs.each(function() {
-            if (!$(this).val().trim()) {
-                isComplete = false;
-                if (!firstEmpty) firstEmpty = $(this);
+        let val = $(this).val().trim();
+        if (val === "") {
+            // Ambil teks labelnya (buang tanda bintang)
+            let label = $(this).parent().find('label').text().replace('*', '').trim();
+            $(this).css('border-color', 'red'); // Ubah garis kotak jadi merah
+            
+            // Munculkan Alert Kecil di pojok agar mengingatkan seketika
+            Swal.fire({
+                toast: true,
+                position: 'top-end',
+                icon: 'warning',
+                title: `${label} belum diisi!`,
+                showConfirmButton: false,
+                timer: 3000
+            });
+        } else {
+            $(this).css('border-color', '#dee2e6'); // Kembalikan ke warna normal jika sudah diisi
+        }
+    });
+
+    // 2. PENGUNCI PINDAH TAB (NATIVE BOOTSTRAP 5 EVENT)
+    // Pakai Vanilla JS agar 100% tab-nya bisa dicegat dan tidak tembus
+    const triggerTabList = document.querySelectorAll('#mdlDaftarUlang a[data-bs-toggle="tab"]');
+    triggerTabList.forEach(triggerEl => {
+        triggerEl.addEventListener('hide.bs.tab', function (e) {
+            if ($('#frmDaftarUlang input').prop('disabled')) return; // Abaikan jika Admin mereview
+            
+            let currentTabId = e.target.getAttribute('href'); // Misal: #du_t1
+            let currentTab = document.querySelector(currentTabId);
+            
+            // Cari SEMUA kolom wajib di dalam tab yang sedang dibuka
+            let requiredElements = currentTab.querySelectorAll('input[required], select[required]');
+            let isComplete = true;
+            let firstEmpty = null;
+
+            for(let el of requiredElements) {
+                if (el.value.trim() === "") {
+                    isComplete = false;
+                    firstEmpty = el;
+                    break; // Berhenti mencari, langsung kunci target yang kosong
+                }
+            }
+
+            // CEK PROTEKSI KHUSUS FOTO DI TAB 4
+            // (Karena Foto pakai logika rahasia Base64, tidak bisa dicek pakai "required" biasa)
+            if (currentTabId === '#du_t4' && !document.getElementById('du_id_foto_masuk').value) {
+                e.preventDefault(); // GAGALKAN PINDAH TAB
+                Swal.fire('Data Belum Lengkap', 'Pas Foto Diri wajib diunggah!', 'warning');
+                return;
+            }
+
+            // JIKA ADA KOLOM WAJIB YANG KOSONG
+            if (!isComplete) {
+                e.preventDefault(); // GAGALKAN PINDAH TAB
+                
+                let labelNode = firstEmpty.parentElement.querySelector('label');
+                let labelText = labelNode ? labelNode.innerText.replace('*', '').trim() : "Kolom ini";
+                
+                Swal.fire('Tidak Bisa Pindah!', `${labelText} wajib diisi terlebih dahulu!`, 'error').then(() => {
+                    firstEmpty.focus(); // Arahkan kursor otomatis ke kotak yang belum diisi
+                    firstEmpty.style.borderColor = 'red';
+                });
             }
         });
-
-        // Validasi Ekstra Khusus Foto (karena dia pakai input file rahasia)
-        if (currentTabId === '#du_t4' && !$('#du_id_foto_masuk').val()) {
-            e.preventDefault(); // Batalkan perpindahan tab
-            Swal.fire('Data Belum Lengkap', 'Pas Foto Diri wajib diunggah! Silakan potong & simpan foto Anda terlebih dahulu.', 'warning');
-            return;
-        }
-        
-        // Jika ada input required yang kosong, cegah pindah tab & munculkan peringatan
-        if (!isComplete) {
-            e.preventDefault(); // Batalkan perpindahan tab
-            let label = firstEmpty.parent().find('label').text().replace('*', '').trim();
-            Swal.fire('Data Belum Lengkap', `Kolom <b>${label}</b> belum diisi! Silakan lengkapi dulu sebelum pindah halaman.`, 'warning').then(() => {
-                firstEmpty.focus();
-            });
-        }
     });
 });
 
