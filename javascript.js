@@ -237,7 +237,6 @@ function restoreSession(res) {
         if(d.status_akhir === 'Aktif') $('#profil_status').removeClass('text-danger').addClass('text-success');
         else $('#profil_status').removeClass('text-success').addClass('text-danger');
         
-        const d = res.data;
         let isAlumni = (d.status_akhir === 'Lulus');
         
         // --- INJEKSI TEKS KE BANNER SELAMAT DATANG (DIPERBAIKI) ---
