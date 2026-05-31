@@ -84,41 +84,70 @@ function validasiKhususNISN(input) {
     }
 }
 
+// ==========================================
+// PUSAT INISIALISASI APLIKASI SAAT PERTAMA DIBUKA
+// ==========================================
 $(document).ready(function() {
+    // 1. JALANKAN SETUP DATABASE DULU (WAJIB AGAR LOADING BISA BERHENTI)
+    callAPI('setupDatabase').then(res => {
+        $('#loader').addClass('hidden'); // MATIKAN LOADING
+        
+        if(res.status == 'error') {
+            Swal.fire('Error DB', res.message, 'error');
+        } else { 
+            loadSettings(); 
+            
+            // CEK SESI LOGIN
+            let session = localStorage.getItem('simisterbin_session');
+            if (session) {
+                try {
+                    let decodedData = JSON.parse(atob(session));
+                    restoreSession(decodedData);
+                } catch(e) {
+                    localStorage.removeItem('simisterbin_session');
+                    $('#loginPage').removeClass('hidden'); 
+                    $('#yearLogin').text(new Date().getFullYear()); 
+                }
+            } else {
+                $('#loginPage').removeClass('hidden'); 
+                $('#yearLogin').text(new Date().getFullYear()); 
+            }
+        }
+    }).catch(e => {
+        $('#loader').addClass('hidden'); // Paksa mati loading jika error jaringan
+        console.error(e);
+        Swal.fire('Error', 'Gagal terhubung ke database. Cek API URL Anda.', 'error');
+    });
+
+    // ==========================================
+    // 2. JALANKAN SENSOR VALIDASI DAFTAR ULANG
+    // ==========================================
     
-    // 1. SENSOR MELEWATI KOLOM (ON BLUR)
-    // Setiap kali user meninggalkan kolom yang WAJIB ISI dalam keadaan kosong
+    // A. SENSOR MELEWATI KOLOM (ON BLUR)
     $('#frmDaftarUlang').on('blur', 'input[required], select[required]', function() {
         if ($('#frmDaftarUlang input').prop('disabled')) return; // Abaikan jika Admin sedang mereview
         
         let val = $(this).val().trim();
         if (val === "") {
-            // Ambil teks labelnya (buang tanda bintang)
             let label = $(this).parent().find('label').text().replace('*', '').trim();
-            $(this).css('border-color', 'red'); // Ubah garis kotak jadi merah
-            
-            // Munculkan Alert Kecil di pojok agar mengingatkan seketika
+            $(this).css('border-color', 'red'); 
             Swal.fire({
-                toast: true,
-                position: 'top-end',
-                icon: 'warning',
+                toast: true, position: 'top-end', icon: 'warning',
                 title: `${label} belum diisi!`,
-                showConfirmButton: false,
-                timer: 3000
+                showConfirmButton: false, timer: 3000
             });
         } else {
-            $(this).css('border-color', '#dee2e6'); // Kembalikan ke warna normal jika sudah diisi
+            $(this).css('border-color', '#dee2e6'); 
         }
     });
 
-    // 2. PENGUNCI PINDAH TAB (NATIVE BOOTSTRAP 5 EVENT)
-    // Pakai Vanilla JS agar 100% tab-nya bisa dicegat dan tidak tembus
+    // B. PENGUNCI PINDAH TAB
     const triggerTabList = document.querySelectorAll('#mdlDaftarUlang a[data-bs-toggle="tab"]');
     triggerTabList.forEach(triggerEl => {
         triggerEl.addEventListener('hide.bs.tab', function (e) {
             if ($('#frmDaftarUlang input').prop('disabled')) return; // Abaikan jika Admin mereview
             
-            let currentTabId = e.target.getAttribute('href'); // Misal: #du_t1
+            let currentTabId = e.target.getAttribute('href'); 
             let currentTab = document.querySelector(currentTabId);
             
             // Cari SEMUA kolom wajib di dalam tab yang sedang dibuka
@@ -130,12 +159,11 @@ $(document).ready(function() {
                 if (el.value.trim() === "") {
                     isComplete = false;
                     firstEmpty = el;
-                    break; // Berhenti mencari, langsung kunci target yang kosong
+                    break;
                 }
             }
 
-            // CEK PROTEKSI KHUSUS FOTO DI TAB 4
-            // (Karena Foto pakai logika rahasia Base64, tidak bisa dicek pakai "required" biasa)
+            // CEK PROTEKSI FOTO KHUSUS DI TAB AKADEMIK (ID FOTO WAJIB ADA)
             if (currentTabId === '#du_t4' && !document.getElementById('du_id_foto_masuk').value) {
                 e.preventDefault(); // GAGALKAN PINDAH TAB
                 Swal.fire('Data Belum Lengkap', 'Pas Foto Diri wajib diunggah!', 'warning');
@@ -145,17 +173,17 @@ $(document).ready(function() {
             // JIKA ADA KOLOM WAJIB YANG KOSONG
             if (!isComplete) {
                 e.preventDefault(); // GAGALKAN PINDAH TAB
-                
                 let labelNode = firstEmpty.parentElement.querySelector('label');
                 let labelText = labelNode ? labelNode.innerText.replace('*', '').trim() : "Kolom ini";
                 
                 Swal.fire('Tidak Bisa Pindah!', `${labelText} wajib diisi terlebih dahulu!`, 'error').then(() => {
-                    firstEmpty.focus(); // Arahkan kursor otomatis ke kotak yang belum diisi
+                    firstEmpty.focus(); 
                     firstEmpty.style.borderColor = 'red';
                 });
             }
         });
     });
+
 });
 
 // FUNGSI UNTUK MENGEMBALIKAN SESI (RELOAD / LOGIN SUKSES)
