@@ -68,34 +68,61 @@ async function callAPI(actionName, payloadData = {}) {
     }
 }
 
-$(document).ready(function() {
-    callAPI('setupDatabase').then(res => {
-        $('#loader').addClass('hidden');
-        if(res.status == 'error') Swal.fire('Error DB', res.message, 'error');
-        else { 
-            loadSettings(); 
-            
-            // CEK SESI LOGIN SAAT RELOAD (MENGGUNAKAN ENKRIPSI BASE64 DECODE)
-            let session = localStorage.getItem('simisterbin_session');
-            if (session) {
-                try {
-                    // Gunakan atob() untuk membaca data yang sudah disamarkan
-                    let decodedData = JSON.parse(atob(session));
-                    restoreSession(decodedData);
-                } catch(e) {
-                    // Jika ada yang usil mengedit kodenya sembarangan, tendang ke login!
-                    localStorage.removeItem('simisterbin_session');
-                    $('#loginPage').removeClass('hidden'); 
-                    $('#yearLogin').text(new Date().getFullYear()); 
-                }
-            } else {
-                $('#loginPage').removeClass('hidden'); 
-                $('#yearLogin').text(new Date().getFullYear()); 
-            }
-        }
-    }).catch(e => alert(e));
-});
+// 1. Fungsi penambah Nol Otomatis untuk NISN (Langsung Memicu Alert saat pindah kolom)
+function validasiKhususNISN(input) {
+    let val = input.value.trim();
+    if (val === "") return;
+    
+    if (val.length > 0 && val.length < 10) {
+        input.value = val.padStart(10, '0');
+        Swal.fire({
+            title: 'Perhatian!',
+            text: 'Data NISN otomatis ditambah 0 di depan agar genap 10 digit. Mohon cek kembali jika keliru.',
+            icon: 'info'
+        });
+        input.style.borderColor = "#dee2e6";
+    }
+}
 
+// 2. Trik Jitu: Cegat pengguna saat mencoba pindah Tab HTML
+$(document).ready(function() {
+    $('a[data-bs-toggle="tab"]').on('hide.bs.tab', function (e) {
+        // Jangan jalankan jika form sedang mode read-only (saat admin review pendaftar)
+        if ($('#frmDaftarUlang input').prop('disabled')) return;
+        
+        let currentTabId = $(e.target).attr('href');
+        let tabContainer = $(currentTabId);
+        
+        // Cari semua input/select yang punya atribut 'required' di dalam tab YANG SEDANG DIBUKA
+        let requiredInputs = tabContainer.find('input[required], select[required], textarea[required]');
+        
+        let isComplete = true;
+        let firstEmpty = null;
+        
+        requiredInputs.each(function() {
+            if (!$(this).val().trim()) {
+                isComplete = false;
+                if (!firstEmpty) firstEmpty = $(this);
+            }
+        });
+
+        // Validasi Ekstra Khusus Foto (karena dia pakai input file rahasia)
+        if (currentTabId === '#du_t4' && !$('#du_id_foto_masuk').val()) {
+            e.preventDefault(); // Batalkan perpindahan tab
+            Swal.fire('Data Belum Lengkap', 'Pas Foto Diri wajib diunggah! Silakan potong & simpan foto Anda terlebih dahulu.', 'warning');
+            return;
+        }
+        
+        // Jika ada input required yang kosong, cegah pindah tab & munculkan peringatan
+        if (!isComplete) {
+            e.preventDefault(); // Batalkan perpindahan tab
+            let label = firstEmpty.parent().find('label').text().replace('*', '').trim();
+            Swal.fire('Data Belum Lengkap', `Kolom <b>${label}</b> belum diisi! Silakan lengkapi dulu sebelum pindah halaman.`, 'warning').then(() => {
+                firstEmpty.focus();
+            });
+        }
+    });
+});
 
 // FUNGSI UNTUK MENGEMBALIKAN SESI (RELOAD / LOGIN SUKSES)
 function restoreSession(res) {
@@ -938,9 +965,9 @@ $('#btnCrop').click(() => {
     
     bootstrap.Modal.getInstance(document.getElementById('mdlCrop')).hide(); 
     $('#loader').removeClass('hidden'); 
-    const t = isLogo ? 'logo' : 'foto'; 
-    
-    callAPI('uploadBase64', {base64: base64, filename: "img_"+Date.now(), folderType: t}).then(res => { 
+    // Cek jika yang memicu crop adalah input foto daftar ulang (du_masuk)
+const t = isLogo ? 'logo' : (cropTarget === 'du_masuk' ? 'spmb_foto' : 'foto');
+callAPI('uploadBase64', {base64: base64, filename: "img_"+Date.now(), folderType: t}).then(res => { 
         if(res.status=='success') { 
             const imgId = res.id; 
             callAPI('getImage', {id: imgId}).then(b64 => { 
@@ -2230,7 +2257,8 @@ async function submitDaftarUlang(e) {
         { id: 'du_kerja_ayah', tab: '#du_t3', pesan: 'Pekerjaan Ayah wajib diisi!' },
         { id: 'du_nama_ibu', tab: '#du_t3', pesan: 'Nama Ibu wajib diisi!' },
         { id: 'du_tgllahir_ibu', tab: '#du_t3', pesan: 'Tanggal Lahir Ibu wajib diisi!' },
-        { id: 'du_kerja_ibu', tab: '#du_t3', pesan: 'Pekerjaan Ibu wajib diisi!' }
+        { id: 'du_kerja_ibu', tab: '#du_t3', pesan: 'Pekerjaan Ibu wajib diisi!' },
+        { id: 'du_lulusan', tab: '#du_t4', pesan: 'Lulusan Dari wajib diisi!' }
     ];
 
     for (let item of validasiKolom) {
@@ -2245,6 +2273,13 @@ async function submitDaftarUlang(e) {
             });
             return; // Hentikan proses simpan
         }
+    }
+
+    // Proteksi Ekstra Foto
+    if (!$('#du_id_foto_masuk').val() && !$('#du_berkas_upload').hasClass('hidden')) {
+         $('.nav-tabs a[href="#du_t4"]').tab('show');
+         Swal.fire('Data Belum Lengkap', 'Foto Diri wajib diunggah!', 'warning');
+         return;
     }
 
     // 2. CEK VALIDASI DIGIT YANG HARUS PAS
