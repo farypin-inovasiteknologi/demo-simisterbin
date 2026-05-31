@@ -999,9 +999,11 @@ function cropImage(input, target) {
             document.getElementById('mdlCrop').addEventListener('shown.bs.modal', () => { 
                 if(cropper) cropper.destroy(); 
                 
-                // LOGIKA RASIO BARU
                 let ratio = NaN; // Default logo bebas
-                if(target === 'masuk' || target === 'keluar') ratio = 3 / 4; // Pas Foto
+                
+                // TAMBAHKAN 'du_masuk' DI SINI AGAR POTONGANNYA WAJIB 3:4
+                if(target === 'masuk' || target === 'keluar' || target === 'du_masuk') ratio = 3 / 4; 
+                
                 if(target.includes('bg_')) ratio = 8.5 / 5.5; // Background Kartu
                 
                 cropper = new Cropper(document.getElementById('imageToCrop'), { aspectRatio: ratio, viewMode:1 }); 
@@ -1027,19 +1029,32 @@ $('#btnCrop').click(() => {
     
     bootstrap.Modal.getInstance(document.getElementById('mdlCrop')).hide(); 
     $('#loader').removeClass('hidden'); 
-    // Cek jika yang memicu crop adalah input foto daftar ulang (du_masuk)
-const t = isLogo ? 'logo' : (cropTarget === 'du_masuk' ? 'spmb_foto' : 'foto');
-callAPI('uploadBase64', {base64: base64, filename: "img_"+Date.now(), folderType: t}).then(res => { 
-        if(res.status=='success') { 
+    
+    // PENGARAHAN FOLDER DRIVE:
+    // Jika targetnya 'du_masuk' (Foto Daftar Ulang), arahkan ke folder 'spmb_foto'
+    const t = isLogo ? 'logo' : (cropTarget === 'du_masuk' ? 'spmb_foto' : 'foto'); 
+    
+    callAPI('uploadBase64', {base64: base64, filename: "img_"+Date.now(), folderType: t}).then(res => { 
+        if(res.status === 'success') { 
             const imgId = res.id; 
             callAPI('getImage', {id: imgId}).then(b64 => { 
                 $('#loader').addClass('hidden');
-                if(cropTarget=='masuk') { $('#id_foto_masuk').val(imgId); $('#prev_masuk').attr('src',b64).removeClass('hidden'); } 
-                if(cropTarget=='keluar') { $('#id_foto_keluar').val(imgId); $('#prev_keluar').attr('src',b64).removeClass('hidden'); } 
-                if(cropTarget=='logo_instansi') { $('#logo_instansi').val(imgId); $('#prevLogoInstansi').attr('src',b64).removeClass('hidden'); } 
-                if(cropTarget=='logo_sekolah') { $('#logo_sekolah').val(imgId); $('#prevLogoSekolah').attr('src',b64).removeClass('hidden'); }
-                if(cropTarget=='background_kartu') { $('#background_kartu').val(imgId); $('#prev_bg_depan').attr('src',b64).removeClass('hidden'); } 
-                if(cropTarget=='background_belakang') { $('#background_belakang').val(imgId); $('#prev_bg_belakang').attr('src',b64).removeClass('hidden'); } 
+                
+                if(cropTarget === 'masuk') { $('#id_foto_masuk').val(imgId); $('#prev_masuk').attr('src',b64).removeClass('hidden'); } 
+                if(cropTarget === 'keluar') { $('#id_foto_keluar').val(imgId); $('#prev_keluar').attr('src',b64).removeClass('hidden'); } 
+                
+                // --- INI PENYELESAIAN BUG-NYA ---
+                // Masukkan ID gambar ke input hidden Daftar Ulang dan tampilkan fotonya
+                if(cropTarget === 'du_masuk') { 
+                    $('#du_id_foto_masuk').val(imgId); 
+                    $('#du_prev_masuk').attr('src',b64).removeClass('hidden'); 
+                } 
+                // ---------------------------------
+
+                if(cropTarget === 'logo_instansi') { $('#logo_instansi').val(imgId); $('#prevLogoInstansi').attr('src',b64).removeClass('hidden'); } 
+                if(cropTarget === 'logo_sekolah') { $('#logo_sekolah').val(imgId); $('#prevLogoSekolah').attr('src',b64).removeClass('hidden'); }
+                if(cropTarget === 'background_kartu') { $('#background_kartu').val(imgId); $('#prev_bg_depan').attr('src',b64).removeClass('hidden'); } 
+                if(cropTarget === 'background_belakang') { $('#background_belakang').val(imgId); $('#prev_bg_belakang').attr('src',b64).removeClass('hidden'); } 
             }); 
         } else {
             $('#loader').addClass('hidden');
