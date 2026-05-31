@@ -1201,8 +1201,9 @@ input, button, select, textarea {
                             <!-- TAB FISIK & ALAMAT (TIDAK WAJIB) -->
                             <div class="tab-pane fade" id="du_t2">
                                 <div class="row g-3">
-                                    <div class="col-md-8"><label class="form-label small fw-bold">Alamat Lengkap</label><textarea name="alamat" class="form-control" rows="2"></textarea></div>
-                                    <div class="col-md-4"><label class="form-label small fw-bold">No. HP/WA Aktif</label><input name="nohp" class="form-control"></div>
+                                    <div class="col-md-12"><label class="form-label small fw-bold">Alamat Lengkap</label><textarea name="alamat" class="form-control" rows="2"></textarea></div>
+                                    <div class="col-md-6"><label class="form-label small fw-bold">*No. HP/WA Aktif</label><input name="nohp" class="form-control" required></div>
+                                    <div class="col-md-6"><label class="form-label small fw-bold">Email Aktif (Opsional)</label><input type="email" name="email" id="du_email" class="form-control" placeholder="contoh@gmail.com"></div>
                                     <div class="col-md-3"><label class="form-label small fw-bold">Jarak (Km)</label><input name="jarak" class="form-control"></div>
                                     <div class="col-md-3"><label class="form-label small fw-bold">Transportasi</label><input name="transport" class="form-control"></div>
                                     <div class="col-md-3"><label class="form-label small fw-bold">Anak Ke</label><input name="anakke" class="form-control"></div>
@@ -1362,7 +1363,14 @@ input, button, select, textarea {
                             <option value="Khonghucu">Khonghucu</option>
                         </select>
                         </div><div class="col-md-4"><label class="form-label small fw-bold">Tempat Lahir</label><input name="tmplahir" class="form-control"></div><div class="col-md-4"><label class="form-label small fw-bold">Tanggal Lahir</label><input type="date" name="tgllahir" class="form-control"></div><div class="col-md-4"><label class="form-label small fw-bold">Jenis Kelamin</label><select name="jk" class="form-select"><option value="L">Laki-laki</option><option value="P">Perempuan</option></select></div></div></div>
-                        <div class="tab-pane fade" id="t2"><div class="row g-3"><div class="col-md-8"><label class="form-label small fw-bold">Alamat Lengkap</label><textarea name="alamat" class="form-control" rows="2"></textarea></div><div class="col-md-4"><label class="form-label small fw-bold">No. HP/WA</label><input name="nohp" class="form-control"></div><div class="col-md-3"><label class="form-label small fw-bold">Jarak (Km)</label><input name="jarak" class="form-control"></div><div class="col-md-3"><label class="form-label small fw-bold">Transportasi</label><input name="transport" class="form-control"></div><div class="col-md-3"><label class="form-label small fw-bold">Anak Ke</label><input name="anakke" class="form-control"></div><div class="col-md-3"><label class="form-label small fw-bold">Jml. Bersaudara</label><input name="jmlsdr" class="form-control"></div><div class="col-md-3"><label class="form-label small fw-bold">Tinggi (Cm)</label><input name="tinggi" class="form-control"></div><div class="col-md-3"><label class="form-label small fw-bold">Berat (Kg)</label><input name="berat" class="form-control"></div><div class="col-md-3"><label class="form-label small fw-bold">Gol. Darah</label>
+                        
+                        <div class="tab-pane fade" id="t2">
+                        <div class="row g-3">
+    <div class="col-md-12"><label class="form-label small fw-bold">Alamat Lengkap</label><textarea name="alamat" class="form-control" rows="2"></textarea></div>
+    <div class="col-md-6"><label class="form-label small fw-bold">No. HP/WA</label><input name="nohp" class="form-control"></div>
+    <div class="col-md-6"><label class="form-label small fw-bold">Email Aktif</label><input type="email" name="email" class="form-control"></div>
+                        
+                        <div class="col-md-3"><label class="form-label small fw-bold">Jarak (Km)</label><input name="jarak" class="form-control"></div><div class="col-md-3"><label class="form-label small fw-bold">Transportasi</label><input name="transport" class="form-control"></div><div class="col-md-3"><label class="form-label small fw-bold">Anak Ke</label><input name="anakke" class="form-control"></div><div class="col-md-3"><label class="form-label small fw-bold">Jml. Bersaudara</label><input name="jmlsdr" class="form-control"></div><div class="col-md-3"><label class="form-label small fw-bold">Tinggi (Cm)</label><input name="tinggi" class="form-control"></div><div class="col-md-3"><label class="form-label small fw-bold">Berat (Kg)</label><input name="berat" class="form-control"></div><div class="col-md-3"><label class="form-label small fw-bold">Gol. Darah</label>
                         <select name="goldar" class="form-select">
                             <option value="-">-</option>
                             <option value="A">A</option>
@@ -1559,6 +1567,8 @@ input, button, select, textarea {
                     <tr><td class="fw-bold text-muted">TTL</td><td>:</td><td id="val-ttl"></td></tr>
                     <tr><td class="fw-bold text-muted">Jenis Kelamin</td><td>:</td><td id="val-jk"></td></tr>
                     <tr><td class="fw-bold text-muted">Status Siswa</td><td>:</td><td id="val-status"></td></tr>
+                    <tr><td class="fw-bold text-muted">No HP / WA</td><td id="profil_hp"></td></tr>
+                    <tr><td class="fw-bold text-muted">Email</td><td id="profil_email" class="text-primary fw-bold"></td></tr>
                 </table>
                 
                 <div class="mt-4 d-flex flex-column gap-2">
