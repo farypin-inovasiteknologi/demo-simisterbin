@@ -75,10 +75,19 @@ $(document).ready(function() {
         else { 
             loadSettings(); 
             
-            // CEK SESI LOGIN SAAT RELOAD
+            // CEK SESI LOGIN SAAT RELOAD (MENGGUNAKAN ENKRIPSI BASE64 DECODE)
             let session = localStorage.getItem('simisterbin_session');
             if (session) {
-                restoreSession(JSON.parse(session));
+                try {
+                    // Gunakan atob() untuk membaca data yang sudah disamarkan
+                    let decodedData = JSON.parse(atob(session));
+                    restoreSession(decodedData);
+                } catch(e) {
+                    // Jika ada yang usil mengedit kodenya sembarangan, tendang ke login!
+                    localStorage.removeItem('simisterbin_session');
+                    $('#loginPage').removeClass('hidden'); 
+                    $('#yearLogin').text(new Date().getFullYear()); 
+                }
             } else {
                 $('#loginPage').removeClass('hidden'); 
                 $('#yearLogin').text(new Date().getFullYear()); 
@@ -87,7 +96,7 @@ $(document).ready(function() {
     }).catch(e => alert(e));
 });
 
-// FUNGSI UNTUK MENGEMBALIKAN SESI (RELOAD)
+
 // FUNGSI UNTUK MENGEMBALIKAN SESI (RELOAD / LOGIN SUKSES)
 function restoreSession(res) {
     $('#loginPage').addClass('hidden'); 
@@ -184,6 +193,8 @@ function restoreSession(res) {
     }
 }
 
+
+
 // --- FUNGSI LOGIN VIA API ---
 function doLogin(e) { 
     e.preventDefault(); 
@@ -192,15 +203,16 @@ function doLogin(e) {
     callAPI('login', { u: $('#u').val(), p: $('#p').val() }).then(res => {
         $('#loader').addClass('hidden'); 
         if(res.status === 'success') { 
-            // SIMPAN SESI KE LOCAL STORAGE
-            localStorage.setItem('simisterbin_session', JSON.stringify({ role: res.role, nama: res.nama, data: res.data || null }));
+            // SIMPAN SESI KE LOCAL STORAGE (MENGGUNAKAN ENKRIPSI BASE64 ENCODE)
+            let rawData = JSON.stringify({ role: res.role, nama: res.nama, data: res.data || null });
+            localStorage.setItem('simisterbin_session', btoa(rawData)); // btoa = disamarkan
+            
             restoreSession(res);
         } else {
             showCoolAlert('Gagal Masuk', res.message, 'error'); 
         }
     }); 
 }
-
 function logout() { 
     localStorage.removeItem('simisterbin_session'); // HAPUS SESI SAAT LOGOUT
     $('#appPage').addClass('hidden'); 
@@ -2265,9 +2277,6 @@ function eksekusiSetujui(noSpmb, nisBaru) {
     });
 }
 
-
-
-// Opsional: Fungsi melihat data bagi Admin (Mode Read-Only)
 function reviewDaftarUlang(noSpmb) {
     const s = globalDaftarUlang.find(x => String(x[0]) === String(noSpmb));
     if(!s) return;
@@ -2275,45 +2284,62 @@ function reviewDaftarUlang(noSpmb) {
     const f = document.forms['frmDaftarUlang'];
     $('#frmDaftarUlang')[0].reset();
     
-    // KUNCI: Matikan semua kolom agar tidak bisa diedit oleh admin (Read-Only)
+    // Matikan semua kolom agar tidak bisa diedit oleh admin (Read-Only)
     $('#frmDaftarUlang input, #frmDaftarUlang select, #frmDaftarUlang textarea').prop('disabled', true);
     
-    // Sembunyikan tombol Kirim Pendaftaran, ubah judul modal
+    // Sembunyikan tombol Kirim Pendaftaran
     $('#frmDaftarUlang button[type="submit"]').hide();
     $('#mdlDaftarUlang .modal-title').text("Detail Data Calon Siswa (Read-Only)");
 
-    // Lempar data dari database sementara ke dalam form HTML
-    f.no_spmb.value = s[0];
-    f.nisn.value = s[1];
-    f.nama.value = s[2];
-    f.nik.value = s[3];
-    f.nokk.value = s[4];
-    f.tmplahir.value = s[5];
-    if(s[6]) f.tgllahir.value = s[6];
-    f.jk.value = s[7];
-    f.agama.value = s[8];
-    f.anakke.value = s[9];
-    f.jmlsdr.value = s[10];
-    f.bahasa.value = s[11];
-    f.alamat.value = s[12];
-    f.nohp.value = s[13];
-    f.jarak.value = s[14];
-    f.transport.value = s[15];
-    f.tinggi.value = s[16];
-    f.berat.value = s[17];
-    f.goldar.value = s[18];
-    f.penyakit.value = s[19];
-    f.nama_ayah.value = s[20];
-    if(s[21]) f.tgllahir_ayah.value = s[21];
-    f.kerja_ayah.value = s[22];
-    f.nama_ibu.value = s[23];
-    if(s[24]) f.tgllahir_ibu.value = s[24];
-    f.kerja_ibu.value = s[25];
-    f.pindahan.value = s[26];
-    f.lulusan.value = s[27];
-    f.noijazah_sltp.value = s[28];
-    f.kls_masuk.value = s[29];
-    if(s[30]) f.tgl_masuk.value = s[30];
+    // FUNGSI PENGAMAN: Hanya isi data jika kolomnya ada di HTML
+    const setValSafe = (namaKolom, nilai) => {
+        if(f[namaKolom]) f[namaKolom].value = nilai;
+    };
+
+    setValSafe('no_spmb', s[0]);
+    setValSafe('nisn', s[1]);
+    setValSafe('nama', s[2]);
+    setValSafe('nik', s[3]);
+    setValSafe('nokk', s[4]);
+    setValSafe('tmplahir', s[5]);
+    if(s[6]) setValSafe('tgllahir', s[6]);
+    setValSafe('jk', s[7]);
+    setValSafe('agama', s[8]);
+    setValSafe('anakke', s[9]);
+    setValSafe('jmlsdr', s[10]);
+    setValSafe('bahasa', s[11]);
+    setValSafe('alamat', s[12]);
+    setValSafe('nohp', s[13]);
+    setValSafe('jarak', s[14]);
+    setValSafe('transport', s[15]);
+    setValSafe('tinggi', s[16]);
+    setValSafe('berat', s[17]);
+    setValSafe('goldar', s[18]);
+    setValSafe('penyakit', s[19]);
+    setValSafe('nama_ayah', s[20]);
+    if(s[21]) setValSafe('tgllahir_ayah', s[21]);
+    setValSafe('kerja_ayah', s[22]);
+    setValSafe('nama_ibu', s[23]);
+    if(s[24]) setValSafe('tgllahir_ibu', s[24]);
+    setValSafe('kerja_ibu', s[25]);
+    
+    // Kolom ini tidak ada di form HTML Daftar Ulang, tapi disiapkan agar tidak error
+    setValSafe('pindahan', s[26]);
+    setValSafe('lulusan', s[27]);
+    setValSafe('noijazah_sltp', s[28]);
+    setValSafe('kls_masuk', s[29]);
+    if(s[30]) setValSafe('tgl_masuk', s[30]);
+
+    // Menampilkan Foto Masuk (Index 31) jika sudah di-upload saat daftar
+    if (s[31]) {
+        $('#loader').removeClass('hidden'); 
+        callAPI('getImage', {id: s[31]}).then(b => {
+            $('#loader').addClass('hidden');
+            if(b) $('#du_prev_masuk').attr('src', b).removeClass('hidden');
+        });
+    } else {
+        $('#du_prev_masuk').addClass('hidden');
+    }
 
     // Tampilkan Modal
     new bootstrap.Modal('#mdlDaftarUlang').show();
