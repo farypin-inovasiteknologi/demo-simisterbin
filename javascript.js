@@ -652,7 +652,7 @@ async function cetakPDF(nis) {
                     <tr><td style="vertical-align: top;">7. Anak ke </td><td>:</td><td style="font-weight: bold;">${s[9]} dari ${s[10]} bersaudara</td></tr>
                     <tr><td style="vertical-align: top;">8. Tinggi/Berat/Goldar</td><td>:</td><td style="font-weight: bold;">${s[16]} cm / ${s[17]} Kg / ${s[18]}</td></tr>
                     <tr><td style="vertical-align: top;">9. Alamat</td><td>:</td><td style="font-weight: bold;">${s[12]}</td></tr>
-                    <tr><td style="vertical-align: top;">10. No.HP</td><td>:</td><td style="font-weight: bold;">${s[13]}</td></tr>
+                    <tr><td style="vertical-align: top;">10. No.HP / Email</td><td>:</td><td style="font-weight: bold;">${s[13]} / ${s[39] || '-'}</td></tr>
                     <tr><td style="vertical-align: top;">11. Nama Ayah/Tgl.Lahir/Pek.</td><td>:</td><td style="font-weight: bold;">${s[20]} / ${s[21] || '-'} (${s[22]})</td></tr> 
                     <tr><td style="vertical-align: top;">12. Nama Ibu/Tgl.Lahir/Pek.</td><td>:</td><td style="font-weight: bold;">${s[23]} / ${s[24] || '-'} (${s[25]})</td></tr>
                     <tr><td style="vertical-align: top;">13. Pindahan/Lulusan dari</td><td>:</td><td style="font-weight: bold;">${s[26]} / ${s[27]}</td></tr>
