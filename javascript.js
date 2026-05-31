@@ -1013,7 +1013,7 @@ function cropImage(input, target) {
     } 
 }
 
-// --- UPDATE: FUNGSI POTONG & UPLOAD PINTAR ---
+// --- UPDATE: FUNGSI POTONG & UPLOAD PINTAR (DENGAN NAMA FILE DINAMIS) ---
 $('#btnCrop').click(() => { 
     if(!cropper) return; 
     
@@ -1030,11 +1030,39 @@ $('#btnCrop').click(() => {
     bootstrap.Modal.getInstance(document.getElementById('mdlCrop')).hide(); 
     $('#loader').removeClass('hidden'); 
     
+    // ==========================================
+    // LOGIKA PENAMAAN FILE OTOMATIS
+    // ==========================================
+    let namaFile = "img_" + Date.now(); // Nama bawaan jika gagal deteksi
+    let ekstensi = isLogo ? ".png" : ".jpg";
+
+    if (cropTarget === 'du_masuk') {
+        // Tarik data dari form Daftar Ulang
+        let nisn = $('#du_nisn').val().trim() || "NONISN";
+        let nama = $('#du_nama').val().trim() || "NONAMA";
+        let cleanNama = nama.replace(/[^a-zA-Z0-9]/g, "_"); // Bersihkan simbol aneh
+        namaFile = `${nisn}_PASFOTO_${cleanNama}${ekstensi}`;
+        
+    } else if (cropTarget === 'masuk' || cropTarget === 'keluar') {
+        // Tarik data dari form Input Siswa (Admin)
+        let f = document.forms['frmSiswa'];
+        let nisn = f.nisn.value.trim() || f.nis.value.trim() || "NONISN";
+        let nama = f.nama.value.trim() || "NONAMA";
+        let cleanNama = nama.replace(/[^a-zA-Z0-9]/g, "_");
+        let ket = cropTarget === 'masuk' ? 'MASUK' : 'KELUAR';
+        namaFile = `${nisn}_PASFOTO_${ket}_${cleanNama}${ekstensi}`;
+        
+    } else if (isLogo) {
+        namaFile = `${cropTarget}_${Date.now()}${ekstensi}`;
+    }
+    // ==========================================
+    
     // PENGARAHAN FOLDER DRIVE:
     // Jika targetnya 'du_masuk' (Foto Daftar Ulang), arahkan ke folder 'spmb_foto'
     const t = isLogo ? 'logo' : (cropTarget === 'du_masuk' ? 'spmb_foto' : 'foto'); 
     
-    callAPI('uploadBase64', {base64: base64, filename: "img_"+Date.now(), folderType: t}).then(res => { 
+    // Kirim beserta nama file yang sudah diracik
+    callAPI('uploadBase64', {base64: base64, filename: namaFile, folderType: t}).then(res => { 
         if(res.status === 'success') { 
             const imgId = res.id; 
             callAPI('getImage', {id: imgId}).then(b64 => { 
@@ -1043,13 +1071,11 @@ $('#btnCrop').click(() => {
                 if(cropTarget === 'masuk') { $('#id_foto_masuk').val(imgId); $('#prev_masuk').attr('src',b64).removeClass('hidden'); } 
                 if(cropTarget === 'keluar') { $('#id_foto_keluar').val(imgId); $('#prev_keluar').attr('src',b64).removeClass('hidden'); } 
                 
-                // --- INI PENYELESAIAN BUG-NYA ---
                 // Masukkan ID gambar ke input hidden Daftar Ulang dan tampilkan fotonya
                 if(cropTarget === 'du_masuk') { 
                     $('#du_id_foto_masuk').val(imgId); 
                     $('#du_prev_masuk').attr('src',b64).removeClass('hidden'); 
                 } 
-                // ---------------------------------
 
                 if(cropTarget === 'logo_instansi') { $('#logo_instansi').val(imgId); $('#prevLogoInstansi').attr('src',b64).removeClass('hidden'); } 
                 if(cropTarget === 'logo_sekolah') { $('#logo_sekolah').val(imgId); $('#prevLogoSekolah').attr('src',b64).removeClass('hidden'); }
