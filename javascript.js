@@ -2077,12 +2077,117 @@ let globalDaftarUlang = [];
 function bukaModalDaftarUlang() {
     $('#frmDaftarUlang')[0].reset();
     
-    // Pastikan semua kolom bisa diketik dan tombol submit muncul
     $('#frmDaftarUlang input, #frmDaftarUlang select, #frmDaftarUlang textarea').prop('disabled', false);
-    $('#frmDaftarUlang button[type="submit"]').show();
-    $('#mdlDaftarUlang .modal-title').text("Formulir Daftar Ulang Siswa Baru");
     
+    // Tampilkan form upload, Sembunyikan form view berkas admin
+    $('#du_berkas_upload').removeClass('hidden');
+    $('#du_berkas_view').addClass('hidden');
+    
+    // Atur visibilitas tombol
+    $('#btnSubmitDaftarUlang').show();
+    $('#btnTolakDaftarUlang').addClass('hidden');
+    
+    $('#mdlDaftarUlang .modal-title').text("Formulir Daftar Ulang Siswa Baru");
     new bootstrap.Modal('#mdlDaftarUlang').show();
+}
+
+// 2. Fungsi Admin untuk Melihat Data
+function reviewDaftarUlang(noSpmb) {
+    const s = globalDaftarUlang.find(x => String(x[0]) === String(noSpmb));
+    if(!s) return;
+    
+    const f = document.forms['frmDaftarUlang'];
+    $('#frmDaftarUlang')[0].reset();
+    
+    // Matikan semua kolom agar Read-Only
+    $('#frmDaftarUlang input, #frmDaftarUlang select, #frmDaftarUlang textarea').prop('disabled', true);
+    
+    // Sembunyikan form upload, Tampilkan view berkas
+    $('#du_berkas_upload').addClass('hidden');
+    $('#du_berkas_view').removeClass('hidden');
+    
+    // Atur tombol (Munculkan tombol Tolak, Sembunyikan Submit)
+    $('#btnSubmitDaftarUlang').hide();
+    $('#btnTolakDaftarUlang').removeClass('hidden').off('click').on('click', () => tolakDaftarUlang(noSpmb));
+    
+    $('#mdlDaftarUlang .modal-title').text("Detail Data Calon Siswa & Verifikasi Berkas");
+
+    // Lempar data ke HTML dengan aman
+    const setValSafe = (namaKolom, nilai) => { if(f[namaKolom]) f[namaKolom].value = nilai; };
+
+    setValSafe('no_spmb', s[0]); setValSafe('nisn', s[1]); setValSafe('nama', s[2]);
+    setValSafe('nik', s[3]); setValSafe('nokk', s[4]); setValSafe('tmplahir', s[5]);
+    if(s[6]) setValSafe('tgllahir', s[6]);
+    setValSafe('jk', s[7]); setValSafe('agama', s[8]); setValSafe('anakke', s[9]);
+    setValSafe('jmlsdr', s[10]); setValSafe('bahasa', s[11]); setValSafe('alamat', s[12]);
+    setValSafe('nohp', s[13]); setValSafe('jarak', s[14]); setValSafe('transport', s[15]);
+    setValSafe('tinggi', s[16]); setValSafe('berat', s[17]); setValSafe('goldar', s[18]);
+    setValSafe('penyakit', s[19]); setValSafe('nama_ayah', s[20]);
+    if(s[21]) setValSafe('tgllahir_ayah', s[21]);
+    setValSafe('kerja_ayah', s[22]); setValSafe('nama_ibu', s[23]);
+    if(s[24]) setValSafe('tgllahir_ibu', s[24]);
+    setValSafe('kerja_ibu', s[25]);
+
+    // GENERATE TOMBOL BUKA DOKUMEN DRIVE (Index 33 = Ijazah, 34 = KK, 35 = Akta, 36 = Bukti)
+    let linksHtml = "";
+    const createLink = (idFile, title, icon, color) => {
+        if(idFile && String(idFile).trim() !== "") {
+            return `<a href="https://drive.google.com/file/d/${idFile}/view" target="_blank" class="btn btn-sm btn-${color} text-white shadow-sm fw-bold"><i class="bi ${icon}"></i> ${title}</a>`;
+        }
+        return `<button class="btn btn-sm btn-secondary shadow-sm fw-bold" disabled><i class="bi bi-x-circle"></i> ${title} Kosong</button>`;
+    };
+    
+    linksHtml += createLink(s[33], "Lihat Ijazah/SKL", "bi-file-pdf", "danger");
+    linksHtml += createLink(s[34], "Lihat KK", "bi-file-pdf", "info");
+    linksHtml += createLink(s[35], "Lihat Akta", "bi-file-pdf", "primary");
+    linksHtml += createLink(s[36], "Lihat Bukti", "bi-image", "success");
+    
+    $('#du_berkas_links').html(linksHtml);
+
+    // Tampilkan pas foto jika ada
+    if (s[31]) {
+        $('#loader').removeClass('hidden'); 
+        callAPI('getImage', {id: s[31]}).then(b => {
+            $('#loader').addClass('hidden');
+            if(b) $('#du_prev_masuk').attr('src', b).removeClass('hidden');
+        });
+    } else {
+        $('#du_prev_masuk').addClass('hidden');
+    }
+
+    new bootstrap.Modal('#mdlDaftarUlang').show();
+}
+
+// 3. FUNGSI BARU: Eksekusi Tolak Daftar Ulang
+function tolakDaftarUlang(noSpmb) {
+    Swal.fire({
+        title: 'Tolak Pendaftar?',
+        html: `Apakah Anda yakin ingin menolak dan <b>menghapus</b> data pendaftaran ini?<br><br><span class="text-danger small">Tindakan ini tidak bisa dibatalkan!</span>`,
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#d33',
+        cancelButtonColor: '#6c757d',
+        confirmButtonText: '<i class="bi bi-trash"></i> Ya, Tolak & Hapus',
+        cancelButtonText: 'Batal'
+    }).then((result) => {
+        if (result.isConfirmed) {
+            $('#loader').removeClass('hidden');
+            $('#loaderText').text('Menghapus data dari antrean...');
+            
+            callAPI('rejectDaftarUlang', { noSpmb: noSpmb }).then(r => {
+                $('#loader').addClass('hidden');
+                $('#loaderText').text('Memuat Data, Tunggu Sebentar...');
+                
+                if (r.status === 'success') {
+                    Swal.fire('Terhapus!', r.message, 'success');
+                    $('#mdlDaftarUlang').modal('hide');
+                    loadDaftarUlang(); // Segarkan tabel
+                } else {
+                    Swal.fire('Gagal', r.message, 'error');
+                }
+            });
+        }
+    });
 }
 
 // 2. Fungsi Submit Data dari Pendaftar
@@ -2275,72 +2380,4 @@ function eksekusiSetujui(noSpmb, nisBaru) {
             Swal.fire('Gagal', r.message, 'error');
         }
     });
-}
-
-function reviewDaftarUlang(noSpmb) {
-    const s = globalDaftarUlang.find(x => String(x[0]) === String(noSpmb));
-    if(!s) return;
-    
-    const f = document.forms['frmDaftarUlang'];
-    $('#frmDaftarUlang')[0].reset();
-    
-    // Matikan semua kolom agar tidak bisa diedit oleh admin (Read-Only)
-    $('#frmDaftarUlang input, #frmDaftarUlang select, #frmDaftarUlang textarea').prop('disabled', true);
-    
-    // Sembunyikan tombol Kirim Pendaftaran
-    $('#frmDaftarUlang button[type="submit"]').hide();
-    $('#mdlDaftarUlang .modal-title').text("Detail Data Calon Siswa (Read-Only)");
-
-    // FUNGSI PENGAMAN: Hanya isi data jika kolomnya ada di HTML
-    const setValSafe = (namaKolom, nilai) => {
-        if(f[namaKolom]) f[namaKolom].value = nilai;
-    };
-
-    setValSafe('no_spmb', s[0]);
-    setValSafe('nisn', s[1]);
-    setValSafe('nama', s[2]);
-    setValSafe('nik', s[3]);
-    setValSafe('nokk', s[4]);
-    setValSafe('tmplahir', s[5]);
-    if(s[6]) setValSafe('tgllahir', s[6]);
-    setValSafe('jk', s[7]);
-    setValSafe('agama', s[8]);
-    setValSafe('anakke', s[9]);
-    setValSafe('jmlsdr', s[10]);
-    setValSafe('bahasa', s[11]);
-    setValSafe('alamat', s[12]);
-    setValSafe('nohp', s[13]);
-    setValSafe('jarak', s[14]);
-    setValSafe('transport', s[15]);
-    setValSafe('tinggi', s[16]);
-    setValSafe('berat', s[17]);
-    setValSafe('goldar', s[18]);
-    setValSafe('penyakit', s[19]);
-    setValSafe('nama_ayah', s[20]);
-    if(s[21]) setValSafe('tgllahir_ayah', s[21]);
-    setValSafe('kerja_ayah', s[22]);
-    setValSafe('nama_ibu', s[23]);
-    if(s[24]) setValSafe('tgllahir_ibu', s[24]);
-    setValSafe('kerja_ibu', s[25]);
-    
-    // Kolom ini tidak ada di form HTML Daftar Ulang, tapi disiapkan agar tidak error
-    setValSafe('pindahan', s[26]);
-    setValSafe('lulusan', s[27]);
-    setValSafe('noijazah_sltp', s[28]);
-    setValSafe('kls_masuk', s[29]);
-    if(s[30]) setValSafe('tgl_masuk', s[30]);
-
-    // Menampilkan Foto Masuk (Index 31) jika sudah di-upload saat daftar
-    if (s[31]) {
-        $('#loader').removeClass('hidden'); 
-        callAPI('getImage', {id: s[31]}).then(b => {
-            $('#loader').addClass('hidden');
-            if(b) $('#du_prev_masuk').attr('src', b).removeClass('hidden');
-        });
-    } else {
-        $('#du_prev_masuk').addClass('hidden');
-    }
-
-    // Tampilkan Modal
-    new bootstrap.Modal('#mdlDaftarUlang').show();
 }
