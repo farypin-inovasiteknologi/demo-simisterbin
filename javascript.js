@@ -2299,54 +2299,41 @@ function getBase64Async(file) {
         reader.onerror = error => reject(error);
     });
 }
-
-// FUNGSI UTAMA: Proses Kirim Data Daftar Ulang dengan Validasi Ketat
 // FUNGSI UTAMA: Proses Kirim Data Daftar Ulang
 async function submitDaftarUlang(e) {
     e.preventDefault();
     
-    // 1. CEK VALIDASI WAJIB ISI SECARA CERDAS LINTAS TAB
-    const validasiKolom = [
-        { id: 'du_no_spmb', tab: '#du_t1', pesan: 'Nomor Bukti Diterima SPMB wajib diisi!' },
-        { id: 'du_nisn', tab: '#du_t1', pesan: 'NISN wajib diisi!' },
-        { id: 'du_nama', tab: '#du_t1', pesan: 'Nama Lengkap Pendaftar wajib diisi!' },
-        { id: 'du_agama', tab: '#du_t1', pesan: 'Agama wajib dipilih!' },
-        { id: 'du_tmplahir', tab: '#du_t1', pesan: 'Tempat Lahir wajib diisi!' },
-        { id: 'du_tgllahir', tab: '#du_t1', pesan: 'Tanggal Lahir wajib diisi!' },
-        { id: 'du_jk', tab: '#du_t1', pesan: 'Jenis Kelamin wajib dipilih!' },
-        { id: 'du_nama_ayah', tab: '#du_t3', pesan: 'Nama Ayah wajib diisi!' },
-        { id: 'du_tgllahir_ayah', tab: '#du_t3', pesan: 'Tanggal Lahir Ayah wajib diisi!' },
-        { id: 'du_kerja_ayah', tab: '#du_t3', pesan: 'Pekerjaan Ayah wajib diisi!' },
-        { id: 'du_nama_ibu', tab: '#du_t3', pesan: 'Nama Ibu wajib diisi!' },
-        { id: 'du_tgllahir_ibu', tab: '#du_t3', pesan: 'Tanggal Lahir Ibu wajib diisi!' },
-        { id: 'du_kerja_ibu', tab: '#du_t3', pesan: 'Pekerjaan Ibu wajib diisi!' },
-        { id: 'du_lulusan', tab: '#du_t4', pesan: 'Lulusan Dari wajib diisi!' }
-    ];
-
-    for (let item of validasiKolom) {
-        let el = document.getElementById(item.id);
-        if (!el.value.trim()) {
-            // Pindah tab secara otomatis ke tempat kolom yang kosong
-            $(`.nav-tabs a[href="${item.tab}"]`).tab('show');
+    // 1. CEK OTOMATIS SEMUA KOLOM WAJIB (REQUIRED) LINTAS TAB
+    let form = document.getElementById('frmDaftarUlang');
+    let requiredElements = form.querySelectorAll('input[required], select[required], textarea[required]');
+    
+    for (let el of requiredElements) {
+        if (el.value.trim() === "") {
+            // Cari elemen ini ada di Tab mana
+            let tabPane = $(el).closest('.tab-pane');
+            let tabId = tabPane.attr('id');
             
-            // Tampilkan alert
-            Swal.fire('Data Belum Lengkap', item.pesan, 'warning').then(() => {
+            // Pindahkan layar secara otomatis ke Tab tersebut
+            if (tabId) {
+                $('.nav-tabs a[href="#' + tabId + '"]').tab('show');
+            }
+            
+            // Ambil nama labelnya untuk ditampilkan di Alert
+            let labelNode = el.parentElement.querySelector('label');
+            let labelText = labelNode ? labelNode.innerText.replace('*', '').trim() : "Kolom wajib ini";
+            
+            // Tampilkan Alert
+            Swal.fire('Data Belum Lengkap', `<b>${labelText}</b> belum diisi!`, 'warning').then(() => {
                 el.focus(); // Arahkan kursor ke kolom yang kosong
+                el.style.borderColor = 'red';
             });
-            return; // Hentikan proses simpan
+            return; // Hentikan proses simpan seketika
         }
     }
 
-    // Proteksi Ekstra Foto
-    if (!$('#du_id_foto_masuk').val() && !$('#du_berkas_upload').hasClass('hidden')) {
-         $('.nav-tabs a[href="#du_t4"]').tab('show');
-         Swal.fire('Data Belum Lengkap', 'Foto Diri wajib diunggah!', 'warning');
-         return;
-    }
-
-    // 2. CEK VALIDASI DIGIT YANG HARUS PAS
+    // 2. CEK VALIDASI DIGIT YANG HARUS PAS (NISN, NIK, KK)
     const nisn = $('#du_nisn').val().trim();
-    if (nisn.length !== 10) {
+    if (nisn.length > 0 && nisn.length !== 10) {
         $('.nav-tabs a[href="#du_t1"]').tab('show');
         Swal.fire('Format Salah', `NISN harus tepat 10 digit angka! (Input saat ini: ${nisn.length} digit)`, 'warning');
         return;
@@ -2366,38 +2353,50 @@ async function submitDaftarUlang(e) {
         return;
     }
 
-    // 3. Validasi Upload Berkas Fisik
-    const fIjazah = document.getElementById('file_ijazah').files[0];
-    const fKk = document.getElementById('file_kk').files[0];
-    const fAkta = document.getElementById('file_akta').files[0];
-    const fBukti = document.getElementById('file_bukti').files[0];
-
-    // Berkas diwajibkan hanya jika form sedang dalam mode "Upload" (Bukan saat Admin sedang nge-view)
+    // 3. VALIDASI UPLOAD BERKAS FISIK (Ijazah, KK, Akta, Bukti, Foto)
+    // Cek apakah sedang mode unggah (Bukan admin yang sedang lihat data)
     if (!$('#du_berkas_upload').hasClass('hidden')) {
+        const fIjazah = document.getElementById('file_ijazah').files[0];
+        const fKk = document.getElementById('file_kk').files[0];
+        const fAkta = document.getElementById('file_akta').files[0];
+        const fBukti = document.getElementById('file_bukti').files[0];
+        const idFotoMasuk = $('#du_id_foto_masuk').val();
+
         if (!fIjazah || !fKk || !fAkta || !fBukti) {
-            Swal.fire('Berkas Tidak Lengkap', 'Semua dokumen pendukung pendaftaran (Ijazah, KK, Akta, dan Bukti SPMB) wajib diunggah!', 'warning');
+            Swal.fire('Berkas Tidak Lengkap', 'Semua dokumen pendukung pendaftaran (Ijazah, KK, Akta, dan Bukti SPMB) wajib diunggah pada kotak unggah berkas!', 'warning');
             return;
+        }
+
+        // Cek Foto Diri
+        if (!idFotoMasuk) {
+             $('.nav-tabs a[href="#du_t4"]').tab('show');
+             Swal.fire('Data Belum Lengkap', 'Pas Foto Diri wajib dipotong & disimpan pada Tab Akademik & Foto!', 'warning');
+             return;
         }
     }
 
-    // 4. Jika Lolos Semua Validasi, Mulai Proses Upload
+    // 4. JIKA LOLOS SEMUA VALIDASI, MULAI PROSES UPLOAD KE GOOGLE DRIVE
     $('#loader').removeClass('hidden'); 
     $('#loaderText').text('Mengenkripsi Berkas & Mengirim Data (Mohon tunggu)...');
     
     const d = {}; 
     $.each($('#frmDaftarUlang').serializeArray(), (_, k) => {
-        // Kolom yang otomatis dibuat Huruf Kapital sudah ditangani oleh oninput="this.value.toUpperCase()" di HTML
         d[k.name] = k.value.trim();
     }); 
     
     try {
-        // Konversi file fisik menjadi string Base64 (Hanya jika file diisi)
+        const fIjazah = document.getElementById('file_ijazah').files[0];
+        const fKk = document.getElementById('file_kk').files[0];
+        const fAkta = document.getElementById('file_akta').files[0];
+        const fBukti = document.getElementById('file_bukti').files[0];
+
+        // Konversi file fisik menjadi string Base64
         if (fIjazah) d.b64_ijazah = await getBase64Async(fIjazah);
         if (fKk) d.b64_kk = await getBase64Async(fKk);
         if (fAkta) d.b64_akta = await getBase64Async(fAkta);
         if (fBukti) d.b64_bukti = await getBase64Async(fBukti);
 
-        // Kirim data akhir ke Backend
+        // Kirim data akhir ke Backend GAS
         const r = await callAPI('saveDaftarUlang', d);
         
         $('#loader').addClass('hidden'); 
@@ -2418,7 +2417,7 @@ async function submitDaftarUlang(e) {
     } catch(error) {
         $('#loader').addClass('hidden');
         console.error(error);
-        Swal.fire('Error Berkas', 'Terjadi kegagalan enkripsi berkas saat pengiriman. Coba gunakan file PDF dengan ukuran yang lebih kecil (maks. 300KB).', 'error');
+        Swal.fire('Error Berkas', 'Terjadi kegagalan enkripsi berkas saat pengiriman. Pastikan ukuran per file tidak lebih dari 300KB.', 'error');
     }
 }
 
