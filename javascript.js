@@ -237,13 +237,19 @@ function restoreSession(res) {
         if(d.status_akhir === 'Aktif') $('#profil_status').removeClass('text-danger').addClass('text-success');
         else $('#profil_status').removeClass('text-success').addClass('text-danger');
         
+        const d = res.data;
         let isAlumni = (d.status_akhir === 'Lulus');
         
-        // --- INJEKSI TEKS KE BANNER SELAMAT DATANG ---
-        $('#wb_nama').text(d.nama);
+        // --- INJEKSI TEKS KE BANNER SELAMAT DATANG (DIPERBAIKI) ---
+        // Gunakan res.nama karena datanya pasti ada dan langsung terbaca
+        $('#wb_nama').text(res.nama); 
         $('#wb_status').text(isAlumni ? 'Alumni' : 'Siswa');
-        $('#wb_sekolah').text(globalConf.nama_sekolah || 'Sekolah');
-        // ---------------------------------------------
+        
+        // Cek jika globalConf sudah terisi, jika belum biarkan loadSettings yang bekerja
+        if (globalConf && globalConf.nama_sekolah) {
+            $('#wb_sekolah').text(globalConf.nama_sekolah);
+        }
+        // -----------------------------------------------------------
         
         if(isAlumni) {
             $('#row-alumni-lulus, #row-alumni-ijazah').removeClass('hidden');
@@ -886,7 +892,13 @@ function loadSettings() {
         if(s.theme_color) document.documentElement.style.setProperty('--primary-color', s.theme_color); 
         if(s.nama_instansi) { $('#lblInstansi').text(s.nama_instansi); $('#dashInstansi').text(s.nama_instansi); $('#setInstansi').val(s.nama_instansi); } 
         if(s.opd_dinas) { $('#lblOpdLogin').text(s.opd_dinas); } else { $('#lblOpdLogin').text(''); }
-        if(s.nama_sekolah) { $('#lblSekolah').text(s.nama_sekolah); $('#dashName').text(s.nama_sekolah); $('#footSchoolName').text(s.nama_sekolah); $('#setNama').val(s.nama_sekolah); } 
+        if(s.nama_sekolah) { 
+    $('#lblSekolah').text(s.nama_sekolah); 
+    $('#dashName').text(s.nama_sekolah); 
+    $('#footSchoolName').text(s.nama_sekolah); 
+    $('#setNama').val(s.nama_sekolah); 
+    $('#wb_sekolah').text(s.nama_sekolah);
+}
         if(s.alamat_sekolah) { $('#dashAddr').text(s.alamat_sekolah); $('#setAlamat').val(s.alamat_sekolah); } 
         $('#setKepsek').val(s.nama_kepsek); $('#setNip').val(s.nip_kepsek); $('#setTheme').val(s.theme_color || '#4e73df'); 
         $('#setOpd').val(s.opd_dinas || ''); $('#setTelp').val(s.telp_sekolah || ''); $('#setEmail').val(s.email_sekolah || ''); $('#setWeb').val(s.web_sekolah || '');
