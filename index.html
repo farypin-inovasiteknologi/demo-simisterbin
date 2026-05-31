@@ -1126,6 +1126,11 @@ input, button, select, textarea {
                     </div>
                     
                     <div class="card p-4 mb-4 border-0 shadow-sm" style="border-left: 5px solid #f6c23e !important;" id="du_berkas_upload">
+                      <div class="card p-4 mb-4 border-0 shadow-sm hidden" style="border-left: 5px solid #36b9cc !important;" id="du_berkas_view">
+                        <h6 class="fw-bold text-info border-bottom pb-2"><i class="bi bi-folder-check"></i> Dokumen Pendaftar (Klik untuk melihat)</h6>
+                        <div class="d-flex gap-2 flex-wrap mt-2" id="du_berkas_links">
+                            </div>
+                    </div>
                         <h6 class="fw-bold text-warning border-bottom pb-2"><i class="bi bi-file-earmark-arrow-up"></i> Unggah Berkas Pendukung (Maks. 300KB/file)</h6>
                         <div class="row g-3">
                             <div class="col-md-6">
@@ -1247,6 +1252,7 @@ input, button, select, textarea {
 
                 </div>
                 <div class="modal-footer bg-white">
+                    <button type="button" class="btn btn-danger fw-bold shadow-sm hidden me-auto" id="btnTolakDaftarUlang"><i class="bi bi-trash"></i> TOLAK & HAPUS</button>
                     <button type="button" class="btn btn-light border fw-bold" data-bs-dismiss="modal">Tutup</button>
                     <button type="submit" id="btnSubmitDaftarUlang" class="btn btn-warning px-5 fw-bold shadow-sm text-dark">KIRIM PENDAFTARAN</button>
                 </div>
