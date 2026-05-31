@@ -53,19 +53,57 @@ let chartGender, chartStatus;
 // ==========================================
 // FUNGSI PUSAT PENGHUBUNG FRONTEND KE BACKEND
 // ==========================================
+// --- PERBAIKAN DI JAVASCRIPT.JS ---
+
+// 1. Modifikasi callAPI agar otomatis menempelkan Token di setiap request
 async function callAPI(actionName, payloadData = {}) {
     try {
+        // Ambil token dari sesi yang tersimpan
+        let session = localStorage.getItem('simisterbin_session');
+        let tokenAman = "";
+        let userAktif = "";
+        
+        if(session) {
+            let parsed = JSON.parse(atob(session));
+            tokenAman = parsed.token || "";
+            userAktif = parsed.username || "";
+        }
+
         const response = await fetch(API_URL, {
             method: 'POST',
             headers: { 'Content-Type': 'text/plain' },
-            body: JSON.stringify({ action: actionName, data: payloadData })
+            // Kirim token ke backend
+            body: JSON.stringify({ action: actionName, token: tokenAman, username: userAktif, data: payloadData })
         });
-        const result = await response.json();
-        return result;
+        return await response.json();
     } catch (error) {
-        console.error("API Error:", error);
         return { status: "error", message: "Gagal terhubung ke server database." };
     }
+}
+
+// 2. Modifikasi doLogin untuk menyimpan Token
+function doLogin(e) { 
+    e.preventDefault(); 
+    $('#loader').removeClass('hidden'); 
+    
+    callAPI('login', { u: $('#u').val(), p: $('#p').val() }).then(res => {
+        $('#loader').addClass('hidden'); 
+        if(res.status === 'success') { 
+            // Simpan TOKEN dan USERNAME ke Local Storage
+            let rawData = JSON.stringify({ 
+                role: res.role, 
+                nama: res.nama, 
+                token: res.token, 
+                username: res.username,
+                data: res.data || null 
+            });
+            localStorage.setItem('simisterbin_session', btoa(rawData)); 
+            
+            restoreSession(res);
+        } else {
+            showCoolAlert('Gagal Masuk', res.message, 'error'); 
+        }
+    }); 
 }
 
 // 1. Fungsi penambah Nol Otomatis untuk NISN (Langsung Memicu Alert saat pindah kolom)
@@ -297,24 +335,6 @@ function restoreSession(res) {
 
 
 
-// --- FUNGSI LOGIN VIA API ---
-function doLogin(e) { 
-    e.preventDefault(); 
-    $('#loader').removeClass('hidden'); 
-    
-    callAPI('login', { u: $('#u').val(), p: $('#p').val() }).then(res => {
-        $('#loader').addClass('hidden'); 
-        if(res.status === 'success') { 
-            // SIMPAN SESI KE LOCAL STORAGE (MENGGUNAKAN ENKRIPSI BASE64 ENCODE)
-            let rawData = JSON.stringify({ role: res.role, nama: res.nama, data: res.data || null });
-            localStorage.setItem('simisterbin_session', btoa(rawData)); // btoa = disamarkan
-            
-            restoreSession(res);
-        } else {
-            showCoolAlert('Gagal Masuk', res.message, 'error'); 
-        }
-    }); 
-}
 function logout() { 
     localStorage.removeItem('simisterbin_session'); // HAPUS SESI SAAT LOGOUT
     $('#appPage').addClass('hidden'); 
@@ -2669,6 +2689,104 @@ function prosesLupaPassword(e) {
             $('#lp_email').val('');
         } else {
             Swal.fire('Akses Ditolak', res.message, 'error');
+        }
+    });
+}
+
+// --- PERBAIKAN DI JAVASCRIPT.JS : Memicu OCR untuk Semua Data ---
+async function prosesOCRDokumen(input) {
+    checkFileSize(input); 
+    if (!input.files || !input.files[0]) return;
+    
+    let namaTarget = $('#du_nama').val().trim();
+    if (!namaTarget) {
+        Swal.fire({
+            title: 'Isi Nama Dulu!',
+            text: 'Silakan isi kolom "Nama Lengkap Pendaftar" terlebih dahulu agar AI tahu data siapa yang harus dicari di dalam dokumen ini.',
+            icon: 'info'
+        });
+        input.value = ''; 
+        $('#du_nama').focus();
+        return;
+    }
+    
+    const file = input.files[0];
+    
+    Swal.fire({
+        title: 'Auto-Fill Ekstra Lengkap?',
+        text: `AI akan memindai Kartu Keluarga untuk mengisi otomatis NIK, TTL, Alamat Lengkap, serta Data Ayah dan Ibu atas nama "${namaTarget}". Lanjutkan?`,
+        icon: 'question',
+        showCancelButton: true,
+        confirmButtonText: '<i class="bi bi-robot"></i> Ya, Scan Otomatis',
+        cancelButtonText: 'Tidak, ketik manual',
+        confirmButtonColor: '#1cc88a'
+    }).then(async (res) => {
+        if (res.isConfirmed) {
+            $('#loader').removeClass('hidden');
+            // Tambahkan animasi teks keren saat AI berpikir
+            $('#loaderText').html('<i class="bi bi-robot"></i> Menganalisa struktur dokumen dan memetakan anggota keluarga...');
+            
+            try {
+                let base64 = await getBase64Async(file);
+                let mimeType = file.type;
+                
+                let ocrResult = await callAPI('extractDataOCR', { 
+                    base64: base64, 
+                    mimeType: mimeType, 
+                    namaTarget: namaTarget 
+                });
+                
+                $('#loader').addClass('hidden');
+                $('#loaderText').text('Memuat Data, Tunggu Sebentar...'); // Kembalikan teks asli
+                
+                if(ocrResult.status === 'success') {
+                    let d = ocrResult.data;
+                    let jumlahDataTerisi = 0;
+                    
+                    // Fungsi pembantu agar rapi: Jika data valid, isi ke form & hitung
+                    const isiJikaAda = (idElement, nilaiData) => {
+                        if (nilaiData && nilaiData !== "TIDAK DITEMUKAN" && nilaiData !== "") {
+                            $(idElement).val(nilaiData);
+                            jumlahDataTerisi++;
+                        }
+                    };
+
+                    // Auto-fill ke form berdasarkan data yang ditarik AI!
+                    isiJikaAda('#du_nik', d.nik);
+                    isiJikaAda('#du_tmplahir', d.tmplahir);
+                    isiJikaAda('#du_tgllahir', d.tgllahir);
+                    
+                    // Alamat (Ada di Tab Fisik & Alamat)
+                    isiJikaAda('[name="alamat"]', d.alamat); 
+                    
+                    // Data Ayah (Ada di Tab Orang Tua)
+                    isiJikaAda('#du_nama_ayah', d.nama_ayah);
+                    isiJikaAda('#du_tgllahir_ayah', d.tgllahir_ayah);
+                    isiJikaAda('#du_kerja_ayah', d.kerja_ayah);
+
+                    // Data Ibu (Ada di Tab Orang Tua)
+                    isiJikaAda('#du_nama_ibu', d.nama_ibu);
+                    isiJikaAda('#du_tgllahir_ibu', d.tgllahir_ibu);
+                    isiJikaAda('#du_kerja_ibu', d.kerja_ibu);
+                    
+                    if (jumlahDataTerisi > 0) {
+                        Swal.fire({
+                            title: 'Pemindaian Selesai!',
+                            html: `AI berhasil menemukan dan mengisi <b>${jumlahDataTerisi}</b> kolom data.<br><br><span class="text-danger small">Penting: Mohon cek kembali keakuratan data di Tab Pribadi, Alamat, dan Orang Tua sebelum di-Submit.</span>`,
+                            icon: 'success'
+                        });
+                    } else {
+                        Swal.fire('Hasil Kosong', `AI tidak dapat menemukan detail data untuk nama "${namaTarget}". Pastikan foto tegak lurus, tidak kena pantulan cahaya (silau), dan tidak buram.`, 'warning');
+                    }
+                } else {
+                    Swal.fire('Gagal Membaca', ocrResult.message, 'warning');
+                }
+            } catch(e) {
+                $('#loader').addClass('hidden');
+                Swal.fire('Error API', 'Gagal memproses AI OCR. Pastikan koneksi stabil.', 'error');
+            }
+        } else {
+            input.value = ''; // Batal scan, kosongkan input file
         }
     });
 }
