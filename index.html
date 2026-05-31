@@ -1114,10 +1114,9 @@ input, button, select, textarea {
                                 <input name="no_spmb" id="du_no_spmb" class="form-control" required placeholder="Contoh: SPMB-2026-001">
                             </div>
                             <div class="col-md-4">
-                                <label class="small fw-bold">*NISN (Wajib 10 Digit)</label>
-                                <!-- Validasi: Batasi 10 digit, tidak bisa huruf, muncul notif jika kurang -->
-                                <input name="nisn" id="du_nisn" class="form-control" required placeholder="10 Digit Angka" maxlength="10" oninput="batasiAngka(this, 10, 'NISN')" onblur="cekDigitPas(this, 10, 'NISN')">
-                            </div>
+    <label class="small fw-bold">*NISN (Wajib 10 Digit)</label>
+    <input name="nisn" id="du_nisn" class="form-control" required placeholder="10 Digit Angka" maxlength="10" oninput="batasiAngka(this, 10, 'NISN')" onblur="validasiKhususNISN(this)">
+</div>
                             <div class="col-md-4">
                                 <label class="small fw-bold">*Nama Lengkap Pendaftar</label>
                                 <input name="nama" id="du_nama" class="form-control" required placeholder="Sesuai Akte Kelahiran" oninput="this.value = this.value.toUpperCase()">
@@ -1252,7 +1251,10 @@ input, button, select, textarea {
                                     </div>
                                     <div class="col-md-6"></div> 
                                     <div class="col-md-4"><label class="small fw-bold">Kelas Masuk (Sesuai SPMB)</label><input name="kls_masuk" class="form-control"></div>
-                                    <div class="col-md-4"><label class="small fw-bold">Lulusan Dari</label><input name="lulusan" class="form-control" placeholder="Contoh: SMPN 1" oninput="this.value = this.value.toUpperCase()"></div>
+                                    <div class="col-md-4">
+    <label class="small fw-bold">*Lulusan Dari</label>
+    <input name="lulusan" id="du_lulusan" class="form-control" required placeholder="Contoh: SMPN 1" oninput="this.value = this.value.toUpperCase()">
+</div>
                                     <div class="col-md-4"><label class="small fw-bold">No. Ijazah Sebelumnya</label><input name="noijazah_sltp" class="form-control"></div>
                                 </div>
                             </div>
