@@ -2212,80 +2212,93 @@ function getBase64Async(file) {
 }
 
 // FUNGSI UTAMA: Proses Kirim Data Daftar Ulang dengan Validasi Ketat
+// FUNGSI UTAMA: Proses Kirim Data Daftar Ulang
 async function submitDaftarUlang(e) {
     e.preventDefault();
     
-    // 1. Ambil Nilai Input untuk Validasi
-    const noSpmb = $('input[name="no_spmb"]').val() ? $('input[name="no_spmb"]').val().trim() : "";
-    const nisn = $('#du_nisn').val() ? $('#du_nisn').val().trim() : "";
-    const nama = $('#du_nama').val() ? $('#du_nama').val().trim() : "";
-    const nohp = $('#mdlDaftarUlang input[name="nohp"]').val() ? $('#mdlDaftarUlang input[name="nohp"]').val().trim() : "";
-    const nik = $('#mdlDaftarUlang input[name="nik"]').val() ? $('#mdlDaftarUlang input[name="nik"]').val().trim() : "";
-    const nokk = $('#mdlDaftarUlang input[name="nokk"]').val() ? $('#mdlDaftarUlang input[name="nokk"]').val().trim() : "";
+    // 1. CEK VALIDASI WAJIB ISI SECARA CERDAS LINTAS TAB
+    const validasiKolom = [
+        { id: 'du_no_spmb', tab: '#du_t1', pesan: 'Nomor Bukti Diterima SPMB wajib diisi!' },
+        { id: 'du_nisn', tab: '#du_t1', pesan: 'NISN wajib diisi!' },
+        { id: 'du_nama', tab: '#du_t1', pesan: 'Nama Lengkap Pendaftar wajib diisi!' },
+        { id: 'du_agama', tab: '#du_t1', pesan: 'Agama wajib dipilih!' },
+        { id: 'du_tmplahir', tab: '#du_t1', pesan: 'Tempat Lahir wajib diisi!' },
+        { id: 'du_tgllahir', tab: '#du_t1', pesan: 'Tanggal Lahir wajib diisi!' },
+        { id: 'du_jk', tab: '#du_t1', pesan: 'Jenis Kelamin wajib dipilih!' },
+        { id: 'du_nama_ayah', tab: '#du_t3', pesan: 'Nama Ayah wajib diisi!' },
+        { id: 'du_tgllahir_ayah', tab: '#du_t3', pesan: 'Tanggal Lahir Ayah wajib diisi!' },
+        { id: 'du_kerja_ayah', tab: '#du_t3', pesan: 'Pekerjaan Ayah wajib diisi!' },
+        { id: 'du_nama_ibu', tab: '#du_t3', pesan: 'Nama Ibu wajib diisi!' },
+        { id: 'du_tgllahir_ibu', tab: '#du_t3', pesan: 'Tanggal Lahir Ibu wajib diisi!' },
+        { id: 'du_kerja_ibu', tab: '#du_t3', pesan: 'Pekerjaan Ibu wajib diisi!' }
+    ];
 
-    // 2. Validasi Kolom Wajib Isi (Mandatory) via JavaScript
-    if (!noSpmb) { 
-        Swal.fire('Data Belum Lengkap', 'Nomor Bukti Diterima SPMB wajib diisi!', 'warning'); 
-        return; 
+    for (let item of validasiKolom) {
+        let el = document.getElementById(item.id);
+        if (!el.value.trim()) {
+            // Pindah tab secara otomatis ke tempat kolom yang kosong
+            $(`.nav-tabs a[href="${item.tab}"]`).tab('show');
+            
+            // Tampilkan alert
+            Swal.fire('Data Belum Lengkap', item.pesan, 'warning').then(() => {
+                el.focus(); // Arahkan kursor ke kolom yang kosong
+            });
+            return; // Hentikan proses simpan
+        }
     }
-    if (!nisn) { 
-        Swal.fire('Data Belum Lengkap', 'NISN wajib diisi!', 'warning'); 
-        return; 
-    }
+
+    // 2. CEK VALIDASI DIGIT YANG HARUS PAS
+    const nisn = $('#du_nisn').val().trim();
     if (nisn.length !== 10) {
+        $('.nav-tabs a[href="#du_t1"]').tab('show');
         Swal.fire('Format Salah', `NISN harus tepat 10 digit angka! (Input saat ini: ${nisn.length} digit)`, 'warning');
         return;
     }
-    if (!nama) { 
-        Swal.fire('Data Belum Lengkap', 'Nama Lengkap Pendaftar wajib diisi!', 'warning'); 
-        return; 
-    }
-    if (!nohp) { 
-        Swal.fire('Data Belum Lengkap', 'Nomor HP/WA Aktif wajib diisi! Silakan periksa kembali pada <b>Tab Fisik & Alamat</b>.', 'warning'); 
-        return; 
-    }
-
-    // 3. Validasi Kolom Opsional (Jika diisi, jumlah digit harus benar)
+    
+    const nik = $('#du_nik').val().trim();
     if (nik !== "" && nik.length !== 16) {
+        $('.nav-tabs a[href="#du_t1"]').tab('show');
         Swal.fire('Format Salah', `NIK harus tepat 16 digit atau kosongkan saja! (Input saat ini: ${nik.length} digit)`, 'warning');
         return;
     }
+    
+    const nokk = $('#du_nokk').val().trim();
     if (nokk !== "" && nokk.length !== 16) {
+        $('.nav-tabs a[href="#du_t1"]').tab('show');
         Swal.fire('Format Salah', `Nomor Kartu Keluarga harus tepat 16 digit atau kosongkan saja! (Input saat ini: ${nokk.length} digit)`, 'warning');
         return;
     }
 
-    // 4. Validasi Fisik Berkas Upload
+    // 3. Validasi Upload Berkas Fisik
     const fIjazah = document.getElementById('file_ijazah').files[0];
     const fKk = document.getElementById('file_kk').files[0];
     const fAkta = document.getElementById('file_akta').files[0];
     const fBukti = document.getElementById('file_bukti').files[0];
 
-    if (!fIjazah || !fKk || !fAkta || !fBukti) {
-        Swal.fire('Berkas Tidak Lengkap', 'Semua dokumen pendukung pendaftaran (Ijazah, KK, Akta, dan Bukti SPMB) wajib diunggah!', 'warning');
-        return;
+    // Berkas diwajibkan hanya jika form sedang dalam mode "Upload" (Bukan saat Admin sedang nge-view)
+    if (!$('#du_berkas_upload').hasClass('hidden')) {
+        if (!fIjazah || !fKk || !fAkta || !fBukti) {
+            Swal.fire('Berkas Tidak Lengkap', 'Semua dokumen pendukung pendaftaran (Ijazah, KK, Akta, dan Bukti SPMB) wajib diunggah!', 'warning');
+            return;
+        }
     }
 
-    // 5. Jika Lolos Validasi, Mulai Proses Upload
+    // 4. Jika Lolos Semua Validasi, Mulai Proses Upload
     $('#loader').removeClass('hidden'); 
     $('#loaderText').text('Mengenkripsi Berkas & Mengirim Data (Mohon tunggu)...');
     
     const d = {}; 
     $.each($('#frmDaftarUlang').serializeArray(), (_, k) => {
-        // Otomatis ubah nilai kolom teks tertentu menjadi HURUF KAPITAL sebelum dikirim ke DB
-        if(k.name === 'nama' || k.name === 'tmplahir' || k.name === 'pindahan' || k.name === 'lulusan') {
-            d[k.name] = k.value.toUpperCase();
-        } else {
-            d[k.name] = k.value;
-        }
+        // Kolom yang otomatis dibuat Huruf Kapital sudah ditangani oleh oninput="this.value.toUpperCase()" di HTML
+        d[k.name] = k.value.trim();
     }); 
     
     try {
-        // Konversi file fisik menjadi string Base64 secara asinkron
-        d.b64_ijazah = await getBase64Async(fIjazah);
-        d.b64_kk = await getBase64Async(fKk);
-        d.b64_akta = await getBase64Async(fAkta);
-        d.b64_bukti = await getBase64Async(fBukti);
+        // Konversi file fisik menjadi string Base64 (Hanya jika file diisi)
+        if (fIjazah) d.b64_ijazah = await getBase64Async(fIjazah);
+        if (fKk) d.b64_kk = await getBase64Async(fKk);
+        if (fAkta) d.b64_akta = await getBase64Async(fAkta);
+        if (fBukti) d.b64_bukti = await getBase64Async(fBukti);
 
         // Kirim data akhir ke Backend
         const r = await callAPI('saveDaftarUlang', d);
@@ -2301,13 +2314,14 @@ async function submitDaftarUlang(e) {
                 icon: 'success'
             }); 
             $('#frmDaftarUlang')[0].reset();
+            $('.student-photo').addClass('hidden'); // Sembunyikan foto diri
         } else {
             showCoolAlert('Gagal Menyimpan', r.message, 'error'); 
         }
     } catch(error) {
         $('#loader').addClass('hidden');
         console.error(error);
-        Swal.fire('Error Berkas', 'Terjadi kegagalan enkripsi berkas saat pengiriman. Coba gunakan file PDF dengan ukuran yang lebih kecil.', 'error');
+        Swal.fire('Error Berkas', 'Terjadi kegagalan enkripsi berkas saat pengiriman. Coba gunakan file PDF dengan ukuran yang lebih kecil (maks. 300KB).', 'error');
     }
 }
 
@@ -2380,4 +2394,36 @@ function eksekusiSetujui(noSpmb, nisBaru) {
             Swal.fire('Gagal', r.message, 'error');
         }
     });
+}
+
+// Fungsi: Mencegah user mengetik huruf dan membatasi jumlah digit
+function batasiAngka(input, maxDigit, namaKolom) {
+    // Buang semua karakter selain angka
+    input.value = input.value.replace(/\D/g, '');
+    
+    // Jika lebih dari maksimal digit, potong dan beri peringatan
+    if (input.value.length > maxDigit) {
+        input.value = input.value.slice(0, maxDigit);
+        
+        // Munculkan notifikasi peringatan di pojok atas (tidak mengganggu)
+        const Toast = Swal.mixin({toast: true, position: 'top-end', showConfirmButton: false, timer: 3000}); 
+        Toast.fire({icon: 'warning', title: `${namaKolom} maksimal ${maxDigit} digit!`});
+    }
+}
+
+// Fungsi: Memperingatkan jika digit kurang dari yang ditentukan saat user pindah kolom (onblur)
+function cekDigitPas(input, exactDigit, namaKolom) {
+    let val = input.value.trim();
+    if (val.length > 0 && val.length < exactDigit) {
+        Swal.fire({
+            title: 'Periksa Kembali!',
+            text: `${namaKolom} harus tepat ${exactDigit} digit. Saat ini Anda baru memasukkan ${val.length} digit.`,
+            icon: 'warning'
+        });
+        // Ubah warna kotak menjadi merah sebagai penanda
+        input.style.borderColor = "red";
+    } else {
+        // Kembalikan warna kotak ke normal jika sudah pas atau kosong
+        input.style.borderColor = "#dee2e6";
+    }
 }
