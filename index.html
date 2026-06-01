@@ -174,13 +174,7 @@
              <a href="javascript:void(0)" onclick="nav('mapel', this)"><i class="bi bi-book-half me-2"></i> Data Mapel</a>
              <a href="javascript:void(0)" onclick="nav('settings', this)"><i class="bi bi-gear-fill me-2"></i> Pengaturan</a>
         </div>
-        <div class="small fw-bold text-white-50 px-3 mt-3 mb-1">NILAI</div>
-        <a href="javascript:void(0)" onclick="nav('nilai', this, 1)">Semester 1</a>
-        <a href="javascript:void(0)" onclick="nav('nilai', this, 2)">Semester 2</a>
-        <a href="javascript:void(0)" onclick="nav('nilai', this, 3)">Semester 3</a>
-        <a href="javascript:void(0)" onclick="nav('nilai', this, 4)">Semester 4</a>
-        <a href="javascript:void(0)" onclick="nav('nilai', this, 5)">Semester 5</a>
-        <a href="javascript:void(0)" onclick="nav('nilai', this, 6)">Semester 6</a>
+        
         <div class="mt-auto p-3">
             <button onclick="logout()" class="btn btn-danger w-100 fw-bold rounded-pill shadow-sm"><i class="bi bi-box-arrow-left me-2"></i> Logout</button>
         </div>
@@ -370,34 +364,7 @@
                 </div>
             </div>
 
-            <div id="view-nilai" class="hidden">
-                <h3 id="judulNilai" class="text-secondary fw-bold mb-4">Input Nilai</h3>
-                <div class="card p-4 bg-white">
-                    <div class="d-flex flex-column flex-md-row justify-content-between align-items-end mb-4 bg-light p-3 rounded gap-3">
-                        <div class="w-100 w-md-50">
-                            <label class="fw-bold text-muted small mb-1">PILIH SISWA</label>
-                            <select id="selSiswa" class="form-select fw-bold shadow-sm"></select>
-                        </div>
-                        <div class="d-flex flex-wrap gap-2">
-                            <button class="btn btn-sm btn-outline-dark" onclick="downloadTemplate('nilai')"><i class="bi bi-download"></i> Template</button>
-                            <button class="btn btn-sm btn-info text-white" onclick="$('#fileImportNilai').click()"><i class="bi bi-upload"></i> Import</button>
-                            <input type="file" id="fileImportNilai" class="hidden" accept=".csv" onchange="importNilai(this)">
-                            <button class="btn btn-sm btn-warning fw-bold text-dark" onclick="exportTranskrip()"><i class="bi bi-file-spreadsheet"></i> Export Nilai</button>
-                        </div>
-                    </div>
-                    <div class="table-responsive">
-                        <table class="table table-bordered text-center align-middle">
-                            <thead class="bg-primary text-white"><tr><th width="30%">Mata Pelajaran</th><th>Pengetahuan</th><th>Keterampilan</th><th>Sikap</th></tr></thead>
-                            <tbody id="tbodyNilai"><tr><td colspan="4" class="py-5 text-muted">Pilih siswa...</td></tr></tbody>
-                            <tfoot class="bg-light fw-bold">
-                                <tr><td class="text-end">TOTAL:</td><td id="footP" class="text-primary">0</td><td id="footK" class="text-primary">0</td><td>-</td></tr>
-                                <tr><td class="text-end">RATA-RATA:</td><td id="avgP" class="text-success">0</td><td id="avgK" class="text-success">0</td><td>-</td></tr>
-                            </tfoot>
-                        </table>
-                    </div>
-                    <div class="text-end mt-4"><button class="btn btn-primary px-5 fw-bold shadow bg-theme w-100 w-md-auto" onclick="simpanNilai()">SIMPAN NILAI</button></div>
-                </div>
-            </div>
+           
 
             <div id="view-mapel" class="hidden">
                 <div class="d-flex justify-content-between mb-4"><h3 class="m-0 text-secondary fw-bold">Data Mapel</h3><button class="btn btn-primary shadow-sm bg-theme" onclick="modalMapel()">+Tambah Data</button></div>
@@ -633,7 +600,7 @@
                         <h6 class="fw-bold text-warning border-bottom pb-2"><i class="bi bi-file-earmark-arrow-up"></i> Unggah Berkas Pendukung (Maks. 300KB/file)</h6>
                         <div class="row g-3">
                             <div class="col-md-6">
-                                <label class="small fw-bold text-muted">*Ijazah SMP / SKL (Wajib PDF)</label>
+                                <label class="small fw-bold text-muted">*Ijazah Sekolah Asal / SKL (Wajib PDF)</label>
                                 <input type="file" id="file_ijazah" accept="application/pdf" class="form-control form-control-sm" onchange="checkFileSize(this)">
                             </div>
                             <div class="col-md-6">
@@ -772,7 +739,7 @@
                                         <input name="lulusan" id="du_lulusan" class="form-control" required placeholder="Contoh: SMPN 1" oninput="this.value = this.value.toUpperCase()">
                                     </div>
                                     <div class="col-md-3">
-                                        <label class="small fw-bold">No. Ijazah Sebelumnya</label>
+                                        <label class="small fw-bold">No. Ijazah Sekolah Asal</label>
                                         <input name="noijazah_sltp" class="form-control">
                                     </div>
                                 </div>
@@ -902,7 +869,7 @@
                         
                         <div class="d-flex justify-content-center"><img id="prev_masuk" class="student-photo hidden" style="width: 80px !important; height: 106px !important; border-radius: 6px;"></div></div><div class="col-md-6"><label class="small fw-bold mb-2">Foto Keluar (3:4)</label><input type="file" class="form-control mb-2" onchange="cropImage(this, 'keluar')"><input type="hidden" name="id_foto_keluar" id="id_foto_keluar"><div class="d-flex justify-content-center"><img id="prev_keluar" class="student-photo hidden" style="width: 80px !important; height: 106px !important; border-radius: 6px;"></div>
                         </div>
-                        <div class="col-md-4"><label class="small fw-bold">Kelas Masuk</label><input name="kls_masuk" class="form-control"></div><div class="col-md-4"><label class="small fw-bold">Tgl. Masuk</label><input type="date" name="tgl_masuk" class="form-control"></div><div class="col-md-4"><label class="small fw-bold">Pindahan dari</label><input name="pindahan" class="form-control"></div><div class="col-md-6"><label class="small fw-bold">Lulusan dari</label><input name="lulusan" class="form-control"></div><div class="col-md-6"><label class="small fw-bold">No. Ijazah SLTP</label><input name="noijazah_sltp" class="form-control"></div><div class="col-md-3"><label class="small fw-bold">Status Akhir</label><select name="status_akhir" class="form-select"><option value="Aktif">Aktif</option><option value="Lulus">Lulus</option><option value="Keluar">Keluar</option></select></div><div class="col-md-3"><label class="small fw-bold">Tgl. Keluar</label><input type="date" name="tgl_keluar" class="form-control"></div><div class="col-md-3"><label class="small fw-bold">Lanjut Ke</label><input name="lanjut_ke" class="form-control"></div><div class="col-md-3"><label class="small fw-bold">No. Ijazah SLTA</label><input name="noijazah_sma" class="form-control"></div></div></div>
+                        <div class="col-md-4"><label class="small fw-bold">Kelas Masuk</label><input name="kls_masuk" class="form-control"></div><div class="col-md-4"><label class="small fw-bold">Tgl. Masuk</label><input type="date" name="tgl_masuk" class="form-control"></div><div class="col-md-4"><label class="small fw-bold">Pindahan dari</label><input name="pindahan" class="form-control"></div><div class="col-md-6"><label class="small fw-bold">Lulusan dari</label><input name="lulusan" class="form-control"></div><div class="col-md-6"><label class="small fw-bold">No. Ijazah Jenjang Sebelumnya</label><input name="noijazah_sltp" class="form-control"></div><div class="col-md-3"><label class="small fw-bold">Status Akhir</label><select name="status_akhir" class="form-select"><option value="Aktif">Aktif</option><option value="Lulus">Lulus</option><option value="Keluar">Keluar</option></select></div><div class="col-md-3"><label class="small fw-bold">Tgl. Keluar</label><input type="date" name="tgl_keluar" class="form-control"></div><div class="col-md-3"><label class="small fw-bold">Lanjut Ke</label><input name="lanjut_ke" class="form-control"></div><div class="col-md-3"><label class="small fw-bold">No. Ijazah Lulus Sekolah ini</label><input name="noijazah_sma" class="form-control"></div></div></div>
                     </div>
                 </div>
                 <div class="modal-footer bg-white">
@@ -916,6 +883,53 @@
 </div>
 
 <div class="modal fade" id="mdlMapel"><div class="modal-dialog"><div class="modal-content"><form id="formMapel" onsubmit="saveMapel(event)"><div class="modal-header"><h5 class="modal-title" id="lblModalMapel">Data Mata Pelajaran</h5></div><div class="modal-body"><input type="hidden" id="oldIdMapel"><div class="mb-3"><label class="fw-bold small">Kode Mapel</label><input id="idMapel" class="form-control" required></div><div class="mb-3"><label class="fw-bold small">Nama Mapel</label><input id="nmMapel" class="form-control" required></div></div><div class="modal-footer"><button type="submit" class="btn btn-primary fw-bold px-4">SIMPAN</button></div></form></div></div></div>
+
+
+<div class="modal fade" id="mdlInputNilai" data-bs-backdrop="static" tabindex="-1" style="z-index: 1060;">
+    <div class="modal-dialog modal-xl modal-dialog-scrollable">
+        <div class="modal-content border-0 shadow-lg">
+            <div class="modal-header bg-success text-white">
+                <h5 class="modal-title fw-bold"><i class="bi bi-journal-check"></i> Input Nilai Siswa</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body p-4 bg-light">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <h5 id="lblNamaSiswaNilai" class="fw-bold text-dark m-0">Nama Siswa</h5>
+                    <input type="hidden" id="hdnNisNilai">
+                </div>
+                
+                <div class="card p-3 shadow-sm border-0 mb-3 border-start border-success border-4">
+                    <label class="fw-bold small mb-2 text-muted">Pilih Semester:</label>
+                    <select id="selSemesterModal" class="form-select border-success fw-bold" onchange="loadNilaiSiswaModal()">
+                        <option value="1">Semester 1</option><option value="2">Semester 2</option>
+                        <option value="3">Semester 3</option><option value="4">Semester 4</option>
+                        <option value="5">Semester 5</option><option value="6">Semester 6</option>
+                        <option value="7">Semester 7</option><option value="8">Semester 8</option>
+                        <option value="9">Semester 9</option><option value="10">Semester 10</option>
+                        <option value="11">Semester 11</option><option value="12">Semester 12</option>
+                    </select>
+                </div>
+
+                <div class="table-responsive bg-white p-0 rounded shadow-sm border">
+                    <table class="table table-bordered text-center align-middle m-0">
+                        <thead class="table-success">
+                            <tr><th width="30%">Mata Pelajaran</th><th>Pengetahuan</th><th>Keterampilan</th><th>Sikap</th></tr>
+                        </thead>
+                        <tbody id="tbodyNilaiModal"></tbody>
+                        <tfoot class="bg-light fw-bold">
+                            <tr><td class="text-end">TOTAL:</td><td id="footPModal" class="text-primary">0</td><td id="footKModal" class="text-primary">0</td><td>-</td></tr>
+                            <tr><td class="text-end">RATA-RATA:</td><td id="avgPModal" class="text-success">0</td><td id="avgKModal" class="text-success">0</td><td>-</td></tr>
+                        </tfoot>
+                    </table>
+                </div>
+            </div>
+            <div class="modal-footer bg-white">
+                <button type="button" class="btn btn-secondary fw-bold" data-bs-dismiss="modal">Tutup</button>
+                <button type="button" class="btn btn-success fw-bold px-5 shadow-sm" onclick="simpanNilaiModal()">SIMPAN NILAI</button>
+            </div>
+        </div>
+    </div>
+</div>
 
 <div class="modal fade" id="mdlKartu" tabindex="-1">
     <div class="modal-dialog modal-dialog-centered">
