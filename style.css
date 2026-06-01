@@ -507,12 +507,11 @@ input, button, select, textarea {
         }
     }
 
-    /* ==========================================
-       MEMAKSA TOMBOL AKSI DI TABEL TETAP 1 BARIS
-       ========================================== */
+    /* MEMAKSA TOMBOL AKSI DI TABEL TETAP 1 BARIS */
     #tblSiswa td:last-child,
     #tblDataSiswa td:last-child,
     #tblAlumni td:last-child,
+    #tblIndukAlumni td:last-child,
     #tblDaftarUlang td:last-child,
     #tblMapel td:last-child {
         white-space: nowrap !important;
