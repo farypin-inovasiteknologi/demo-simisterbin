@@ -67,8 +67,7 @@ function loadSiswa() {
                 btnData += `<button class="btn btn-sm btn-primary me-1 shadow-sm" onclick="bukaModalNilai('${nis}', '${nama}')" title="Input Nilai"><i class="bi bi-journal-plus"></i></button>`;
             }
             if(isAdmin && status !== 'Lulus') {
-                btnData += `<button class="btn btn-sm btn-warning me-1 shadow-sm" onclick="editSiswa('${nis}')" title="Edit Data"><i class="bi bi-pencil"></i></button>
-                            <button class="btn btn-sm btn-dark shadow-sm" onclick="resetPassAdmin('${nis}')" title="Reset Password"><i class="bi bi-key"></i></button>`;
+                btnData += `<button class="btn btn-sm btn-dark shadow-sm" onclick="resetPassAdmin('${nis}')" title="Reset Password"><i class="bi bi-key"></i></button>`;
             }
 
             // GENERATE BARIS TABEL 1 & 2
