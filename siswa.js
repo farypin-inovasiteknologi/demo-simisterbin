@@ -74,16 +74,23 @@ function loadSiswa() {
             // GENERATE BARIS TABEL 1 & 2
             htmlInduk += `<tr><td>${nis}</td><td>${nama}</td><td>${tgllahir}</td><td>${jk}</td><td>${thnMasuk}</td><td>${btnInduk}</td></tr>`;
 
-            if (status !== 'Lulus') {
+           if (status !== 'Lulus') {
                 let badgeStatus = status === 'Aktif' ? `<span class="badge bg-success">Aktif</span>` : `<span class="badge bg-danger">${status}</span>`;
                 let badgeKelas = `<span class="badge bg-secondary shadow-sm">${klsSaatIni}</span>`; // Lencana Kelas
                 
-                // Tambahkan Kelas di htmlSiswa (Kolom ke-5)
-                htmlSiswa += `<tr><td>${nisGabung}</td><td>${nama}</td><td>${tgllahir}</td><td>${jk}</td><td>${badgeKelas}</td><td>${badgeStatus}</td><td>${btnData}</td></tr>`;
+                // PASTIKAN ADA 7 <td> DI SINI
+                htmlSiswa += `<tr>
+                    <td>${nisGabung}</td>
+                    <td>${nama}</td>
+                    <td>${tgllahir}</td>
+                    <td>${jk}</td>
+                    <td>${badgeKelas}</td> <td>${badgeStatus}</td>
+                    <td>${btnData}</td>
+                </tr>`;
                 
                 // Masukkan nama kelas ke mesin Set() untuk Filter Dropdown
                 if (klsSaatIni !== "" && klsSaatIni !== "-") listKelasSet.add(klsSaatIni);
-                else listKelasSet.add("-"); // Tanda jika siswa belum ada kelasnya
+                else listKelasSet.add("-");
             }
 
             // =====================================
