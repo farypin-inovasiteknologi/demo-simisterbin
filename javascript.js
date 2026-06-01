@@ -511,14 +511,12 @@ function loadSiswa() {
             }
 
            if (status === 'Lulus') {
-                // TOMBOL PDF (CETAK BUKU INDUK) DIHILANGKAN DARI SINI
                 let btnDataAlumni = `<button class="btn btn-sm btn-secondary me-1 shadow-sm" onclick="reviewSiswa('${nis}')" title="Lihat"><i class="bi bi-eye"></i></button> <button class="btn btn-sm btn-success me-1 shadow-sm" onclick="cetakKartuAdmin('${nis}')" title="Unduh Kartu"><i class="bi bi-card-heading"></i></button>`;
                 
                 // --- INI YANG DITAMBAHKAN ---
                 if(isAdmin) {
                     btnDataAlumni += `<button class="btn btn-sm btn-warning me-1 shadow-sm" onclick="editSiswa('${nis}')" title="Edit Data/Status"><i class="bi bi-pencil"></i></button>`;
                     btnDataAlumni += `<button class="btn btn-sm btn-dark me-1 shadow-sm" onclick="resetPassAdmin('${nis}')" title="Reset Password"><i class="bi bi-key"></i></button>`;
-                    btnDataAlumni += `<button class="btn btn-sm btn-danger shadow-sm" onclick="delSiswa('${nis}')" title="Hapus Data"><i class="bi bi-trash"></i></button>`;
                 }
                 // -----------------------------
                 
@@ -590,6 +588,11 @@ function modalSiswa() {
 function saveSiswa(e) { 
     e.preventDefault(); 
     $('#loader').removeClass('hidden'); 
+    
+    // --- TAMBAHKAN BARIS INI: Buka semua gembok sesaat agar datanya terbaca oleh sistem pengirim ---
+    $('#frmSiswa input, #frmSiswa select, #frmSiswa textarea').prop('disabled', false);
+    // ---------------------------------------------------------------------------------------------
+    
     const d = {}; 
     $.each($('#frmSiswa').serializeArray(),(_,k)=>d[k.name]=k.value); 
     callAPI('saveStudent', d).then(r=>{ 
@@ -598,12 +601,8 @@ function saveSiswa(e) {
             bootstrap.Modal.getInstance(document.getElementById('mdlSiswa')).hide(); 
             showCoolAlert('Sukses', 'Data berhasil disimpan', 'success'); 
             
-            // LOGIKA REFRESH PINTAR: Cek admin sedang berada di halaman mana
-            if (curPage === 'alumni') {
-                loadAlumniByTahun(); // Refresh tabel alumni
-            } else {
-                loadSiswa(); // Refresh tabel buku induk
-            }
+            if (curPage === 'alumni') loadAlumniByTahun();
+            else loadSiswa(); 
             
         } else {
             showCoolAlert('Peringatan!', r.message, 'warning'); 
@@ -628,6 +627,26 @@ function delSiswa(nis) {
     }
     return {status: "error", message: "NIS tidak ditemukan di sistem"};
   } catch(e) { return {status: "error", message: e.toString()}; } finally { lock.releaseLock(); }
+}
+
+// FUNGSI KHUSUS: Edit Status Alumni (Semua kolom dikunci kecuali Status dan Tgl Keluar)
+function editStatusAlumni(nis) {
+    // 1. Panggil form edit biasa dulu
+    openModalSiswa(nis, false);
+    
+    // 2. Ubah judul modal agar spesifik
+    $('#lblModalSiswa').text("Ubah Status & Tahun Lulus");
+
+    // 3. Kunci semua input secara paksa
+    $('#frmSiswa input, #frmSiswa select, #frmSiswa textarea').prop('disabled', true);
+    
+    // 4. Buka kembali HANYA untuk NIS (sebagai kunci/ID), Status Akhir, dan Tgl Keluar
+    $('#frmSiswa [name="nis"]').prop('disabled', false).prop('readonly', true); // NIS wajib ikut terkirim tapi tidak bisa diedit
+    $('#frmSiswa [name="status_akhir"]').prop('disabled', false);
+    $('#frmSiswa [name="tgl_keluar"]').prop('disabled', false);
+    
+    // 5. Otomatis arahkan pandangan ke Tab Akademik
+    $('.nav-tabs a[href="#t4"]').tab('show');
 }
 
 function downloadPDFBase64(base64, filename) {
@@ -2246,14 +2265,12 @@ function loadAlumniByTahun() {
                 const nis = r[0], nisn = r[1], nama = r[2], jk = r[7], status = r[31], thnKeluar = r[32] ? String(r[32]).substring(0,4) : "-";
                 const nisGabung = nisn ? `${nis} / ${nisn}` : nis;
                 
-                // TOMBOL PDF (CETAK BUKU INDUK) DIHILANGKAN DARI SINI
                 let btnDataAlumni = `<button class="btn btn-sm btn-secondary me-1 shadow-sm" onclick="reviewSiswa('${nis}')" title="Lihat"><i class="bi bi-eye"></i></button> <button class="btn btn-sm btn-success me-1 shadow-sm" onclick="cetakKartuAdmin('${nis}')" title="Unduh Kartu"><i class="bi bi-card-heading"></i></button>`;
                 
                 // --- INI YANG DITAMBAHKAN ---
                 if(isAdmin) {
                     btnDataAlumni += `<button class="btn btn-sm btn-warning me-1 shadow-sm" onclick="editSiswa('${nis}')" title="Edit Data/Status"><i class="bi bi-pencil"></i></button>`;
                     btnDataAlumni += `<button class="btn btn-sm btn-dark me-1 shadow-sm" onclick="resetPassAdmin('${nis}')" title="Reset Password"><i class="bi bi-key"></i></button>`;
-                    btnDataAlumni += `<button class="btn btn-sm btn-danger shadow-sm" onclick="delSiswa('${nis}')" title="Hapus Data"><i class="bi bi-trash"></i></button>`;
                 }
                 // -----------------------------
                 
