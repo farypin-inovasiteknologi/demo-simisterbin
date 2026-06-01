@@ -1262,12 +1262,26 @@ input, button, select, textarea {
                                         </div>
                                     </div>
                                     <div class="col-md-6"></div> 
-                                    <div class="col-md-4"><label class="small fw-bold">Kelas Masuk (Sesuai SPMB)</label><input name="kls_masuk" class="form-control"></div>
-                                    <div class="col-md-4">
-    <label class="small fw-bold">*Lulusan Dari</label>
-    <input name="lulusan" id="du_lulusan" class="form-control" required placeholder="Contoh: SMPN 1" oninput="this.value = this.value.toUpperCase()">
-</div>
-                                    <div class="col-md-4"><label class="small fw-bold">No. Ijazah Sebelumnya</label><input name="noijazah_sltp" class="form-control"></div>
+                                    
+                                    <div class="col-md-3">
+                                        <label class="small fw-bold">Kelas Masuk (SPMB)</label>
+                                        <input name="kls_masuk" class="form-control">
+                                    </div>
+                                    
+                                    <!-- INI KOLOM TANGGAL MASUK YANG BARU DITAMBAHKAN -->
+                                    <div class="col-md-3">
+                                        <label class="small fw-bold">*Tanggal Masuk (sesuai pengumuman diterima)</label>
+                                        <input type="date" name="tgl_masuk" id="du_tgl_masuk" class="form-control" required>
+                                    </div>
+                                    
+                                    <div class="col-md-3">
+                                        <label class="small fw-bold">*Lulusan Dari</label>
+                                        <input name="lulusan" id="du_lulusan" class="form-control" required placeholder="Contoh: SMPN 1" oninput="this.value = this.value.toUpperCase()">
+                                    </div>
+                                    <div class="col-md-3">
+                                        <label class="small fw-bold">No. Ijazah Sebelumnya</label>
+                                        <input name="noijazah_sltp" class="form-control">
+                                    </div>
                                 </div>
                             </div>
                         </div>
