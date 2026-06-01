@@ -11,6 +11,28 @@ const tenantConfig = {
     // Tambahkan sekolah lain di sini sesuai kebutuhan
 };
 
+// ==========================================
+// FUNGSI PENGACAK KEAMANAN (XOR CIPHER)
+// ==========================================
+const KUNCI_RAHASIA = "S1M1ST3RB1N_S3CUR3_2026"; // Jangan beritahu siapapun
+
+function enkripsiLokal(teks) {
+    let result = "";
+    for(let i=0; i<teks.length; i++) {
+        result += String.fromCharCode(teks.charCodeAt(i) ^ KUNCI_RAHASIA.charCodeAt(i % KUNCI_RAHASIA.length));
+    }
+    return btoa(result);
+}
+
+function dekripsiLokal(b64) {
+    let teks = atob(b64);
+    let result = "";
+    for(let i=0; i<teks.length; i++) {
+        result += String.fromCharCode(teks.charCodeAt(i) ^ KUNCI_RAHASIA.charCodeAt(i % KUNCI_RAHASIA.length));
+    }
+    return result;
+}
+
 
 // 2. Baca ID dari URL (contoh: https://namamu.github.io/sibukinstal/?id=demo)
 const urlParams = new URLSearchParams(window.location.search);
@@ -25,7 +47,7 @@ let API_URL = "";
 
 // 3. Validasi: Pastikan ID ada dan terdaftar di tenantConfig
 if (tenantId && tenantConfig[tenantId]) {
-    API_URL = tenantConfig[tenantId]; // <--- BARIS INI WAJIB ADA!
+    API_URL = tenantConfig[tenantId];
 } else {
     // Jika ID salah atau tidak ada, hancurkan halaman dan tampilkan error
     document.addEventListener("DOMContentLoaded", function() {
@@ -64,7 +86,7 @@ async function callAPI(actionName, payloadData = {}) {
         let userAktif = "";
         
         if(session) {
-            let parsed = JSON.parse(atob(session));
+            let parsed = JSON.parse(dekripsiLokal(session));
             tokenAman = parsed.token || "";
             userAktif = parsed.username || "";
         }
@@ -97,7 +119,7 @@ function doLogin(e) {
                 username: res.username,
                 data: res.data || null 
             });
-            localStorage.setItem('simisterbin_session', btoa(rawData)); 
+            localStorage.setItem('simisterbin_session', enkripsiLokal(rawData)); 
             
             restoreSession(res);
         } else {
@@ -139,7 +161,7 @@ $(document).ready(function() {
             let session = localStorage.getItem('simisterbin_session');
             if (session) {
                 try {
-                    let decodedData = JSON.parse(atob(session));
+                    let decodedData = JSON.parse(dekripsiLokal(session));
                     restoreSession(decodedData);
                 } catch(e) {
                     localStorage.removeItem('simisterbin_session');
@@ -1523,8 +1545,8 @@ const pengamatLoader = new MutationObserver((mutations) => {
             const sedangSembunyi = elemenLoader.classList.contains('hidden');
             
             if (!sedangSembunyi) {
-                // Loader Muncul! Mulai hitung mundur dari 5
-                let detik = 5;
+                // Loader Muncul! Mulai hitung mundur dari 3
+                let detik = 3;
                 teksLoader.innerText = `Memuat Data... (${detik} detik)`;
                 
                 // Bersihkan timer sebelumnya (jika ada) supaya tidak bentrok
