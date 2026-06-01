@@ -407,6 +407,7 @@ function refreshPage() {
     else if(curPage == 'nilai') { if($('#selSiswa').val()) $('#selSiswa').change(); } 
     else if(curPage == 'dash') loadSiswa(); 
     else if(curPage == 'daftarulang') loadDaftarUlang();
+    else if(curPage == 'alumni') loadAlumniByTahun();
     
     Swal.fire({ toast: true, position: 'top-end', icon: 'success', title: 'Data diperbarui', timer: 1000, showConfirmButton: false }); 
 }
@@ -510,10 +511,14 @@ function loadSiswa() {
             }
 
            if (status === 'Lulus') {
-                // TOMBOL PDF (CETAK BUKU INDUK) DIHILANGKAN DARI SINI
-                let btnDataAlumni = `<button class="btn btn-sm btn-secondary me-1 shadow-sm" onclick="reviewSiswa('${nis}')" title="Lihat"><i class="bi bi-eye"></i></button> <button class="btn btn-sm btn-success me-1 shadow-sm" onclick="cetakKartuAdmin('${nis}')" title="Unduh Kartu"><i class="bi bi-card-heading"></i></button>`;
-                
-                if(isAdmin) btnDataAlumni += `<button class="btn btn-sm btn-danger shadow-sm" onclick="resetPassAdmin('${nis}')" title="Reset Password"><i class="bi bi-key"></i></button>`;
+               if(isAdmin) {
+                    // Tambahkan Tombol Edit
+                    btnDataAlumni += `<button class="btn btn-sm btn-warning me-1 shadow-sm" onclick="editSiswa('${nis}')" title="Edit Data/Status"><i class="bi bi-pencil"></i></button>`;
+                    // Tombol Reset Password (ubah warna jadi gelap agar rapi)
+                    btnDataAlumni += `<button class="btn btn-sm btn-dark me-1 shadow-sm" onclick="resetPassAdmin('${nis}')" title="Reset Password"><i class="bi bi-key"></i></button>`;
+                    // Tambahkan Tombol Hapus (Opsional, jika admin ingin menghapus data yang benar-benar salah)
+                    btnDataAlumni += `<button class="btn btn-sm btn-danger shadow-sm" onclick="delSiswa('${nis}')" title="Hapus Data"><i class="bi bi-trash"></i></button>`;
+                }
                 
                 htmlAlumni += `<tr><td>${nisGabung}</td><td>${nama}</td><td>${jk}</td><td><span class="badge bg-success">Lulus</span></td><td>${thnKeluar}</td><td>${btnDataAlumni}</td></tr>`;
             }
@@ -590,9 +595,15 @@ function saveSiswa(e) {
         if(r.status === 'success') { 
             bootstrap.Modal.getInstance(document.getElementById('mdlSiswa')).hide(); 
             showCoolAlert('Sukses', 'Data berhasil disimpan', 'success'); 
-            loadSiswa(); 
+            
+            // LOGIKA REFRESH PINTAR: Cek admin sedang berada di halaman mana
+            if (curPage === 'alumni') {
+                loadAlumniByTahun(); // Refresh tabel alumni
+            } else {
+                loadSiswa(); // Refresh tabel buku induk
+            }
+            
         } else {
-            // JIKA DITOLAK KARENA KURANG DIGIT/DUPLIKAT, MUNCULKAN PESAN INI:
             showCoolAlert('Peringatan!', r.message, 'warning'); 
         }
     }); 
