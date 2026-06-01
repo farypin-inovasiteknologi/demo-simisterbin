@@ -37,11 +37,15 @@ function loadSiswa() {
         
         let htmlInduk = "", htmlSiswa = "", htmlAlumni = "";
 
+        let listKelasSet = new Set(); // Penampung unik untuk nama-nama kelas
+
         listSiswa.forEach(r => {
             const nis = r[0], nisn = r[1], nama = r[2], tgllahir = formatTglIndoJS(r[6]), jk = r[7]; 
             const kls = r[29], thnMasuk = r[30] ? String(r[30]).substring(0,4) : '-', status = r[31];
             const thnKeluar = r[32] ? String(r[32]).substring(0,4) : "-";
             const nisGabung = nisn ? `${nis} / ${nisn}` : nis;
+            
+            const klsSaatIni = r[40] ? String(r[40]).trim() : '-'; // <--- TARIK INDEX 40
 
             // =====================================
             // 1. TOMBOL TAB BUKU INDUK (SEMUA SISWA)
@@ -49,9 +53,7 @@ function loadSiswa() {
             let btnInduk = `<button class="btn btn-sm btn-info text-white me-1 shadow-sm" onclick="cetakPDF('${nis}')" title="PDF"><i class="bi bi-file-pdf"></i></button>
                             <button class="btn btn-sm btn-secondary me-1 shadow-sm" onclick="reviewSiswa('${nis}')" title="Detail"><i class="bi bi-eye"></i></button>`; 
             
-            if(canInputNilai) {
-                btnInduk += `<button class="btn btn-sm btn-primary me-1 shadow-sm" onclick="bukaModalNilai('${nis}', '${nama}')" title="Input Nilai"><i class="bi bi-journal-plus"></i></button>`;
-            }
+            if(canInputNilai) btnInduk += `<button class="btn btn-sm btn-primary me-1 shadow-sm" onclick="bukaModalNilai('${nis}', '${nama}')" title="Input Nilai"><i class="bi bi-journal-plus"></i></button>`;
             if(isAdmin) {
                 btnInduk += `<button class="btn btn-sm btn-warning me-1 shadow-sm" onclick="editSiswa('${nis}')" title="Edit Data"><i class="bi bi-pencil"></i></button>
                              <button class="btn btn-sm btn-danger shadow-sm" onclick="delSiswa('${nis}')" title="Hapus Permanen"><i class="bi bi-trash"></i></button>`; 
@@ -63,11 +65,10 @@ function loadSiswa() {
             let btnData = `<button class="btn btn-sm btn-secondary me-1 shadow-sm" onclick="reviewSiswa('${nis}')" title="Lihat"><i class="bi bi-eye"></i></button> 
                            <button class="btn btn-sm btn-success me-1 shadow-sm" onclick="cetakKartuAdmin('${nis}')" title="Unduh Kartu"><i class="bi bi-card-heading"></i></button>`;
             
-            if(canInputNilai) {
-                btnData += `<button class="btn btn-sm btn-primary me-1 shadow-sm" onclick="bukaModalNilai('${nis}', '${nama}')" title="Input Nilai"><i class="bi bi-journal-plus"></i></button>`;
-            }
+            if(canInputNilai) btnData += `<button class="btn btn-sm btn-primary me-1 shadow-sm" onclick="bukaModalNilai('${nis}', '${nama}')" title="Input Nilai"><i class="bi bi-journal-plus"></i></button>`;
             if(isAdmin && status !== 'Lulus') {
-                btnData += `<button class="btn btn-sm btn-dark shadow-sm" onclick="resetPassAdmin('${nis}')" title="Reset Password"><i class="bi bi-key"></i></button>`;
+                btnData += `<button class="btn btn-sm btn-warning me-1 shadow-sm" onclick="editSiswa('${nis}')" title="Edit Data"><i class="bi bi-pencil"></i></button>
+                            <button class="btn btn-sm btn-dark shadow-sm" onclick="resetPassAdmin('${nis}')" title="Reset Password"><i class="bi bi-key"></i></button>`;
             }
 
             // GENERATE BARIS TABEL 1 & 2
@@ -75,7 +76,14 @@ function loadSiswa() {
 
             if (status !== 'Lulus') {
                 let badgeStatus = status === 'Aktif' ? `<span class="badge bg-success">Aktif</span>` : `<span class="badge bg-danger">${status}</span>`;
-                htmlSiswa += `<tr><td>${nisGabung}</td><td>${nama}</td><td>${tgllahir}</td><td>${jk}</td><td>${badgeStatus}</td><td>${btnData}</td></tr>`;
+                let badgeKelas = `<span class="badge bg-secondary shadow-sm">${klsSaatIni}</span>`; // Lencana Kelas
+                
+                // Tambahkan Kelas di htmlSiswa (Kolom ke-5)
+                htmlSiswa += `<tr><td>${nisGabung}</td><td>${nama}</td><td>${tgllahir}</td><td>${jk}</td><td>${badgeKelas}</td><td>${badgeStatus}</td><td>${btnData}</td></tr>`;
+                
+                // Masukkan nama kelas ke mesin Set() untuk Filter Dropdown
+                if (klsSaatIni !== "" && klsSaatIni !== "-") listKelasSet.add(klsSaatIni);
+                else listKelasSet.add("-"); // Tanda jika siswa belum ada kelasnya
             }
 
             // =====================================
@@ -85,9 +93,7 @@ function loadSiswa() {
                 let btnDataAlumni = `<button class="btn btn-sm btn-secondary me-1 shadow-sm" onclick="reviewSiswa('${nis}')" title="Lihat"><i class="bi bi-eye"></i></button> 
                                      <button class="btn btn-sm btn-success me-1 shadow-sm" onclick="cetakKartuAdmin('${nis}')" title="Unduh Kartu"><i class="bi bi-card-heading"></i></button>`;
                 
-                if(canInputNilai) {
-                    btnDataAlumni += `<button class="btn btn-sm btn-primary me-1 shadow-sm" onclick="bukaModalNilai('${nis}', '${nama}')" title="Input Nilai"><i class="bi bi-journal-plus"></i></button>`;
-                }
+                if(canInputNilai) btnDataAlumni += `<button class="btn btn-sm btn-primary me-1 shadow-sm" onclick="bukaModalNilai('${nis}', '${nama}')" title="Input Nilai"><i class="bi bi-journal-plus"></i></button>`;
                 if(isAdmin) {
                     btnDataAlumni += `<button class="btn btn-sm btn-warning me-1 shadow-sm" onclick="editStatusAlumni('${nis}')" title="Ubah Status/Tahun Lulus"><i class="bi bi-pencil"></i></button>
                                       <button class="btn btn-sm btn-dark me-1 shadow-sm" onclick="resetPassAdmin('${nis}')" title="Reset Password"><i class="bi bi-key"></i></button>`;
@@ -96,6 +102,31 @@ function loadSiswa() {
                 htmlAlumni += `<tr><td>${nisGabung}</td><td>${nama}</td><td>${jk}</td><td><span class="badge bg-success">Lulus</span></td><td>${thnKeluar}</td><td>${btnDataAlumni}</td></tr>`;
             }
         }); 
+
+        // =====================================
+        // RENDER MESIN FILTER CHECKBOX KELAS
+        // =====================================
+        let filterHtml = `
+            <div class="mb-3 pb-2 border-bottom d-flex justify-content-between">
+                <button class="btn btn-sm btn-primary py-1 px-3 shadow-sm" onclick="centangSemuaKelas(true)">Pilih Semua</button>
+                <button class="btn btn-sm btn-outline-danger py-1 shadow-sm" onclick="centangSemuaKelas(false)">Hapus Centang</button>
+            </div>
+        `;
+        let listKelas = Array.from(listKelasSet).sort();
+        if(listKelas.length === 0) {
+            filterHtml += `<div class="text-muted small text-center mt-3">Belum ada data kelas</div>`;
+        } else {
+            listKelas.forEach((k, idx) => {
+                let labelTeks = k === '-' ? '<i class="text-danger">Belum Ditempatkan</i>' : k;
+                filterHtml += `
+                <div class="form-check mb-2">
+                    <input class="form-check-input chk-kelas-filter" type="checkbox" value="${k}" id="chkKls${idx}" checked onchange="terapkanFilterKelas()">
+                    <label class="form-check-label fw-bold text-dark small w-100" for="chkKls${idx}" style="cursor:pointer;">${labelTeks}</label>
+                </div>`;
+            });
+        }
+        $('#filterKelasSaatIni').html(filterHtml);
+        // =====================================
 
         $('#tbodySiswa').html(htmlInduk); 
         $('#tbodyDataSiswa').html(htmlSiswa); 
@@ -119,7 +150,7 @@ function openModalSiswa(nis, readonly) {
     $('#frmSiswa input, #frmSiswa select, #frmSiswa textarea').prop('disabled', readonly);
     $('#btnSimpanSiswa').toggle(!readonly); $('#lblModalSiswa').text(readonly ? "Detail Data Siswa" : "Edit Data Siswa");
     $('#btnLihatNilai').toggleClass('hidden', !readonly).off('click').click(() => openTranskrip(nis));
-    f.nis.value=s[0]; f.nisn.value=s[1]; f.nama.value=s[2]; f.nik.value=s[3]; f.nokk.value=s[4]; f.tmplahir.value=s[5]; if(s[6]) f.tgllahir.value = s[6]; f.jk.value=s[7]; f.agama.value=s[8]; f.anakke.value=s[9]; f.jmlsdr.value=s[10]; f.bahasa.value=s[11]; f.alamat.value=s[12]; f.nohp.value=s[13]; f.jarak.value=s[14]; f.transport.value=s[15]; f.tinggi.value=s[16]; f.berat.value=s[17]; f.goldar.value=s[18]; f.penyakit.value=s[19]; f.nama_ayah.value=s[20]; if(s[21]) f.tgllahir_ayah.value = s[21]; f.kerja_ayah.value=s[22]; f.nama_ibu.value=s[23]; if(s[24]) f.tgllahir_ibu.value = s[24]; f.kerja_ibu.value=s[25]; f.pindahan.value=s[26]; f.lulusan.value=s[27]; f.noijazah_sltp.value=s[28]; f.kls_masuk.value=s[29]; if(s[30]) f.tgl_masuk.value=s[30]; f.status_akhir.value=s[31]; if(s[32]) f.tgl_keluar.value=s[32]; f.lanjut_ke.value=s[33]; f.noijazah_sma.value=s[34]; f.email.value = s[39] || '';
+    f.nis.value=s[0]; f.nisn.value=s[1]; f.nama.value=s[2]; f.nik.value=s[3]; f.nokk.value=s[4]; f.tmplahir.value=s[5]; if(s[6]) f.tgllahir.value = s[6]; f.jk.value=s[7]; f.agama.value=s[8]; f.anakke.value=s[9]; f.jmlsdr.value=s[10]; f.bahasa.value=s[11]; f.alamat.value=s[12]; f.nohp.value=s[13]; f.jarak.value=s[14]; f.transport.value=s[15]; f.tinggi.value=s[16]; f.berat.value=s[17]; f.goldar.value=s[18]; f.penyakit.value=s[19]; f.nama_ayah.value=s[20]; if(s[21]) f.tgllahir_ayah.value = s[21]; f.kerja_ayah.value=s[22]; f.nama_ibu.value=s[23]; if(s[24]) f.tgllahir_ibu.value = s[24]; f.kerja_ibu.value=s[25]; f.pindahan.value=s[26]; f.lulusan.value=s[27]; f.noijazah_sltp.value=s[28]; f.kls_masuk.value=s[29]; if(s[30]) f.tgl_masuk.value=s[30]; f.kls_saat_ini.value = s[40] || ''; f.status_akhir.value=s[31]; if(s[32]) f.tgl_keluar.value=s[32]; f.lanjut_ke.value=s[33]; f.noijazah_sma.value=s[34]; f.email.value = s[39] || '';
     
     $('#id_foto_masuk').val(s[35]); 
     if(s[35]) callAPI('getImage', {id: s[35]}).then(b=>{ if(b) $('#prev_masuk').attr('src',b).removeClass('hidden'); }); 
@@ -1612,4 +1643,37 @@ async function prosesOCRDokumen(input) {
             input.value = ''; // Batal scan, kosongkan input file
         }
     });
+}
+
+// ==========================================
+// FUNGSI MESIN FILTER DATATABLES KELAS
+// ==========================================
+function centangSemuaKelas(isCheck) {
+    $('.chk-kelas-filter').prop('checked', isCheck);
+    terapkanFilterKelas(); // Panggil fungsi saring ulang
+}
+
+function terapkanFilterKelas() {
+    let selectedClasses = [];
+    
+    // Tarik semua kelas yang dicentang
+    $('.chk-kelas-filter:checked').each(function() {
+        // Bersihkan nama dari karakter aneh (Regex Escape) agar Datatables tidak error
+        let escapeText = $(this).val().replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+        selectedClasses.push(escapeText); 
+    });
+    
+    let table = $('#tblDataSiswa').DataTable();
+    
+    if (selectedClasses.length === 0) {
+        // Jika tidak ada yang dicentang, sembunyikan semua baris
+        table.column(4).search('^$', true, false).draw(); 
+    } else {
+        // Gabungkan kelas pakai simbol ATAU (|) dan batasi presisi teks dengan (^) dan ($)
+        // Contoh: ^(XI IPA 1|XI IPS 2|-)$
+        let regexPencarian = "^(" + selectedClasses.join("|") + ")$";
+        
+        // Eksekusi pencarian otomatis di kolom ke-4 (Kolom "Kelas Saat Ini")
+        table.column(4).search(regexPencarian, true, false).draw();
+    }
 }
