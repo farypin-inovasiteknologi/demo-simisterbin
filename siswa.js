@@ -494,7 +494,9 @@ function lihatKartu() {
     const d = window.siswaAktif;
     // Jika alumni, gunakan foto keluar. Jika tidak, foto masuk.
     let isAlumni = (d.status_akhir === 'Lulus');
-    let fotoDipakai = isAlumni ? (d.foto_keluar || d.foto_id) : d.foto_id;
+
+    // Tegas: Alumni pakai foto_keluar, Siswa pakai foto_id (masuk)
+    let fotoDipakai = isAlumni ? d.foto_keluar : d.foto_id;
     
     tampilkanKartuKeModal(d.nama, d.nisn, (d.tmplahir||'-') + ', ' + (d.tgllahir_indo||'-'), d.jk === 'L' ? 'Laki-laki' : 'Perempuan', fotoDipakai, d.status_akhir);
 }
@@ -504,9 +506,9 @@ function cetakKartuAdmin(nis) {
     if(!d) return; 
     
     let isAlumni = (d[31] === 'Lulus');
-    let fotoDipakai = isAlumni ? (d[36] || d[35]) : d[35];
+    // Tegas: Index 36 = Foto Keluar, Index 35 = Foto Masuk
+    let fotoDipakai = isAlumni ? d[36] : d[35];
 
-    // <--- TAMBAH formatTglIndoJS di d[6]
     tampilkanKartuKeModal(d[2], d[1], d[5] + ', ' + formatTglIndoJS(d[6]), d[7] === 'L' ? 'Laki-laki' : 'Perempuan', fotoDipakai, d[31]);
 }
 
@@ -596,7 +598,8 @@ function cetakKartuMassal(tipe) {
             
             let isAlumni = (s[31] === 'Lulus');
             let judulKartu = isAlumni ? 'KARTU ALUMNI' : 'KARTU PELAJAR';
-            let fotoIdDipakai = isAlumni ? (s[36] || s[35]) : s[35];
+            // Tegas: Massal Alumni = Index 36, Massal Aktif = Index 35
+    let fotoIdDipakai = isAlumni ? s[36] : s[35];
             
             let fotoSrc = "";
             if(fotoIdDipakai) fotoSrc = "https://drive.google.com/thumbnail?id=" + fotoIdDipakai + "&sz=w400-h600";
@@ -860,7 +863,8 @@ function onScanSuccess(decodedText) {
 
             // LOGIKA FOTO (ALUMNI VS PELAJAR)
             let isAlumni = (s.status === 'Lulus');
-            let fotoTampil = isAlumni ? (s.foto_keluar || s.foto_id) : s.foto_id;
+            // Tegas: Menampilkan foto di layar hasil scan
+    let fotoTampil = isAlumni ? s.foto_keluar : s.foto_id;
 
             $('#val-foto').attr('src', '');
             if(fotoTampil) callAPI('getImage', {id: fotoTampil}).then(b => { if(b) $('#val-foto').attr('src', b); });
