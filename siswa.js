@@ -2,6 +2,7 @@
 // PENGELOLAAN SISWA & BUKU INDUK
 // ==========================================
 
+// --- OPTIMIZED LOAD SISWA VIA API & PEMISAH TABEL ---
 function loadSiswa() { 
     callAPI('getStudents').then(data => { 
         // PENGAMAN: Pastikan data yang ditarik adalah Array, jika error/kosong, jadikan array kosong []
@@ -29,7 +30,10 @@ function loadSiswa() {
         if($.fn.DataTable.isDataTable('#tblDataSiswa')) $('#tblDataSiswa').DataTable().destroy(); 
         if($.fn.DataTable.isDataTable('#tblAlumni')) $('#tblAlumni').DataTable().destroy(); 
         
+        // DEFINISI HAK AKSES
         const isAdmin = ($('#uRole').text() == 'ADMINISTRATOR' || $('#uRole').text() == 'ADMIN');
+        const isWaka = ($('#uRole').text() == 'WAKAKURIKULUM');
+        const canInputNilai = (isAdmin || isWaka); // Admin dan Waka bisa input nilai
         
         let htmlInduk = "", htmlSiswa = "", htmlAlumni = "";
 
@@ -39,13 +43,35 @@ function loadSiswa() {
             const thnKeluar = r[32] ? String(r[32]).substring(0,4) : "-";
             const nisGabung = nisn ? `${nis} / ${nisn}` : nis;
 
-            // Tombol Master Buku Induk
-            let btnInduk = `<button class="btn btn-sm btn-info text-white me-1 shadow-sm" onclick="cetakPDF('${nis}')" title="PDF"><i class="bi bi-file-pdf"></i></button><button class="btn btn-sm btn-secondary me-1 shadow-sm" onclick="reviewSiswa('${nis}')" title="Detail"><i class="bi bi-eye"></i></button>`; 
-            if(isAdmin) btnInduk += `<button class="btn btn-sm btn-warning me-1 shadow-sm" onclick="editSiswa('${nis}')"><i class="bi bi-pencil"></i></button><button class="btn btn-sm btn-danger shadow-sm" onclick="delSiswa('${nis}')"><i class="bi bi-trash"></i></button>`; 
+            // =====================================
+            // 1. TOMBOL TAB BUKU INDUK (SEMUA SISWA)
+            // =====================================
+            let btnInduk = `<button class="btn btn-sm btn-info text-white me-1 shadow-sm" onclick="cetakPDF('${nis}')" title="PDF"><i class="bi bi-file-pdf"></i></button>
+                            <button class="btn btn-sm btn-secondary me-1 shadow-sm" onclick="reviewSiswa('${nis}')" title="Detail"><i class="bi bi-eye"></i></button>`; 
+            
+            if(canInputNilai) {
+                btnInduk += `<button class="btn btn-sm btn-primary me-1 shadow-sm" onclick="bukaModalNilai('${nis}', '${nama}')" title="Input Nilai"><i class="bi bi-journal-plus"></i></button>`;
+            }
+            if(isAdmin) {
+                btnInduk += `<button class="btn btn-sm btn-warning me-1 shadow-sm" onclick="editSiswa('${nis}')" title="Edit Data"><i class="bi bi-pencil"></i></button>
+                             <button class="btn btn-sm btn-danger shadow-sm" onclick="delSiswa('${nis}')" title="Hapus Permanen"><i class="bi bi-trash"></i></button>`; 
+            }
 
-            let btnData = `<button class="btn btn-sm btn-secondary me-1 shadow-sm" onclick="reviewSiswa('${nis}')" title="Lihat"><i class="bi bi-eye"></i></button> <button class="btn btn-sm btn-success me-1 shadow-sm" onclick="cetakKartuAdmin('${nis}')" title="Unduh Kartu"><i class="bi bi-card-heading"></i></button>`;
-            if(isAdmin && status !== 'Lulus') btnData += `<button class="btn btn-sm btn-danger shadow-sm" onclick="resetPassAdmin('${nis}')" title="Reset Password"><i class="bi bi-key"></i></button>`;
+            // =====================================
+            // 2. TOMBOL TAB DATA SISWA (HANYA AKTIF)
+            // =====================================
+            let btnData = `<button class="btn btn-sm btn-secondary me-1 shadow-sm" onclick="reviewSiswa('${nis}')" title="Lihat"><i class="bi bi-eye"></i></button> 
+                           <button class="btn btn-sm btn-success me-1 shadow-sm" onclick="cetakKartuAdmin('${nis}')" title="Unduh Kartu"><i class="bi bi-card-heading"></i></button>`;
+            
+            if(canInputNilai) {
+                btnData += `<button class="btn btn-sm btn-primary me-1 shadow-sm" onclick="bukaModalNilai('${nis}', '${nama}')" title="Input Nilai"><i class="bi bi-journal-plus"></i></button>`;
+            }
+            if(isAdmin && status !== 'Lulus') {
+                btnData += `<button class="btn btn-sm btn-warning me-1 shadow-sm" onclick="editSiswa('${nis}')" title="Edit Data"><i class="bi bi-pencil"></i></button>
+                            <button class="btn btn-sm btn-dark shadow-sm" onclick="resetPassAdmin('${nis}')" title="Reset Password"><i class="bi bi-key"></i></button>`;
+            }
 
+            // GENERATE BARIS TABEL 1 & 2
             htmlInduk += `<tr><td>${nis}</td><td>${nama}</td><td>${tgllahir}</td><td>${jk}</td><td>${thnMasuk}</td><td>${btnInduk}</td></tr>`;
 
             if (status !== 'Lulus') {
@@ -53,16 +79,20 @@ function loadSiswa() {
                 htmlSiswa += `<tr><td>${nisGabung}</td><td>${nama}</td><td>${tgllahir}</td><td>${jk}</td><td>${badgeStatus}</td><td>${btnData}</td></tr>`;
             }
 
-           if (status === 'Lulus') {
-                let btnDataAlumni = `<button class="btn btn-sm btn-secondary me-1 shadow-sm" onclick="reviewSiswa('${nis}')" title="Lihat"><i class="bi bi-eye"></i></button> <button class="btn btn-sm btn-success me-1 shadow-sm" onclick="cetakKartuAdmin('${nis}')" title="Unduh Kartu"><i class="bi bi-card-heading"></i></button>`;
+            // =====================================
+            // 3. TOMBOL TAB ALUMNI
+            // =====================================
+            if (status === 'Lulus') {
+                let btnDataAlumni = `<button class="btn btn-sm btn-secondary me-1 shadow-sm" onclick="reviewSiswa('${nis}')" title="Lihat"><i class="bi bi-eye"></i></button> 
+                                     <button class="btn btn-sm btn-success me-1 shadow-sm" onclick="cetakKartuAdmin('${nis}')" title="Unduh Kartu"><i class="bi bi-card-heading"></i></button>`;
                 
-                // --- INI YANG DITAMBAHKAN ---
-                if(isAdmin) {
-                    btnDataAlumni += `<button class="btn btn-sm btn-success me-1 shadow-sm" onclick="bukaModalNilai('${nis}', '${nama}')" title="Input Nilai"><i class="bi bi-journal-plus"></i></button>`;
-                    btnDataAlumni += `<button class="btn btn-sm btn-warning me-1 shadow-sm" onclick="editSiswa('${nis}')" title="Edit Data/Status"><i class="bi bi-pencil"></i></button>`;
-                    btnDataAlumni += `<button class="btn btn-sm btn-dark me-1 shadow-sm" onclick="resetPassAdmin('${nis}')" title="Reset Password"><i class="bi bi-key"></i></button>`;
+                if(canInputNilai) {
+                    btnDataAlumni += `<button class="btn btn-sm btn-primary me-1 shadow-sm" onclick="bukaModalNilai('${nis}', '${nama}')" title="Input Nilai"><i class="bi bi-journal-plus"></i></button>`;
                 }
-                // -----------------------------
+                if(isAdmin) {
+                    btnDataAlumni += `<button class="btn btn-sm btn-warning me-1 shadow-sm" onclick="editStatusAlumni('${nis}')" title="Ubah Status/Tahun Lulus"><i class="bi bi-pencil"></i></button>
+                                      <button class="btn btn-sm btn-dark me-1 shadow-sm" onclick="resetPassAdmin('${nis}')" title="Reset Password"><i class="bi bi-key"></i></button>`;
+                }
                 
                 htmlAlumni += `<tr><td>${nisGabung}</td><td>${nama}</td><td>${jk}</td><td><span class="badge bg-success">Lulus</span></td><td>${thnKeluar}</td><td>${btnDataAlumni}</td></tr>`;
             }
@@ -1041,22 +1071,27 @@ function loadAlumniByTahun() {
         
         if (res.status === 'success') {
             let htmlAlumni = "";
+            
+            // DEFINISI HAK AKSES
             const isAdmin = ($('#uRole').text() == 'ADMINISTRATOR' || $('#uRole').text() == 'ADMIN');
+            const isWaka = ($('#uRole').text() == 'WAKAKURIKULUM');
+            const canInputNilai = (isAdmin || isWaka); // Admin dan Waka bisa input nilai
             
            // Render ulang khusus data alumni tahun tersebut
             res.data.forEach(r => {
                 const nis = r[0], nisn = r[1], nama = r[2], jk = r[7], status = r[31], thnKeluar = r[32] ? String(r[32]).substring(0,4) : "-";
                 const nisGabung = nisn ? `${nis} / ${nisn}` : nis;
                 
-                let btnDataAlumni = `<button class="btn btn-sm btn-secondary me-1 shadow-sm" onclick="reviewSiswa('${nis}')" title="Lihat"><i class="bi bi-eye"></i></button> <button class="btn btn-sm btn-success me-1 shadow-sm" onclick="cetakKartuAdmin('${nis}')" title="Unduh Kartu"><i class="bi bi-card-heading"></i></button>`;
+                let btnDataAlumni = `<button class="btn btn-sm btn-secondary me-1 shadow-sm" onclick="reviewSiswa('${nis}')" title="Lihat"><i class="bi bi-eye"></i></button> 
+                                     <button class="btn btn-sm btn-success me-1 shadow-sm" onclick="cetakKartuAdmin('${nis}')" title="Unduh Kartu"><i class="bi bi-card-heading"></i></button>`;
                 
-                // --- INI YANG DITAMBAHKAN ---
-                if(isAdmin) {
-                    btnDataAlumni += `<button class="btn btn-sm btn-success me-1 shadow-sm" onclick="bukaModalNilai('${nis}', '${nama}')" title="Input Nilai"><i class="bi bi-journal-plus"></i></button>`;
-                    btnDataAlumni += `<button class="btn btn-sm btn-warning me-1 shadow-sm" onclick="editStatusAlumni('${nis}')" title="Ubah Status/Tahun Lulus"><i class="bi bi-pencil"></i></button>`;
-                    btnDataAlumni += `<button class="btn btn-sm btn-dark me-1 shadow-sm" onclick="resetPassAdmin('${nis}')" title="Reset Password"><i class="bi bi-key"></i></button>`;
+                if(canInputNilai) {
+                    btnDataAlumni += `<button class="btn btn-sm btn-primary me-1 shadow-sm" onclick="bukaModalNilai('${nis}', '${nama}')" title="Input Nilai"><i class="bi bi-journal-plus"></i></button>`;
                 }
-                // -----------------------------
+                if(isAdmin) {
+                    btnDataAlumni += `<button class="btn btn-sm btn-warning me-1 shadow-sm" onclick="editStatusAlumni('${nis}')" title="Ubah Status/Tahun Lulus"><i class="bi bi-pencil"></i></button>
+                                      <button class="btn btn-sm btn-dark me-1 shadow-sm" onclick="resetPassAdmin('${nis}')" title="Reset Password"><i class="bi bi-key"></i></button>`;
+                }
                 
                 htmlAlumni += `<tr><td>${nisGabung}</td><td>${nama}</td><td>${jk}</td><td><span class="badge bg-primary">${status}</span></td><td>${thnKeluar}</td><td>${btnDataAlumni}</td></tr>`;
               
