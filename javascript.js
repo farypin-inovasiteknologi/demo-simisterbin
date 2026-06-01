@@ -511,14 +511,16 @@ function loadSiswa() {
             }
 
            if (status === 'Lulus') {
-               if(isAdmin) {
-                    // Tambahkan Tombol Edit
+                // TOMBOL PDF (CETAK BUKU INDUK) DIHILANGKAN DARI SINI
+                let btnDataAlumni = `<button class="btn btn-sm btn-secondary me-1 shadow-sm" onclick="reviewSiswa('${nis}')" title="Lihat"><i class="bi bi-eye"></i></button> <button class="btn btn-sm btn-success me-1 shadow-sm" onclick="cetakKartuAdmin('${nis}')" title="Unduh Kartu"><i class="bi bi-card-heading"></i></button>`;
+                
+                // --- INI YANG DITAMBAHKAN ---
+                if(isAdmin) {
                     btnDataAlumni += `<button class="btn btn-sm btn-warning me-1 shadow-sm" onclick="editSiswa('${nis}')" title="Edit Data/Status"><i class="bi bi-pencil"></i></button>`;
-                    // Tombol Reset Password (ubah warna jadi gelap agar rapi)
                     btnDataAlumni += `<button class="btn btn-sm btn-dark me-1 shadow-sm" onclick="resetPassAdmin('${nis}')" title="Reset Password"><i class="bi bi-key"></i></button>`;
-                    // Tambahkan Tombol Hapus (Opsional, jika admin ingin menghapus data yang benar-benar salah)
                     btnDataAlumni += `<button class="btn btn-sm btn-danger shadow-sm" onclick="delSiswa('${nis}')" title="Hapus Data"><i class="bi bi-trash"></i></button>`;
                 }
+                // -----------------------------
                 
                 htmlAlumni += `<tr><td>${nisGabung}</td><td>${nama}</td><td>${jk}</td><td><span class="badge bg-success">Lulus</span></td><td>${thnKeluar}</td><td>${btnDataAlumni}</td></tr>`;
             }
@@ -2247,10 +2249,16 @@ function loadAlumniByTahun() {
                 // TOMBOL PDF (CETAK BUKU INDUK) DIHILANGKAN DARI SINI
                 let btnDataAlumni = `<button class="btn btn-sm btn-secondary me-1 shadow-sm" onclick="reviewSiswa('${nis}')" title="Lihat"><i class="bi bi-eye"></i></button> <button class="btn btn-sm btn-success me-1 shadow-sm" onclick="cetakKartuAdmin('${nis}')" title="Unduh Kartu"><i class="bi bi-card-heading"></i></button>`;
                 
-                if(isAdmin) btnDataAlumni += `<button class="btn btn-sm btn-danger shadow-sm" onclick="resetPassAdmin('${nis}')" title="Reset Password"><i class="bi bi-key"></i></button>`;
+                // --- INI YANG DITAMBAHKAN ---
+                if(isAdmin) {
+                    btnDataAlumni += `<button class="btn btn-sm btn-warning me-1 shadow-sm" onclick="editSiswa('${nis}')" title="Edit Data/Status"><i class="bi bi-pencil"></i></button>`;
+                    btnDataAlumni += `<button class="btn btn-sm btn-dark me-1 shadow-sm" onclick="resetPassAdmin('${nis}')" title="Reset Password"><i class="bi bi-key"></i></button>`;
+                    btnDataAlumni += `<button class="btn btn-sm btn-danger shadow-sm" onclick="delSiswa('${nis}')" title="Hapus Data"><i class="bi bi-trash"></i></button>`;
+                }
+                // -----------------------------
                 
                 htmlAlumni += `<tr><td>${nisGabung}</td><td>${nama}</td><td>${jk}</td><td><span class="badge bg-primary">${status}</span></td><td>${thnKeluar}</td><td>${btnDataAlumni}</td></tr>`;
-                
+              
                 // Masukkan data ini sementara ke globalSiswa agar fungsi Lihat Kartu dsb tetap jalan
                 if(!globalSiswa.find(x => x[0] == nis)) {
                     globalSiswa.push(r);
