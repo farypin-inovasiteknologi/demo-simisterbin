@@ -2613,6 +2613,7 @@ function renderDaftarUlangTable() {
 }
 
 // 4. Fungsi Prompt Persetujuan oleh Admin
+// 4. Fungsi Prompt Persetujuan oleh Admin
 function promptSetujuiSiswa(noSpmb, namaSiswa) {
     Swal.fire({
         title: 'Pengesahan Siswa',
@@ -2632,7 +2633,22 @@ function promptSetujuiSiswa(noSpmb, namaSiswa) {
                 Swal.showValidationMessage('NIS hanya boleh berisi angka!');
                 return false;
             }
-            return nisInput.trim();
+            
+            // Format NIS (Otomatis nambah nol di depan jika kurang dari 3 digit)
+            let finalNIS = nisInput.trim();
+            if(finalNIS.length === 1) finalNIS = "00" + finalNIS;
+            else if(finalNIS.length === 2) finalNIS = "0" + finalNIS;
+
+            // === PENGECEKAN NIS GANDA DI FRONTEND ===
+            // Cek ke dalam memori globalSiswa apakah NIS ini sudah dipakai
+            let siswaDuplikat = globalSiswa.find(s => String(s[0]) === finalNIS);
+            if (siswaDuplikat) {
+                // Tampilkan pesan error beserta nama siswa yang sudah memakainya
+                Swal.showValidationMessage(`Gagal! NIS ${finalNIS} sudah dipakai oleh ${siswaDuplikat[2]}!`);
+                return false;
+            }
+
+            return finalNIS; // Kembalikan NIS yang sudah diformat jika aman
         }
     }).then((res) => {
         if (res.isConfirmed && res.value) {
