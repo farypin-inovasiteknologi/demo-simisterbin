@@ -187,7 +187,6 @@
                 <i class="bi bi-list mobile-toggle" onclick="toggleSidebar()"></i>
                 <div class="flex-grow-1"></div> </div>
 
-            <button class="btn btn-primary fab-refresh bg-theme border-0" onclick="refreshPage()"><i class="bi bi-arrow-clockwise"></i></button>
 
             <div id="view-dash">
                 <h3 class="mb-4 text-secondary fw-bold">Dashboard</h3>
@@ -208,8 +207,9 @@
 
             <div id="view-siswa" class="hidden">
                 <div class="d-flex flex-wrap justify-content-between align-items-center mb-4 gap-2">
-                    <h3 class="m-0 text-secondary fw-bold">Master Buku Induk</h3>
-                </div>
+    <h3 class="m-0 text-secondary fw-bold">Master Buku Induk</h3>
+    <button class="btn btn-sm btn-outline-secondary shadow-sm fw-bold" onclick="loadSiswa()"><i class="bi bi-arrow-clockwise"></i> Segarkan Data</button>
+</div>
 
                 <ul class="nav nav-pills mb-3 border-bottom pb-2" id="pills-tab-induk" role="tablist">
                     <li class="nav-item" role="presentation">
@@ -279,8 +279,9 @@
 <!-- === UNTUK DATA SISWA AKTIF === -->
             <div id="view-datasiswa" class="hidden">
                 <div class="d-flex flex-wrap justify-content-between align-items-center mb-4 gap-2">
-                    <h3 class="m-0 text-secondary fw-bold">Data Siswa</h3>
-                    <div class="d-flex align-items-center gap-2">
+    <h3 class="m-0 text-secondary fw-bold">Data Siswa</h3>
+    <div class="d-flex align-items-center gap-2">
+        <button class="btn btn-sm btn-outline-secondary shadow-sm fw-bold" onclick="loadSiswa()"><i class="bi bi-arrow-clockwise"></i> Segarkan Data</button>
                         
                         <!-- FILTER DROPDOWN KELAS MULTI-CENTANG -->
                         <div class="dropdown">
@@ -327,15 +328,12 @@
 
 <div id="view-alumni" class="hidden">
     <div class="d-flex flex-wrap justify-content-between align-items-center mb-4 gap-2">
-        <h3 class="m-0 text-secondary fw-bold">Data Alumni</h3>
-        
-        <!-- Filter Tahun -->
-        <div class="d-flex align-items-center gap-2">
-            <label class="small fw-bold text-muted mb-0 d-none d-md-block">Filter Tahun:</label>
-            <select id="filterTahunAlumni" class="form-select form-select-sm fw-bold shadow-sm border-primary" style="width: 150px;" onchange="loadAlumniByTahun()">
-                <option value="">-- Semua Tahun --</option>
-            </select>
-        </div>
+    <h3 class="m-0 text-secondary fw-bold">Data Alumni</h3>
+    <div class="d-flex align-items-center gap-2">
+        <label class="small fw-bold text-muted mb-0 d-none d-md-block">Filter Tahun:</label>
+        <select id="filterTahunAlumni" ...>...</select>
+        <button class="btn btn-sm btn-outline-secondary shadow-sm fw-bold ms-2" onclick="loadAlumniByTahun()"><i class="bi bi-arrow-clockwise"></i> Segarkan Data</button>
+    </div>
 
         <!-- Deretan Tombol Massal -->
         <div class="d-flex flex-wrap gap-2">
@@ -777,8 +775,13 @@
                                     <div class="col-md-6"></div> 
                                     
                                     <div class="col-md-6">
-                                        <label class="small fw-bold">Kelas Masuk (SPMB)</label>
-                                        <input name="kls_masuk" class="form-control">
+                                        <label class="small fw-bold">Jenjang Kelas Masuk (SPMB)</label>
+                            <select name="kls_masuk" class="form-select">
+                                <option value="">- Pilih -</option>
+                                <option value="I">I</option>
+                                <option value="VII">VII</option>
+                                <option value="X">X</option>
+                            </select>
                                     </div>
                                     
                                     <!-- INI KOLOM TANGGAL MASUK YANG BARU DITAMBAHKAN -->
