@@ -4,7 +4,7 @@
 
 // 1. Buat "Buku Alamat" untuk masing-masing sekolah
 const tenantConfig = {
-    "demo": "https://script.google.com/macros/s/AKfycbwVZIRZsq3fLjJRQNbBXGAEp-gQty2m7HTHmwZv3NKOZP6uDohbFp1tnGVIYOVB-GXReA/exec",
+    "demo": "https://script.google.com/macros/s/AKfycbwMMt5GY0s5Ztkl03UWmN2l1rC36c4W3EHKrVz67ruWmZezjNl51Xs6neNzJbDzs76daQ/exec",
     "sma1": "https://script.google.com/macros/s/ID_API_SEKOLAH_2/exec",
     "smk2": "https://script.google.com/macros/s/ID_API_SEKOLAH_3/exec"
     // Tambahkan sekolah lain di sini sesuai kebutuhan
@@ -13,6 +13,16 @@ const tenantConfig = {
 // ==========================================
 // FUNGSI PENGACAK KEAMANAN (XOR CIPHER)
 // ==========================================
+
+// HELPER: Mencegah injeksi script jahat (XSS) pada tampilan HTML
+function escapeHTML(str) {
+    if (!str) return '';
+    return String(str).replace(/[&<>"']/g, function(m) {
+        return {'&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#039;'}[m];
+    });
+}
+
+
 const KUNCI_RAHASIA = "S1M1ST3RB1N_S3CUR3_2026"; // Jangan beritahu siapapun
 
 function enkripsiLokal(teks) {
