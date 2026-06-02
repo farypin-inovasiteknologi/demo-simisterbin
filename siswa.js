@@ -40,7 +40,7 @@ function loadSiswa() {
         let listKelasSet = new Set(); // Penampung unik untuk nama-nama kelas
 
         listSiswa.forEach(r => {
-            const nis = r[0], nisn = r[1], nama = r[2], tgllahir = formatTglIndoJS(r[6]), jk = r[7]; 
+            const nis = r[0], nisn = r[1], nama = escapeHTML(r[2]), tgllahir = formatTglIndoJS(r[6]), jk = r[7]; 
             const kls = r[29], thnMasuk = r[30] ? String(r[30]).substring(0,4) : '-', status = r[31];
             const thnKeluar = r[32] ? String(r[32]).substring(0,4) : "-";
             const nisGabung = nisn ? `${nis} / ${nisn}` : nis;
@@ -1654,7 +1654,6 @@ async function prosesOCRDokumen(input) {
     }).then(async (res) => {
         if (res.isConfirmed) {
             $('#loader').removeClass('hidden');
-            // Tambahkan animasi teks keren saat AI berpikir
             $('#loaderText').html('<i class="bi bi-robot"></i> Menganalisa struktur dokumen dan memetakan anggota keluarga...');
             
             try {
@@ -1717,7 +1716,11 @@ async function prosesOCRDokumen(input) {
                 Swal.fire('Error API', 'Gagal memproses AI OCR. Pastikan koneksi stabil.', 'error');
             }
         } else {
-            input.value = ''; // Batal scan, kosongkan input file
+            // --- INI PERBAIKANNYA ---
+            // Hapus baris 'input.value = '';'
+            // Ganti dengan notifikasi kecil bahwa file tetap tersimpan untuk diunggah manual
+            const Toast = Swal.mixin({toast: true, position: 'top-end', showConfirmButton: false, timer: 3000}); 
+            Toast.fire({icon: 'success', title: 'File siap diunggah (Mode Manual)'});
         }
     });
 }
