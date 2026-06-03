@@ -571,4 +571,44 @@ input, button, select, textarea {
     
     /* Sembunyikan teks pelengkap agar tidak terlalu panjang */
     .mobile-hide { display: none !important; }
+
+/* Tambahkan bagian ini untuk mengecilkan Dropdown */
+    .action-bar-mobile select.form-select {
+        font-size: 0.7rem !important;
+        padding: 4px 20px 4px 6px !important; /* Pangkas ruang kosong kiri-kanan */
+        height: auto !important; /* Samakan tinggi dengan tombol sebelahnya */
+        flex: 0 0 95px !important; /* Kunci lebar maksimalnya di 95px agar tidak melar */
+    }
+}
+
+/* ==========================================
+   PERBAIKAN UKURAN TABEL BIODATA SISWA 
+   (DIBUAT LEBIH PADAT & KECIL)
+   ========================================== */
+
+/* 2. Pengaturan Khusus Layar HP (Mobile) */
+@media (max-width: 768px) {
+    /* Merapatkan jarak antar kotak (baris) */
+    #view-profil_siswa .table tr {
+        margin-bottom: 8px !important; 
+        padding: 5px 10px !important; 
+    }
+
+    #view-profil_siswa .table td {
+    padding: 6px 5px !important; /* Mengurangi jarak atas-bawah agar kolom lebih rapat */
+    font-size: 0.85rem !important; /* Huruf dikecilkan menjadi sekitar 13.5px */
+    border-bottom: 1px dashed rgba(0,0,0,0.06) !important;
+}
+
+    /* Label data (contoh: NIS / NISN) */
+    #view-profil_siswa .table td:first-child {
+        font-size: 0.65rem !important; /* Label diperkecil */
+        padding-bottom: 0px !important; 
+    }
+
+    /* Isi datanya (contoh: 0012345678) */
+    #view-profil_siswa .table td:nth-child(2) {
+        font-size: 0.85rem !important; /* Isi data diperkecil dari sebelumnya 1.05rem */
+        padding-top: 2px !important; 
+    }
 }
