@@ -1499,10 +1499,15 @@ async function submitDaftarUlang(e) {
 }
 
 function loadDaftarUlang() {
-    // 1. Tampilkan tulisan loading kecil di dalam tabel saja (layar tidak terkunci)
+    // Tampilkan tulisan loading kecil di dalam tabel
     $('#tbodyDaftarUlang').html('<tr><td colspan="5" class="text-center py-4"><div class="spinner-border text-primary spinner-border-sm align-middle me-2"></div> <span class="text-muted fw-bold">Memuat antrean pendaftar...</span></td></tr>');
     
     callAPI('getDaftarUlang').then(res => {
+        // --- KUNCI PERBAIKAN: Matikan layar hitam utama di sini ---
+        $('#loader').addClass('hidden');
+        $('#loaderText').text('Memuat Data, Tunggu Sebentar...'); // Kembalikan teks bawaan
+        // ----------------------------------------------------------
+
         // PENGAMANAN BUG: Mencegah crash jika data kosong
         if (res.status === 'success' && res.data) {
             globalDaftarUlang = res.data;
@@ -1512,6 +1517,10 @@ function loadDaftarUlang() {
             $('#tbodyDaftarUlang').html('<tr><td colspan="5" class="text-center py-4 text-muted">Belum ada antrean daftar ulang.</td></tr>');
         }
     }).catch(err => {
+        // --- KUNCI PERBAIKAN: Matikan layar hitam jika koneksi error ---
+        $('#loader').addClass('hidden'); 
+        // ---------------------------------------------------------------
+        
         $('#tbodyDaftarUlang').html('<tr><td colspan="5" class="text-center text-danger py-4">Gagal memuat data. Periksa koneksi internet Anda.</td></tr>');
     });
 }
