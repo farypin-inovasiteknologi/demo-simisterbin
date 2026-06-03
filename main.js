@@ -316,11 +316,16 @@ function restoreSession(res) {
         if(res.role === 'admin') {
             $('#botAdmin').removeClass('d-none').addClass('d-flex');
             $('#botSiswa, #botWaka').removeClass('d-flex').addClass('d-none');
-            $('#mobTopSetting, #mobTopLogout').show(); 
+            
+            // --- UBAH BARIS INI: Munculkan 3 ikon sekaligus untuk admin ---
+            $('#mobTopSetting, #mobTopLogout, #mobTopDaftarUlang').show(); 
+            
         } else if (res.role === 'wakakurikulum') {
             $('#botWaka').removeClass('d-none').addClass('d-flex');
             $('#botAdmin, #botSiswa').removeClass('d-flex').addClass('d-none');
-            $('#mobTopSetting, #mobTopLogout').hide(); 
+            
+            // --- UBAH BARIS INI: Sembunyikan 3 ikon untuk Waka ---
+            $('#mobTopSetting, #mobTopLogout, #mobTopDaftarUlang').hide(); 
         }
 
         $('#mainSidebar').removeClass('hidden');
