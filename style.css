@@ -516,3 +516,59 @@ input, button, select, textarea {
     #tblMapel td:last-child {
         white-space: nowrap !important;
     }
+
+    /* ==========================================
+   PERBAIKAN TAMPILAN KHUSUS MOBILE (HP)
+   ========================================== */
+
+/* Mewarnai teks menu bawah karena backgroundnya sekarang pakai Tema (Biru/dll) */
+#mobileBottomBar { background: var(--primary-color) !important; border-top: none !important; }
+.m-nav-item { color: rgba(255,255,255,0.6) !important; }
+.m-nav-item.active { color: #ffffff !important; }
+
+/* Mengubah warna lingkaran aktif di bar bawah agar warnanya membalik (Circle Putih, Icon Tema) */
+.m-nav-item.active .bg-primary { 
+    background: #ffffff !important; 
+    border-color: rgba(255,255,255,0.2) !important; 
+}
+.m-nav-item.active .bg-primary i { 
+    color: var(--primary-color) !important; 
+}
+
+@media (max-width: 768px) {
+    /* 1. Mengecilkan elemen agar luas dan tidak clunky */
+    h3.text-secondary { font-size: 1.1rem !important; margin-bottom: 0.2rem !important; }
+    .card { padding: 12px !important; margin-bottom: 12px !important; border-radius: 12px !important; }
+    
+    /* Tabel lebih padat dan pas */
+    .table td, .table th { font-size: 0.75rem !important; padding: 6px !important; }
+    
+    /* 2. Container Sejajar untuk Tombol Aksi */
+    .action-bar-mobile {
+        display: flex;
+        flex-wrap: nowrap;
+        width: 100%;
+        overflow-x: auto;
+        gap: 6px !important;
+        padding-bottom: 5px;
+        -webkit-overflow-scrolling: touch;
+        scrollbar-width: none; /* Firefox */
+    }
+    .action-bar-mobile::-webkit-scrollbar { display: none; } /* Chrome */
+    
+    /* 3. Menyesuaikan ukuran tombol agar 4 tombol muat sejajar */
+    .action-bar-mobile .btn {
+        font-size: 0.7rem !important;
+        padding: 5px 8px !important;
+        white-space: nowrap;
+        flex: 1; /* Bagi rata ruang layar */
+        text-align: center;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 3px;
+    }
+    
+    /* Sembunyikan teks pelengkap agar tidak terlalu panjang */
+    .mobile-hide { display: none !important; }
+}
