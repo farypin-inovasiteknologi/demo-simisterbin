@@ -252,6 +252,8 @@ function restoreSession(res) {
         $('#mobTopLogout').hide();                
         $('#mobTopCekData').addClass('hidden');   
         
+        $('#mobTopDaftarUlang').hide();  
+        
         $('#botSiswa').removeClass('d-none').addClass('d-flex');
         $('#botAdmin, #botWaka').removeClass('d-flex').addClass('d-none');
         $('#mainSidebar').addClass('hidden'); 
