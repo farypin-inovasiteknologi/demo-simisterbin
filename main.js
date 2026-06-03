@@ -378,14 +378,40 @@ function showPrivacy() { $('#mdlPrivacy').modal('show'); }
 function showCoolAlert(title, text, icon) { Swal.fire({ title: title, text: text, icon: icon, showClass: { popup: 'animate__animated animate__fadeInDown' }, hideClass: { popup: 'animate__animated animate__fadeOutUp' }, confirmButtonColor: '#4e73df', backdrop: `rgba(0,0,123,0.4)` }); }
 
 function refreshPage() { 
-    if(curPage == 'siswa') loadSiswa(); 
-    else if(curPage == 'mapel') loadMapel(); 
-    else if(curPage == 'nilai') { if($('#selSiswa').val()) $('#selSiswa').change(); } 
-    else if(curPage == 'dash') loadSiswa(); 
-    else if(curPage == 'daftarulang') loadDaftarUlang();
-    else if(curPage == 'alumni') loadAlumniByTahun();
+    // 1. Tampilkan animasi loading agar terlihat merespon
+    $('#loader').removeClass('hidden'); 
+    $('#loaderText').text('Menyegarkan data terbaru...');
+
+    // 2. Arahkan ke fungsi penarik data yang sesuai dengan halaman saat ini
+    if (curPage === 'siswa' || curPage === 'datasiswa' || curPage === 'dash') {
+        loadSiswa(); 
+    } 
+    else if (curPage === 'mapel') { 
+        loadMapel(); 
+    } 
+    else if (curPage === 'nilai') { 
+        if ($('#selSiswa').val()) $('#selSiswa').change(); 
+        else $('#loader').addClass('hidden'); 
+    } 
+    else if (curPage === 'daftarulang') { 
+        loadDaftarUlang(); 
+    } 
+    else if (curPage === 'alumni') { 
+        loadAlumniByTahun(); 
+    } 
+    else {
+        $('#loader').addClass('hidden');
+    }
     
-    Swal.fire({ toast: true, position: 'top-end', icon: 'success', title: 'Data diperbarui', timer: 1000, showConfirmButton: false }); 
+    // 3. Munculkan notifikasi sukses di pojok kanan atas
+    Swal.fire({ 
+        toast: true, 
+        position: 'top-end', 
+        icon: 'success', 
+        title: 'Data berhasil diperbarui', 
+        timer: 1500, 
+        showConfirmButton: false 
+    }); 
 }
 
 function nav(page, el, param) { 
