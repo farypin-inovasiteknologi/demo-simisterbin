@@ -107,10 +107,9 @@
     <div id="mobileTopBar" class="d-md-none fixed-top bg-theme text-white shadow-sm px-3 d-flex justify-content-between align-items-center" style="height: 60px; z-index: 1030;">
         <div class="fw-bold fs-5 text-truncate"><i class="bi bi-book-half me-1"></i> SiMISTerBIn</div>
         <div class="d-flex align-items-center gap-3">
+            <i id="mobTopDaftarUlang" class="bi bi-person-lines-fill fs-5" onclick="nav('daftarulang', null)" style="cursor:pointer; display:none;" title="Antrean SPMB"></i>
+            
             <i id="mobTopSetting" class="bi bi-gear-fill fs-5" onclick="nav('settings', null)" style="cursor:pointer; display:none;"></i>
-            <select id="mobileSemester" class="form-select form-select-sm fw-bold border-0 text-primary shadow-sm" style="border-radius: 20px; width: auto;" onchange="nav('nilai', null, this.value)">
-                <option value="1">Smt 1</option><option value="2">Smt 2</option><option value="3">Smt 3</option><option value="4">Smt 4</option><option value="5">Smt 5</option><option value="6">Smt 6</option>
-            </select>
             
             <i id="mobTopCekData" class="bi bi-exclamation-triangle-fill fs-5 text-warning bg-white rounded-circle shadow-sm hidden" onclick="lihatDataKosong()" style="cursor:pointer; padding: 2px 6px;"></i>
             
@@ -118,7 +117,7 @@
         </div>
     </div>
 
-    <div id="mobileBottomBar" class="d-md-none fixed-bottom bg-white shadow-lg pb-2 pt-1" style="height: 70px; z-index: 1030; border-top: 1px solid #e3e6f0;">
+    <div id="mobileBottomBar" class="d-md-none fixed-bottom bg-theme shadow-lg pb-2 pt-1" style="height: 65px; z-index: 1030;">
         
         <div id="botAdmin" class="d-none justify-content-around align-items-center h-100 w-100">
             <a href="javascript:void(0)" onclick="nav('siswa', this)" class="m-nav-item text-center text-decoration-none"><i class="bi bi-journal-bookmark-fill fs-4 d-block mb-1" style="line-height: 1;"></i><span style="font-size: 10px; font-weight: bold;">Induk</span></a>
@@ -278,29 +277,29 @@
 
 <!-- === UNTUK DATA SISWA AKTIF === -->
             <div id="view-datasiswa" class="hidden">
-                <div class="d-flex flex-wrap justify-content-between align-items-center mb-4 gap-2">
-    <h3 class="m-0 text-secondary fw-bold">Data Siswa</h3>
-    <div class="d-flex align-items-center gap-2">
-        <button class="btn btn-sm btn-outline-secondary shadow-sm fw-bold" onclick="refreshPage()"><i class="bi bi-arrow-clockwise"></i> Segarkan Data</button>
+                <div class="d-flex flex-column flex-md-row justify-content-between mb-3 gap-2">
+                    <h3 class="m-0 text-secondary fw-bold">Data Siswa</h3>
+                    
+                    <div class="action-bar-mobile">
+                        <button class="btn btn-sm btn-outline-secondary shadow-sm fw-bold" onclick="refreshPage()">
+                            <i class="bi bi-arrow-clockwise"></i> <span class="mobile-hide">Segarkan</span>
+                        </button>
                         
-                        <!-- FILTER DROPDOWN KELAS MULTI-CENTANG -->
-                        <div class="dropdown">
-                            <!-- data-bs-auto-close="outside" mencegah menu tertutup saat admin sedang mencentang banyak kelas -->
-                            <button class="btn btn-sm btn-outline-primary dropdown-toggle shadow-sm fw-bold" type="button" data-bs-toggle="dropdown" data-bs-auto-close="outside">
-                                <i class="bi bi-funnel"></i> Filter Kelas
+                        <div class="dropdown" style="flex: 1;">
+                            <button class="btn btn-sm btn-outline-primary dropdown-toggle shadow-sm fw-bold w-100" type="button" data-bs-toggle="dropdown" data-bs-auto-close="outside">
+                                <i class="bi bi-funnel"></i> Filter<span class="mobile-hide"> Kelas</span>
                             </button>
                             <div class="dropdown-menu p-3 shadow-lg" style="width: 250px; max-height: 350px; overflow-y: auto;" id="filterKelasSaatIni">
-                                <!-- Checkbox akan digenerate otomatis oleh siswa.js -->
                                 <div class="text-center small text-muted">Memuat...</div>
                             </div>
                         </div>
 
-                        <!-- Tombol Massal -->
                         <button class="btn btn-sm btn-info text-white shadow-sm fw-bold" onclick="cetakKlaperPDF('Siswa Aktif')">
-                            <i class="bi bi-journal-text"></i> Unduh Klaper
+                            <i class="bi bi-journal-text"></i> Klaper
                         </button>
+                        
                         <button class="btn btn-sm btn-success shadow-sm fw-bold" onclick="cetakKartuMassal('siswa')">
-                            <i class="bi bi-printer"></i> Unduh Kartu Semua
+                            <i class="bi bi-printer"></i> Kartu<span class="mobile-hide"> Semua</span>
                         </button>
                     </div>
                 </div>
@@ -326,25 +325,28 @@
             
             <!-- === UNTUK DATA ALUMNI === -->
 
-<div id="view-alumni" class="hidden">
-    <div class="d-flex flex-wrap justify-content-between align-items-center mb-4 gap-2">
-    <h3 class="m-0 text-secondary fw-bold">Data Alumni</h3>
-    <div class="d-flex align-items-center gap-2">
-        <label class="small fw-bold text-muted mb-0 d-none d-md-block">Filter Tahun:</label>
-        <select id="filterTahunAlumni" ...>...</select>
-        <button class="btn btn-sm btn-outline-secondary shadow-sm fw-bold ms-2" onclick="loadAlumniByTahun()"><i class="bi bi-arrow-clockwise"></i> Segarkan Data</button>
-    </div>
+              <div id="view-alumni" class="hidden">
+                <div class="d-flex flex-column flex-md-row justify-content-between mb-3 gap-2">
+                    <h3 class="m-0 text-secondary fw-bold">Data Alumni</h3>
+                    
+                    <div class="action-bar-mobile">
+                        <button class="btn btn-sm btn-outline-secondary shadow-sm fw-bold" onclick="refreshPage()">
+                            <i class="bi bi-arrow-clockwise"></i> <span class="mobile-hide">Segarkan</span>
+                        </button>
+                        
+                        <select id="filterTahunAlumni" class="form-select form-select-sm fw-bold shadow-sm border-primary" style="flex:1; width:auto; font-size: 0.75rem;" onchange="loadAlumniByTahun()">
+                            <option value="">Semua Thn</option>
+                        </select>
 
-        <!-- Deretan Tombol Massal -->
-        <div class="d-flex flex-wrap gap-2">
-            <button class="btn btn-sm btn-info text-white shadow-sm fw-bold" onclick="cetakKlaperPDF('Alumni')">
-                <i class="bi bi-journal-text"></i> Unduh Klaper
-            </button>
-            <button class="btn btn-sm btn-success shadow-sm fw-bold" onclick="cetakKartuMassal('alumni')">
-                <i class="bi bi-printer"></i> Cetak Kartu Semua
-            </button>
-        </div>
-    </div>
+                        <button class="btn btn-sm btn-info text-white shadow-sm fw-bold" onclick="cetakKlaperPDF('Alumni')">
+                            <i class="bi bi-journal-text"></i> Klaper
+                        </button>
+                        
+                        <button class="btn btn-sm btn-success shadow-sm fw-bold" onclick="cetakKartuMassal('alumni')">
+                            <i class="bi bi-printer"></i> Kartu
+                        </button>
+                    </div>
+                </div>
 
                 <div class="card p-4 bg-white">
                     <div class="table-responsive">
