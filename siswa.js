@@ -1536,20 +1536,34 @@ function renderDaftarUlangTable() {
 function promptSetujuiSiswa(noSpmb, namaSiswa) {
     Swal.fire({
         title: 'Pengesahan Siswa',
-        html: `Anda akan mensahkan pendaftar <b>${namaSiswa}</b> ke dalam Buku Induk.<br><br>Silakan tentukan <b>Nomor Induk Siswa (NIS)</b> untuknya:`,
-        input: 'text',
-        inputPlaceholder: 'Contoh: 1520',
+        html: `Anda akan mensahkan pendaftar <b>${namaSiswa}</b> ke dalam Buku Induk.<br><br>
+               <div class="text-start mt-3">
+                   <label class="small fw-bold mb-1">Nomor Induk Siswa (NIS) *</label>
+                   <input id="swal-nis" class="form-control mb-3" placeholder="Contoh: 1520">
+                   
+                   <label class="small fw-bold mb-1 text-primary">Kelas Tujuan (Saat Ini) *</label>
+                   <input id="swal-kelas" class="form-control border-primary" placeholder="Contoh: X IPA 1">
+               </div>`,
         showCancelButton: true,
         confirmButtonColor: '#1cc88a',
         confirmButtonText: '<i class="bi bi-check-circle"></i> Sahkan Siswa',
         cancelButtonText: 'Batal',
-        preConfirm: (nisInput) => {
+        preConfirm: () => {
+            // Tangkap nilai dari kedua kolom
+            let nisInput = document.getElementById('swal-nis').value;
+            let kelasInput = document.getElementById('swal-kelas').value;
+
+            // Validasi Input
             if (!nisInput) {
                 Swal.showValidationMessage('NIS tidak boleh kosong!');
                 return false;
             }
             if (!/^\d+$/.test(nisInput.trim())) {
                 Swal.showValidationMessage('NIS hanya boleh berisi angka!');
+                return false;
+            }
+            if (!kelasInput || kelasInput.trim() === "") {
+                Swal.showValidationMessage('Kelas Tujuan tidak boleh kosong!');
                 return false;
             }
             
@@ -1559,28 +1573,29 @@ function promptSetujuiSiswa(noSpmb, namaSiswa) {
             else if(finalNIS.length === 2) finalNIS = "0" + finalNIS;
 
             // === PENGECEKAN NIS GANDA DI FRONTEND ===
-            // Cek ke dalam memori globalSiswa apakah NIS ini sudah dipakai
             let siswaDuplikat = globalSiswa.find(s => String(s[0]) === finalNIS);
             if (siswaDuplikat) {
-                // Tampilkan pesan error beserta nama siswa yang sudah memakainya
                 Swal.showValidationMessage(`Gagal! NIS ${finalNIS} sudah dipakai oleh ${siswaDuplikat[2]}!`);
                 return false;
             }
 
-            return finalNIS; // Kembalikan NIS yang sudah diformat jika aman
+            // Kembalikan 2 nilai sekaligus dalam bentuk Objek
+            return { nis: finalNIS, kelas: kelasInput.trim() };
         }
     }).then((res) => {
         if (res.isConfirmed && res.value) {
-            eksekusiSetujui(noSpmb, res.value);
+            // Lempar datanya ke fungsi eksekutor
+            eksekusiSetujui(noSpmb, res.value.nis, res.value.kelas);
         }
     });
 }
 
-function eksekusiSetujui(noSpmb, nisBaru) {
+function eksekusiSetujui(noSpmb, nisBaru, kelasBaru) {
     $('#loader').removeClass('hidden'); 
     $('#loaderText').text('Mengenkripsi & Memindahkan Data...');
     
-    callAPI('approveDaftarUlang', { noSpmb: noSpmb, nisBaru: nisBaru }).then(r => {
+    // Kirim juga kelasBaru ke payload API
+    callAPI('approveDaftarUlang', { noSpmb: noSpmb, nisBaru: nisBaru, kelasBaru: kelasBaru }).then(r => {
         $('#loader').addClass('hidden');
         $('#loaderText').text('Memuat Data, Tunggu Sebentar...');
         if(r.status === 'success') {
