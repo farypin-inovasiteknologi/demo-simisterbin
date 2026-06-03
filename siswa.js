@@ -353,7 +353,7 @@ async function cetakPDF(nis) {
 
         var opt = { 
             margin: [0.8, 1.4, 1, 1.4], 
-            filename: 'Biodata_' + s[2] + '.pdf', 
+            filename: 'Data_Induk-' + s[2] + '.pdf', 
             image: { type: 'jpeg', quality: 0.98 }, 
             html2canvas: { scale: 2, scrollY: 0, windowY: 0, useCORS: true }, 
             jsPDF: { unit: 'cm', format: 'a4', orientation: 'portrait' } 
