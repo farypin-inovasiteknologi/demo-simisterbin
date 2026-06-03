@@ -378,11 +378,23 @@ function showPrivacy() { $('#mdlPrivacy').modal('show'); }
 function showCoolAlert(title, text, icon) { Swal.fire({ title: title, text: text, icon: icon, showClass: { popup: 'animate__animated animate__fadeInDown' }, hideClass: { popup: 'animate__animated animate__fadeOutUp' }, confirmButtonColor: '#4e73df', backdrop: `rgba(0,0,123,0.4)` }); }
 
 function refreshPage() { 
-    // 1. Tampilkan animasi loading agar terlihat merespon
+    // 1. Munculkan Layar Hitam Loading
     $('#loader').removeClass('hidden'); 
-    $('#loaderText').text('Menyegarkan data terbaru...');
+    $('#loaderText').text('Menyegarkan data dari server...');
 
-    // 2. Arahkan ke fungsi penarik data yang sesuai dengan halaman saat ini
+    // 2. KOSONGKAN TABEL (Ini kunci agar layarnya "berkedip" seperti di-reload)
+    // Hancurkan kerangka DataTables lama
+    if ($.fn.DataTable.isDataTable('#tblSiswa')) $('#tblSiswa').DataTable().destroy(); 
+    if ($.fn.DataTable.isDataTable('#tblDataSiswa')) $('#tblDataSiswa').DataTable().destroy(); 
+    if ($.fn.DataTable.isDataTable('#tblAlumni')) $('#tblAlumni').DataTable().destroy(); 
+    
+    // Ganti isi tabel dengan animasi putaran (Spinner)
+    let loadingHtml = '<tr><td colspan="10" class="text-center py-5"><div class="spinner-border text-primary spinner-border-sm"></div> <span class="fw-bold text-muted ms-2">Memuat ulang data...</span></td></tr>';
+    $('#tbodySiswa').html(loadingHtml);
+    $('#tbodyDataSiswa').html(loadingHtml);
+    $('#tbodyAlumni').html(loadingHtml);
+
+    // 3. Tarik data terbaru berdasarkan halaman yang sedang dibuka
     if (curPage === 'siswa' || curPage === 'datasiswa' || curPage === 'dash') {
         loadSiswa(); 
     } 
@@ -403,7 +415,7 @@ function refreshPage() {
         $('#loader').addClass('hidden');
     }
     
-    // 3. Munculkan notifikasi sukses di pojok kanan atas
+    // 4. Beri notifikasi pop-up kecil di pojok kanan atas
     Swal.fire({ 
         toast: true, 
         position: 'top-end', 
