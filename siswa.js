@@ -42,48 +42,45 @@ function loadSiswa() {
         listSiswa.forEach(r => {
             const nis = r[0], nisn = r[1], nama = escapeHTML(r[2]), tgllahir = formatTglIndoJS(r[6]), jk = r[7]; 
             const kls = r[29], thnMasuk = r[30] ? String(r[30]).substring(0,4) : '-', status = r[31];
-
             const thnKeluar = r[32] ? String(r[32]).substring(0,4) : "-";
             const tglKeluarLengkap = r[32] ? formatTglIndoJS(r[32]) : "-";
             const nisGabung = nisn ? `${nis} / ${nisn}` : nis;
             
             const klsSaatIni = r[40] ? String(r[40]).trim() : '-';
 
-           // =====================================
-            // 1. TOMBOL TAB BUKU INDUK (SISWA AKTIF)
+            // =====================================
+            // 1. TOMBOL BUKU INDUK (AKTIF & KELUAR)
             // =====================================
             let btnInduk = `<button class="btn btn-sm btn-info text-white me-1 shadow-sm" onclick="cetakPDF('${nis}')" title="Cetak Buku Induk"><i class="bi bi-file-pdf"></i></button>
                             <button class="btn btn-sm btn-secondary me-1 shadow-sm" onclick="reviewSiswa('${nis}')" title="Detail"><i class="bi bi-eye"></i></button>`; 
             
-            // Hanya Admin yang bisa Hapus, dan tidak ada tombol Input Nilai / Edit di sini
             if(isAdmin) {
                 btnInduk += `<button class="btn btn-sm btn-danger shadow-sm" onclick="delSiswa('${nis}')" title="Hapus Permanen"><i class="bi bi-trash"></i></button>`; 
             }
 
-            // =====================================
-            // 2. TOMBOL TAB DATA SISWA (HANYA AKTIF)
-            // =====================================
-            let btnData = `<button class="btn btn-sm btn-secondary me-1 shadow-sm" onclick="reviewSiswa('${nis}')" title="Lihat"><i class="bi bi-eye"></i></button> 
-                           <button class="btn btn-sm btn-success me-1 shadow-sm" onclick="cetakKartuAdmin('${nis}')" title="Unduh Kartu"><i class="bi bi-card-heading"></i></button>`;
-            
-            if(canInputNilai) btnData += `<button class="btn btn-sm btn-primary me-1 shadow-sm" onclick="bukaModalNilai('${nis}', '${nama}')" title="Input Nilai"><i class="bi bi-journal-plus"></i></button>`;
-            if(isAdmin && status !== 'Lulus') {
-                btnData += `<button class="btn btn-sm btn-warning me-1 shadow-sm" onclick="editSiswa('${nis}')" title="Edit Data"><i class="bi bi-pencil"></i></button>
-                            <button class="btn btn-sm btn-dark shadow-sm" onclick="resetPassAdmin('${nis}')" title="Reset Password"><i class="bi bi-key"></i></button>`;
+            // PISAHKAN DATA TAB BUKU INDUK BERDASARKAN STATUS
+            if (status === 'Aktif') {
+                htmlInduk += `<tr><td>${nis}</td><td>${nama}</td><td>${tgllahir}</td><td>${jk}</td><td>${thnMasuk}</td><td>${btnInduk}</td></tr>`;
+            } else if (status === 'Keluar' || status === 'Pindah') {
+                htmlIndukKeluar += `<tr><td>${nisGabung}</td><td>${nama}</td><td>${tgllahir}</td><td>${jk}</td><td>${tglKeluarLengkap}</td><td>${btnInduk}</td></tr>`;
             }
 
-            // GENERATE BARIS TABEL 1 & 2
+            // =====================================
+            // 2. MENU DATA SISWA (HANYA SISWA AKTIF)
+            // =====================================
             if (status === 'Aktif') {
-    htmlInduk += `<tr><td>${nis}</td><td>${nama}</td><td>${tgllahir}</td><td>${jk}</td><td>${thnMasuk}</td><td>${btnInduk}</td></tr>`;
-} else if (status === 'Keluar' || status === 'Pindah') {
-    htmlIndukKeluar += `<tr><td>${nisGabung}</td><td>${nama}</td><td>${tgllahir}</td><td>${jk}</td><td>${tglKeluarLengkap}</td><td>${btnInduk}</td></tr>`;
-}
-
-           if (status !== 'Lulus') {
-                let badgeStatus = status === 'Aktif' ? `<span class="badge bg-success">Aktif</span>` : `<span class="badge bg-danger">${status}</span>`;
-                let badgeKelas = `<span class="badge bg-secondary shadow-sm">${klsSaatIni}</span>`; // Lencana Kelas
+                let btnData = `<button class="btn btn-sm btn-secondary me-1 shadow-sm" onclick="reviewSiswa('${nis}')" title="Lihat"><i class="bi bi-eye"></i></button> 
+                               <button class="btn btn-sm btn-success me-1 shadow-sm" onclick="cetakKartuAdmin('${nis}')" title="Unduh Kartu"><i class="bi bi-card-heading"></i></button>`;
                 
-                // PASTIKAN ADA 7 <td> DI SINI
+                if(canInputNilai) btnData += `<button class="btn btn-sm btn-primary me-1 shadow-sm" onclick="bukaModalNilai('${nis}', '${nama}')" title="Input Nilai"><i class="bi bi-journal-plus"></i></button>`;
+                if(isAdmin) {
+                    btnData += `<button class="btn btn-sm btn-warning me-1 shadow-sm" onclick="editSiswa('${nis}')" title="Edit Data"><i class="bi bi-pencil"></i></button>
+                                <button class="btn btn-sm btn-dark shadow-sm" onclick="resetPassAdmin('${nis}')" title="Reset Password"><i class="bi bi-key"></i></button>`;
+                }
+
+                let badgeStatus = `<span class="badge bg-success">Aktif</span>`;
+                let badgeKelas = `<span class="badge bg-secondary shadow-sm">${klsSaatIni}</span>`;
+                
                 htmlSiswa += `<tr>
                     <td>${nisGabung}</td>
                     <td>${nama}</td>
@@ -93,13 +90,13 @@ function loadSiswa() {
                     <td>${btnData}</td>
                 </tr>`;
                 
-                // Masukkan nama kelas ke mesin Set() untuk Filter Dropdown
+                // Masukkan nama kelas ke mesin Set() untuk Filter Dropdown HANYA dari siswa aktif
                 if (klsSaatIni !== "" && klsSaatIni !== "-") listKelasSet.add(klsSaatIni);
                 else listKelasSet.add("-");
             }
 
             // =====================================
-            // 3. TOMBOL TAB ALUMNI
+            // 3. TABEL DATA ALUMNI (HANYA LULUS)
             // =====================================
             if (status === 'Lulus') {
                 let btnDataAlumni = `<button class="btn btn-sm btn-secondary me-1 shadow-sm" onclick="reviewSiswa('${nis}')" title="Lihat"><i class="bi bi-eye"></i></button> 
@@ -113,7 +110,7 @@ function loadSiswa() {
                 
                 htmlAlumni += `<tr><td>${nisGabung}</td><td>${nama}</td><td>${jk}</td><td><span class="badge bg-success">Lulus</span></td><td>${thnKeluar}</td><td>${btnDataAlumni}</td></tr>`;
             }
-        }); 
+        });
 
         // =====================================
         // RENDER MESIN FILTER CHECKBOX KELAS
