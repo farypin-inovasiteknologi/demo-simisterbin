@@ -393,12 +393,14 @@ function refreshPage() {
     // Hancurkan kerangka DataTables lama
     if ($.fn.DataTable.isDataTable('#tblSiswa')) $('#tblSiswa').DataTable().destroy(); 
     if ($.fn.DataTable.isDataTable('#tblDataSiswa')) $('#tblDataSiswa').DataTable().destroy(); 
+    if ($.fn.DataTable.isDataTable('#tblIndukKeluar')) $('#tblIndukKeluar').DataTable().destroy();
     if ($.fn.DataTable.isDataTable('#tblAlumni')) $('#tblAlumni').DataTable().destroy(); 
     
     // Ganti isi tabel dengan animasi putaran (Spinner)
     let loadingHtml = '<tr><td colspan="10" class="text-center py-5"><div class="spinner-border text-primary spinner-border-sm"></div> <span class="fw-bold text-muted ms-2">Memuat ulang data...</span></td></tr>';
     $('#tbodySiswa').html(loadingHtml);
     $('#tbodyDataSiswa').html(loadingHtml);
+    $('#tbodyIndukKeluar').html(loadingHtml);
     $('#tbodyAlumni').html(loadingHtml);
 
     // 3. Tarik data terbaru berdasarkan halaman yang sedang dibuka
