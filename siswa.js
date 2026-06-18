@@ -35,17 +35,19 @@ function loadSiswa() {
         const isWaka = ($('#uRole').text() == 'WAKAKURIKULUM');
         const canInputNilai = (isAdmin || isWaka); // Admin dan Waka bisa input nilai
         
-        let htmlInduk = "", htmlSiswa = "", htmlAlumni = "";
+        let htmlInduk = "", htmlSiswa = "", htmlAlumni = "", htmlIndukKeluar = ""; 
 
         let listKelasSet = new Set(); // Penampung unik untuk nama-nama kelas
 
         listSiswa.forEach(r => {
             const nis = r[0], nisn = r[1], nama = escapeHTML(r[2]), tgllahir = formatTglIndoJS(r[6]), jk = r[7]; 
             const kls = r[29], thnMasuk = r[30] ? String(r[30]).substring(0,4) : '-', status = r[31];
+
             const thnKeluar = r[32] ? String(r[32]).substring(0,4) : "-";
+            const tglKeluarLengkap = r[32] ? formatTglIndoJS(r[32]) : "-";
             const nisGabung = nisn ? `${nis} / ${nisn}` : nis;
             
-            const klsSaatIni = r[40] ? String(r[40]).trim() : '-'; // <--- TARIK INDEX 40
+            const klsSaatIni = r[40] ? String(r[40]).trim() : '-';
 
            // =====================================
             // 1. TOMBOL TAB BUKU INDUK (SISWA AKTIF)
@@ -71,7 +73,11 @@ function loadSiswa() {
             }
 
             // GENERATE BARIS TABEL 1 & 2
-            htmlInduk += `<tr><td>${nis}</td><td>${nama}</td><td>${tgllahir}</td><td>${jk}</td><td>${thnMasuk}</td><td>${btnInduk}</td></tr>`;
+            if (status === 'Aktif') {
+    htmlInduk += `<tr><td>${nis}</td><td>${nama}</td><td>${tgllahir}</td><td>${jk}</td><td>${thnMasuk}</td><td>${btnInduk}</td></tr>`;
+} else if (status === 'Keluar' || status === 'Pindah') {
+    htmlIndukKeluar += `<tr><td>${nisGabung}</td><td>${nama}</td><td>${tgllahir}</td><td>${jk}</td><td>${tglKeluarLengkap}</td><td>${btnInduk}</td></tr>`;
+}
 
            if (status !== 'Lulus') {
                 let badgeStatus = status === 'Aktif' ? `<span class="badge bg-success">Aktif</span>` : `<span class="badge bg-danger">${status}</span>`;
@@ -134,13 +140,17 @@ function loadSiswa() {
         $('#filterKelasSaatIni').html(filterHtml);
         // =====================================
 
+        if($.fn.DataTable.isDataTable('#tblIndukKeluar')) $('#tblIndukKeluar').DataTable().destroy();
+
         $('#tbodySiswa').html(htmlInduk); 
-        $('#tbodyDataSiswa').html(htmlSiswa); 
+        $('#tbodyDataSiswa').html(htmlSiswa);
+        $('#tbodyIndukKeluar').html(htmlIndukKeluar); 
         $('#tbodyAlumni').html(htmlAlumni); 
 
         const dtConfig = { language: { search: "Cari:", lengthMenu: "_MENU_ data", info: "_START_-_END_ dari _TOTAL_" } };
         $('#tblSiswa').DataTable(dtConfig); 
         $('#tblDataSiswa').DataTable(dtConfig); 
+        $('#tblIndukKeluar').DataTable(dtConfig);
         $('#tblAlumni').DataTable(dtConfig); 
         
         // PENGAMAN: Paksa loader hilang jika nyangkut
