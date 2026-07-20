@@ -15,6 +15,8 @@
     <link href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css" />
     <script src="https://cdn.jsdelivr.net/npm/apexcharts@3.41.0/dist/apexcharts.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/exceljs/4.3.0/exceljs.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
 
 
     <link rel="stylesheet" href="./style.css">
@@ -215,6 +217,11 @@
                             style="width:50px; height:50px;"><i class="bi bi-house-door-fill fs-3"></i></div><span
                             class="mt-1" style="font-size: 10px; font-weight: bold;">Home</span>
                     </a>
+                    
+                    <a href="javascript:void(0)" onclick="nav('laporan', this)"
+                        class="m-nav-item text-center text-decoration-none"><i
+                            class="bi bi-file-earmark-bar-graph-fill fs-4 d-block mb-1" style="line-height: 1;"></i><span
+                            style="font-size: 10px; font-weight: bold;">Laporan</span></a>
 
                     <a href="javascript:void(0)" onclick="nav('alumni', this)"
                         class="m-nav-item text-center text-decoration-none"><i
@@ -240,6 +247,11 @@
                             style="width:50px; height:50px;"><i class="bi bi-speedometer2 fs-3"></i></div><span
                             class="mt-1" style="font-size: 10px; font-weight: bold;">Dash</span>
                     </a>
+
+                    <a href="javascript:void(0)" onclick="nav('laporan', this)"
+                        class="m-nav-item text-center text-decoration-none"><i
+                            class="bi bi-file-earmark-bar-graph-fill fs-4 d-block mb-1" style="line-height: 1;"></i><span
+                            style="font-size: 10px; font-weight: bold;">Laporan</span></a>
 
                     <a href="javascript:void(0)" onclick="logout()"
                         class="m-nav-item text-center text-decoration-none text-danger"><i
@@ -309,7 +321,7 @@
                         class="badge bg-danger ms-1 hidden">0</span></a>
 
                 <div class="admin-only">
-
+                    <a href="javascript:void(0)" onclick="nav('laporan', this)"><i class="bi bi-file-earmark-bar-graph-fill me-2"></i> Laporan</a>
                     <a href="javascript:void(0)" onclick="nav('settings', this)"><i class="bi bi-gear-fill me-2"></i>
                         Pengaturan</a>
                 </div>
@@ -331,6 +343,27 @@
 
                     <div id="view-dash">
                         <h3 class="mb-4 text-secondary fw-bold">Dashboard</h3>
+
+                        <!-- NEW IDENTITAS SEKOLAH BANNER -->
+                        <div class="card p-4 mb-4 shadow-sm border-0 rounded-4">
+                            <div class="row align-items-center">
+                                <div class="col-md-2 text-center mb-3 mb-md-0">
+                                    <img id="dashLogoInstansi" src="assets/img/tutwuri.png" style="max-height: 70px; object-fit: contain;">
+                                    <img id="dashLogoSekolah" src="assets/img/logo-sek.png" class="ms-2" style="max-height: 70px; object-fit: contain;">
+                                </div>
+                                <div class="col-md-6 mb-3 mb-md-0 border-end border-2">
+                                    <div id="dashInstansi2" class="small fw-bold text-secondary text-uppercase"></div>
+                                    <div id="dashOpd" class="small fw-bold text-secondary text-uppercase"></div>
+                                    <div id="dashName2" class="h4 text-primary fw-bold my-1 text-uppercase"></div>
+                                </div>
+                                <div class="col-md-4 small text-muted">
+                                    <div class="mb-1"><i class="bi bi-geo-alt-fill me-2 text-danger"></i> <span id="dashAddr2"></span></div>
+                                    <div class="mb-1"><i class="bi bi-globe me-2 text-primary"></i> <span id="dashWeb"></span></div>
+                                    <div class="mb-1"><i class="bi bi-envelope-fill me-2 text-warning"></i> <span id="dashEmail"></span></div>
+                                    <div><i class="bi bi-telephone-fill me-2 text-success"></i> <span id="dashTelp"></span></div>
+                                </div>
+                            </div>
+                        </div>
 
                         <div class="row g-3 mb-4">
                             <div class="col-6 col-md-3">
@@ -361,32 +394,33 @@
 
                         <div class="row g-4">
                             <div class="col-md-4">
-                                <div class="card h-100">
-                                    <div class="card-header bg-white fw-bold">Statistik Gender</div>
-                                    <div class="card-body">
+                                <div class="card h-100 shadow-sm border-0">
+                                    <div class="card-header bg-white fw-bold border-0 pt-3">Statistik Gender</div>
+                                    <div class="card-body text-center">
                                         <div id="chartGender"></div>
+                                        <div id="genderCounts" class="mt-2 small fw-bold text-secondary"></div>
                                     </div>
                                 </div>
                             </div>
                             <div class="col-md-4">
-                                <div class="card h-100">
-                                    <div class="card-header bg-white fw-bold">Status Siswa</div>
-                                    <div class="card-body">
+                                <div class="card h-100 shadow-sm border-0">
+                                    <div class="card-header bg-white fw-bold border-0 pt-3">Status Siswa</div>
+                                    <div class="card-body text-center">
                                         <div id="chartStatus"></div>
+                                        <div id="statusCounts" class="mt-2 small fw-bold text-secondary"></div>
                                     </div>
                                 </div>
                             </div>
                             <div class="col-md-4">
-                                <div class="card h-100 p-4">
-                                    <h5 class="fw-bold mb-3 text-dark border-bottom pb-2">Identitas Sekolah</h5>
-                                    <div id="dashInstansi" class="small fw-bold text-secondary"></div>
-                                    <div id="dashName" class="h5 text-primary fw-bold my-1"></div>
-                                    <div id="dashAddr" class="text-muted small"></div>
+                                <div class="card h-100 shadow-sm border-0">
+                                    <div class="card-header bg-white fw-bold border-0 pt-3">Grafik Lulusan (Alumni)</div>
+                                    <div class="card-body">
+                                        <div id="chartAlumni"></div>
+                                    </div>
                                 </div>
                             </div>
                         </div>
                     </div>
-
                     <div id="view-siswa" class="hidden">
                         <div class="d-flex flex-wrap justify-content-between align-items-center mb-4 gap-2">
                             <h3 class="m-0 text-secondary fw-bold">Master Buku Induk</h3>
@@ -563,7 +597,7 @@
 
                                 <button class="btn btn-sm btn-success shadow-sm fw-bold"
                                     onclick="cetakKartuMassal('siswa')">
-                                    <i class="bi bi-printer"></i> Semua Kartu<span class="mobile-hide"> Semua</span>
+                                    <i class="bi bi-printer"></i> Semua Kartu
                                 </button>
                             </div>
                         </div>
@@ -862,6 +896,110 @@
 
 
 
+                    <div id="view-laporan" class="hidden">
+                        <div class="d-flex flex-column flex-md-row justify-content-between mb-3 gap-2">
+                            <h3 class="m-0 text-secondary fw-bold">Laporan & Unduh Data</h3>
+                        </div>
+                        
+                        <div class="card p-4 bg-white shadow-sm border-0 mb-4">
+                            <h5 class="fw-bold mb-3 border-bottom pb-2">Filter Data Laporan</h5>
+                            <div class="row g-3 align-items-end">
+                                <div class="col-md-3">
+                                    <label class="form-label small fw-bold text-muted">Tipe Siswa</label>
+                                    <select class="form-select fw-bold border-primary shadow-sm" id="lapTipeSiswa" onchange="onLapTipeChange()">
+                                        <option value="Semua Siswa">Semua Siswa</option>
+                                        <option value="Siswa Aktif">Siswa Aktif</option>
+                                        <option value="Alumni">Alumni</option>
+                                        <option value="Keluar/Pindah">Siswa Keluar/Pindah</option>
+                                    </select>
+                                </div>
+                                
+                                <div class="col-md-3" id="lapKolomKeduaContainer" style="display: none;">
+                                    <label class="form-label small fw-bold text-muted" id="lapLabelKedua">Filter Kedua</label>
+                                    <select class="form-select fw-bold shadow-sm" id="lapFilterKedua"></select>
+                                </div>
+                                
+                                <div class="col-md-3" id="lapKolomUrutanContainer">
+                                    <label class="form-label small fw-bold text-muted">Urutkan Berdasarkan</label>
+                                    <select class="form-select fw-bold shadow-sm" id="lapOrderBerdasarkan">
+                                        <option value="NIS">Urutan NIS</option>
+                                        <option value="Nama">Urutan Abjad Nama</option>
+                                    </select>
+                                </div>
+                                
+                                <div class="col-md-3">
+                                    <button class="btn btn-success w-100 fw-bold shadow-sm" onclick="unduhLaporanExcel()">
+                                        <i class="bi bi-file-earmark-excel"></i> Unduh Excel
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <ul class="nav nav-pills mb-3" role="tablist">
+                            <li class="nav-item" role="presentation">
+                                <button class="nav-link active fw-bold px-4" data-bs-toggle="pill" data-bs-target="#tabLapSiswa" type="button">
+                                    <i class="bi bi-person-lines-fill me-1"></i> Data Siswa
+                                </button>
+                            </li>
+                            <li class="nav-item" role="presentation">
+                                <button class="nav-link fw-bold px-4" data-bs-toggle="pill" data-bs-target="#tabLapLeger" type="button">
+                                    <i class="bi bi-journal-text me-1"></i> Data Leger
+                                </button>
+                            </li>
+                        </ul>
+                        
+                        <div class="tab-content">
+                              <div class="tab-pane fade show active" id="tabLapSiswa" role="tabpanel">
+                                  <div class="table-responsive bg-white rounded shadow-sm border mt-3">
+                                                                            <table class="table table-hover table-striped mb-0" id="tblLapPreviewSiswa" style="width:100%; white-space:nowrap;">
+                                          <thead class="table-light text-secondary">
+                                              <tr>
+                                                  <th>No</th>
+                                                  <th>NIS</th>
+                                                  <th>NISN</th>
+                                                  <th>Nama Lengkap</th>
+                                                  <th>L/P</th>
+                                                  <th>Tempat Lahir</th>
+                                                  <th>Tanggal Lahir</th>
+                                                  <th>Nama Ayah</th>
+                                                  <th>Nama Ibu</th>
+                                                  <th>Kelas / Status</th>
+                                                  <th>Keterangan</th>
+                                              </tr>
+                                          </thead>
+                                          <tbody id="tbodyLapPreviewSiswa">
+                                              <tr><td colspan="11" class="text-center text-muted py-3">Pilih filter untuk melihat preview data</td></tr>
+                                          </tbody>
+                                      </table>
+                                  </div>
+                              </div>
+                              <div class="tab-pane fade" id="tabLapLeger" role="tabpanel">
+                                  <div class="table-responsive bg-white rounded shadow-sm border mt-3">
+                                                                            <table class="table table-hover table-striped mb-0" id="tblLapPreviewLeger" style="width:100%; white-space:nowrap;">
+                                          <thead class="table-light text-secondary">
+                                              <tr>
+                                                  <th>No</th>
+                                                  <th>NIS</th>
+                                                  <th>NISN</th>
+                                                  <th>Nama Lengkap</th>
+                                                  <th>L/P</th>
+                                                  <th>Tempat Lahir</th>
+                                                  <th>Tanggal Lahir</th>
+                                                  <th>Nama Ayah</th>
+                                                  <th>Nama Ibu</th>
+                                                  <th>Kelas / Status</th>
+                                                  <th>Nilai Rata-rata</th>
+                                              </tr>
+                                          </thead>
+                                          <tbody id="tbodyLapPreviewLeger">
+                                              <tr><td colspan="11" class="text-center text-muted py-3">Pilih filter untuk melihat preview data</td></tr>
+                                          </tbody>
+                                      </table>
+                                  </div>
+                              </div>
+                          </div>
+                    </div>
+
                     <div id="view-settings" class="hidden">
                         <h3 class="text-secondary fw-bold mb-4">Pengaturan Sistem</h3>
 
@@ -869,7 +1007,12 @@
                             <li class="nav-item" role="presentation">
                                 <button class="nav-link active fw-bold px-4" data-bs-toggle="pill"
                                     data-bs-target="#tabSetIdentitas" type="button"><i class="bi bi-building me-1"></i>
-                                    Identitas & Tema</button>
+                                    Identitas Sekolah</button>
+                            </li>
+                            <li class="nav-item" role="presentation">
+                                <button class="nav-link fw-bold px-4" data-bs-toggle="pill"
+                                    data-bs-target="#tabSetLogoTema" type="button"><i class="bi bi-palette me-1"></i>
+                                    Logo & Tema</button>
                             </li>
                             <li class="nav-item" role="presentation">
                                 <button class="nav-link fw-bold px-4" data-bs-toggle="pill"
@@ -883,8 +1026,7 @@
                                 <div class="row g-4">
                                     <div class="col-lg-12">
                                         <div class="card p-4 bg-white h-100">
-                                            <h5 class="text-primary fw-bold mb-4 border-bottom pb-2">Identitas & Tema
-                                            </h5>
+                                            <h5 class="text-primary fw-bold mb-4 border-bottom pb-2">Identitas Sekolah</h5>
                                             <form onsubmit="saveSettings(event)">
                                                 <div class="row g-3">
                                                     <div class="col-md-6"><label class="fw-bold small">Nama
@@ -921,6 +1063,24 @@
                                                             Sekolah</label><input id="setNip" class="form-control">
                                                     </div>
 
+                                                    
+                                                </div>
+                                                <button type="submit"
+                                                    class="btn btn-primary w-100 mt-4 fw-bold shadow-sm bg-theme">SIMPAN
+                                                    PENGATURAN</button>
+                                            </form>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="tab-pane fade" id="tabSetLogoTema" role="tabpanel">
+                                <div class="row g-4">
+                                    <div class="col-lg-12">
+                                        <div class="card p-4 bg-white h-100">
+                                            <h5 class="text-primary fw-bold mb-4 border-bottom pb-2">Logo & Tema</h5>
+                                            <form onsubmit="saveSettings(event)">
+                                                <div class="row g-3">
                                                     <div class="col-md-6">
                                                         <label class="fw-bold small text-muted">Logo Instansi</label>
                                                         <div class="input-group input-group-sm mt-1 shadow-sm">
@@ -988,10 +1148,26 @@
                                                             class="form-control form-control-color w-100"
                                                             title="Pilih Warna Tema">
                                                     </div>
+                                                    <div class="col-md-6 mt-3">
+                                                        <label class="fw-bold small text-muted">Background Halaman Landing</label>
+                                                        <div class="input-group input-group-sm mt-1 shadow-sm">
+                                                            <input type="file" id="file_background_landing" class="form-control" onchange="cropImage(this, 'background_landing')">
+                                                            <button type="button" class="btn btn-outline-danger" onclick="hapusGambarSettings('background_landing', 'prev_bg_landing')" title="Hapus Background"><i class="bi bi-trash"></i></button>
+                                                        </div>
+                                                        <img id="prev_bg_landing" class="settings-preview hidden">
+                                                        <input type="hidden" id="background_landing">
+                                                    </div>
+                                                    <div class="col-md-6 mt-3">
+                                                        <label class="fw-bold small text-muted">Background Halaman Login</label>
+                                                        <div class="input-group input-group-sm mt-1 shadow-sm">
+                                                            <input type="file" id="file_background_login" class="form-control" onchange="cropImage(this, 'background_login')">
+                                                            <button type="button" class="btn btn-outline-danger" onclick="hapusGambarSettings('background_login', 'prev_bg_login')" title="Hapus Background"><i class="bi bi-trash"></i></button>
+                                                        </div>
+                                                        <img id="prev_bg_login" class="settings-preview hidden">
+                                                        <input type="hidden" id="background_login">
+                                                    </div>
                                                 </div>
-                                                <button type="submit"
-                                                    class="btn btn-primary w-100 mt-4 fw-bold shadow-sm bg-theme">SIMPAN
-                                                    PENGATURAN</button>
+                                                <button type="submit" class="btn btn-primary w-100 mt-4 fw-bold shadow-sm bg-theme">SIMPAN PENGATURAN</button>
                                             </form>
                                         </div>
                                     </div>
@@ -1003,60 +1179,48 @@
                                         <div class="card p-4 bg-white h-100">
                                             <h5 class="text-danger fw-bold mb-4 border-bottom pb-2">Keamanan Akun</h5>
 
-                                            <div class="card p-4 bg-white mt-4">
-                                                <h5 class="text-success fw-bold mb-3 border-bottom pb-2">Backup &
-                                                    Restore</h5>
-                                                <p class="small text-muted mb-3">Sistem akan menduplikasi Database saat
-                                                    ini dan
-                                                    menyimpannya di folder komputer Anda sebagai cadangan.</p>
-                                                <div class="d-grid gap-2">
-                                                    <button onclick="doBackup()"
-                                                        class="btn btn-success fw-bold shadow-sm">
-                                                        <i class="bi bi-cloud-download me-2"></i> BACKUP SEKARANG
-                                                    </button>
-                                                    <button onclick="doRestore()"
-                                                        class="btn btn-outline-danger fw-bold shadow-sm">
-                                                        <i class="bi bi-arrow-counterclockwise me-2"></i> RESTORE
-                                                        DATABASE
-                                                    </button>
+                                            
+                                            <div class="row">
+                                                <div class="col-md-6 border-end pe-4">
+                                                    <h5 class="text-danger fw-bold mb-3 border-bottom pb-2">Update Password</h5>
+                                                    <form onsubmit="updateAccount(event, 'admin')" class="mb-4 p-3 bg-light border rounded">
+                                                        <h6 class="fw-bold small text-uppercase">Admin</h6>
+                                                        <input id="adminUser" class="form-control form-control-sm mb-2" placeholder="User Baru">
+                                                        <div class="input-group input-group-sm mb-2">
+                                                            <input id="adminPass" type="password" class="form-control" placeholder="Pass Baru">
+                                                            <span class="input-group-text bg-white" onclick="togglePass('adminPass', this.querySelector('i'))" style="cursor:pointer">
+                                                                <i class="bi bi-eye-slash"></i>
+                                                            </span>
+                                                        </div>
+                                                        <button type="submit" class="btn btn-sm btn-danger w-100 fw-bold">Update Admin</button>
+                                                    </form>
+                                                    <form onsubmit="updateAccount(event, 'wakakurikulum')" class="p-3 bg-light border rounded">
+                                                        <h6 class="fw-bold small text-uppercase">Waka Kurikulum</h6>
+                                                        <input id="guruUser" class="form-control form-control-sm mb-2" placeholder="User Baru">
+                                                        <div class="input-group input-group-sm mb-2">
+                                                            <input id="guruPass" type="password" class="form-control" placeholder="Pass Baru">
+                                                            <span class="input-group-text bg-white" onclick="togglePass('guruPass', this.querySelector('i'))" style="cursor:pointer">
+                                                                <i class="bi bi-eye-slash"></i>
+                                                            </span>
+                                                        </div>
+                                                        <button type="submit" class="btn btn-sm btn-success w-100 fw-bold">Update Waka</button>
+                                                    </form>
+                                                </div>
+                                                <div class="col-md-6 ps-4">
+                                                    <div class="card p-4 bg-white shadow-sm border-0 h-100">
+                                                        <h5 class="text-success fw-bold mb-3 border-bottom pb-2">Backup & Restore</h5>
+                                                        <p class="small text-muted mb-3">Sistem akan menduplikasi Database saat ini dan menyimpannya di folder komputer Anda sebagai cadangan.</p>
+                                                        <div class="d-grid gap-3 mt-auto">
+                                                            <button onclick="doBackup()" class="btn btn-success fw-bold shadow-sm py-2">
+                                                                <i class="bi bi-cloud-download me-2"></i> BACKUP SEKARANG
+                                                            </button>
+                                                            <button onclick="doRestore()" class="btn btn-outline-danger fw-bold shadow-sm py-2">
+                                                                <i class="bi bi-arrow-counterclockwise me-2"></i> RESTORE DATABASE
+                                                            </button>
+                                                        </div>
+                                                    </div>
                                                 </div>
                                             </div>
-
-                                            <form onsubmit="updateAccount(event, 'admin')"
-                                                class="mb-4 p-3 bg-light border rounded">
-                                                <h6 class="fw-bold small text-uppercase">Admin</h6>
-                                                <input id="adminUser" class="form-control form-control-sm mb-2"
-                                                    placeholder="User Baru">
-                                                <div class="input-group input-group-sm mb-2">
-                                                    <input id="adminPass" type="password" class="form-control"
-                                                        placeholder="Pass Baru">
-                                                    <span class="input-group-text bg-white"
-                                                        onclick="togglePass('adminPass', this.querySelector('i'))"
-                                                        style="cursor:pointer">
-                                                        <i class="bi bi-eye-slash"></i>
-                                                    </span>
-                                                </div>
-                                                <button type="submit" class="btn btn-sm btn-danger w-100 fw-bold">Update
-                                                    Admin</button>
-                                            </form>
-                                            <form onsubmit="updateAccount(event, 'wakakurikulum')"
-                                                class="p-3 bg-light border rounded">
-                                                <h6 class="fw-bold small text-uppercase">Waka Kurikulum</h6>
-                                                <input id="guruUser" class="form-control form-control-sm mb-2"
-                                                    placeholder="User Baru">
-                                                <div class="input-group input-group-sm mb-2">
-                                                    <input id="guruPass" type="password" class="form-control"
-                                                        placeholder="Pass Baru">
-                                                    <span class="input-group-text bg-white"
-                                                        onclick="togglePass('guruPass', this.querySelector('i'))"
-                                                        style="cursor:pointer">
-                                                        <i class="bi bi-eye-slash"></i>
-                                                    </span>
-                                                </div>
-                                                <button type="submit"
-                                                    class="btn btn-sm btn-success w-100 fw-bold">Update
-                                                    Waka</button>
-                                            </form>
                                         </div>
                                     </div>
                                 </div>
