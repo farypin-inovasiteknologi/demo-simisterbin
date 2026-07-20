@@ -77,7 +77,7 @@ if (tenantId && tenantConfig[tenantId]) {
 let globalConf = {}; // Menampung pengaturan sekolah
 let globalSiswa = [], curSmt = 1, cropper, cropTarget, curPage = 'dash';
 let globalMapel = [];
-let chartGender, chartStatus;
+let chartGender, chartStatus, chartAlumni;
 let globalDaftarUlang = [];
 let scanner = null;
 
@@ -517,23 +517,27 @@ function loadSettings() {
         globalConf = s;
 
         if (s.theme_color) document.documentElement.style.setProperty('--primary-color', s.theme_color);
-        if (s.nama_instansi) { $('#lblInstansi').text(s.nama_instansi); $('#dashInstansi').text(s.nama_instansi); $('#setInstansi').val(s.nama_instansi); }
-        if (s.opd_dinas) { $('#lblOpdLogin').text(s.opd_dinas); } else { $('#lblOpdLogin').text(''); }
+        if (s.nama_instansi) { $('#lblInstansi').text(s.nama_instansi); $('#dashInstansi2').text(s.nama_instansi); $('#setInstansi').val(s.nama_instansi); }
+        if (s.opd_dinas) { $('#lblOpdLogin').text(s.opd_dinas); $('#dashOpd').text(s.opd_dinas); } else { $('#lblOpdLogin').text(''); $('#dashOpd').text(''); }
         if (s.nama_sekolah) {
             $('#lblSekolah').text(s.nama_sekolah);
-            $('#dashName').text(s.nama_sekolah);
+            $('#dashName2').text(s.nama_sekolah);
             $('#footSchoolName').text(s.nama_sekolah);
             $('#setNama').val(s.nama_sekolah);
             $('#wb_sekolah').text(s.nama_sekolah);
         }
-        if (s.alamat_sekolah) { $('#dashAddr').text(s.alamat_sekolah); $('#setAlamat').val(s.alamat_sekolah); }
+        if (s.alamat_sekolah) { $('#dashAddr2').text(s.alamat_sekolah); $('#setAlamat').val(s.alamat_sekolah); }
+        
+        if (s.web_sekolah) { $('#dashWeb').text(s.web_sekolah); } else { $('#dashWeb').text('-'); }
+        if (s.email_sekolah) { $('#dashEmail').text(s.email_sekolah); } else { $('#dashEmail').text('-'); }
+        if (s.telp_sekolah) { $('#dashTelp').text(s.telp_sekolah); } else { $('#dashTelp').text('-'); }
         $('#setKepsek').val(s.nama_kepsek); $('#setNip').val(s.nip_kepsek); $('#setTheme').val(s.theme_color || '#4e73df');
         $('#setOpd').val(s.opd_dinas || ''); $('#setTelp').val(s.telp_sekolah || ''); $('#setEmail').val(s.email_sekolah || ''); $('#setWeb').val(s.web_sekolah || '');
         $('#setLinkValidasi').val(s.link_validasi || "https://simisterbin.my.id");
-        if (s.logo_instansi) callAPI('getImage', { id: s.logo_instansi }).then(b => { if (b) { $('#loginLogoInstansi').attr('src', b).removeClass('hidden'); $('#prevLogoInstansi').attr('src', b).removeClass('hidden'); } });
+        if (s.logo_instansi) callAPI('getImage', { id: s.logo_instansi }).then(b => { if (b) { $('#loginLogoInstansi').attr('src', b).removeClass('hidden'); $('#prevLogoInstansi').attr('src', b).removeClass('hidden'); $('#dashLogoInstansi').attr('src', b).removeClass('hidden'); } });
         $('#logo_instansi').val(s.logo_instansi);
 
-        if (s.logo_sekolah) callAPI('getImage', { id: s.logo_sekolah }).then(b => { if (b) { $('#loginLogoSekolah').attr('src', b).removeClass('hidden'); $('#prevLogoSekolah').attr('src', b).removeClass('hidden'); } });
+        if (s.logo_sekolah) callAPI('getImage', { id: s.logo_sekolah }).then(b => { if (b) { $('#loginLogoSekolah').attr('src', b).removeClass('hidden'); $('#prevLogoSekolah').attr('src', b).removeClass('hidden'); $('#dashLogoSekolah').attr('src', b).removeClass('hidden'); } });
         $('#logo_sekolah').val(s.logo_sekolah);
         // --- FIX: UPDATE HEADER SISWA SETELAH DATA TIBA ---
         $('#headerInstansi').text(s.nama_instansi || 'DINAS PENDIDIKAN');
@@ -546,6 +550,12 @@ function loadSettings() {
 
         $('#background_belakang').val(s.background_belakang);
         if (s.background_belakang) callAPI('getImage', { id: s.background_belakang }).then(b => { if (b) { $('#prev_bg_belakang').attr('src', b).removeClass('hidden'); } });
+
+        $('#background_landing').val(s.background_landing);
+        if (s.background_landing) callAPI('getImage', { id: s.background_landing }).then(b => { if (b) { $('#prev_bg_landing').attr('src', b).removeClass('hidden'); $('#viewLanding').css('background-image', 'url(' + b + ')').css('background-size', 'cover').css('background-position', 'center'); } });
+
+        $('#background_login').val(s.background_login);
+        if (s.background_login) callAPI('getImage', { id: s.background_login }).then(b => { if (b) { $('#prev_bg_login').attr('src', b).removeClass('hidden'); $('#viewLogin').css('background-image', 'url(' + b + ')').css('background-size', 'cover').css('background-position', 'center'); } });
 
         // --- FIX 1: TAMPILAN HALAMAN DEPAN (LANDING PAGE) ---
         $('#lblInstansiLanding').text(s.nama_instansi || 'PEMERINTAH');
@@ -585,6 +595,8 @@ function saveSettings(e) {
         web_sekolah: $('#setWeb').val(),
         background_kartu: $('#background_kartu').val(),
         background_belakang: $('#background_belakang').val(),
+        background_landing: $('#background_landing').val(),
+        background_login: $('#background_login').val(),
         link_validasi: $('#setLinkValidasi').val()
     };
     callAPI('saveSettings', d).then(r => {
@@ -743,6 +755,8 @@ $('#btnCrop').click(() => {
                 if (cropTarget === 'logo_sekolah') { $('#logo_sekolah').val(imgId); $('#prevLogoSekolah').attr('src', b64).removeClass('hidden'); }
                 if (cropTarget === 'background_kartu') { $('#background_kartu').val(imgId); $('#prev_bg_depan').attr('src', b64).removeClass('hidden'); }
                 if (cropTarget === 'background_belakang') { $('#background_belakang').val(imgId); $('#prev_bg_belakang').attr('src', b64).removeClass('hidden'); }
+                if (cropTarget === 'background_landing') { $('#background_landing').val(imgId); $('#prev_bg_landing').attr('src', b64).removeClass('hidden'); $('#viewLanding').css('background-image', 'url(' + b64 + ')').css('background-size', 'cover').css('background-position', 'center'); }
+                if (cropTarget === 'background_login') { $('#background_login').val(imgId); $('#prev_bg_login').attr('src', b64).removeClass('hidden'); $('#viewLogin').css('background-image', 'url(' + b64 + ')').css('background-size', 'cover').css('background-position', 'center'); }
             });
         } else {
             $('#loader').addClass('hidden');
