@@ -893,17 +893,30 @@ function openScannerPublic() {
 // LOGIKA KUNCI: Nyalakan kamera HANYA saat modal sudah selesai muncul
 $('#mdlScanner').on('shown.bs.modal', function () {
     if (!scanner) {
-        // Render kamera ke dalam div ber-ID "reader"
-        scanner = new Html5QrcodeScanner("reader", { fps: 10, qrbox: { width: 250, height: 250 } }, false);
-        scanner.render(onScanSuccess, function (error) { /* Abaikan error pencarian frame */ });
+        scanner = new Html5Qrcode("reader");
+        const config = { fps: 10, qrbox: { width: 250, height: 250 } };
+        
+        scanner.start({ facingMode: "environment" }, config, onScanSuccess, function(error){})
+        .catch(err => {
+            console.log("Kamera belakang tidak ditemukan, mencoba kamera depan...");
+            scanner.start({ facingMode: "user" }, config, onScanSuccess, function(error){})
+            .catch(err2 => {
+                Swal.fire('Error', 'Kamera tidak dapat diakses atau tidak ditemukan.', 'error');
+            });
+        });
     }
 });
 
 // Matikan kamera saat pop-up ditutup agar tidak berat
 $('#mdlScanner').on('hidden.bs.modal', function () {
     if (scanner) {
-        scanner.clear();
-        scanner = null;
+        scanner.stop().then(() => {
+            scanner.clear();
+            scanner = null;
+        }).catch(err => {
+            scanner.clear();
+            scanner = null;
+        });
     }
 });
 
