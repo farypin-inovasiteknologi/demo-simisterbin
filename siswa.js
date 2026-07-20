@@ -720,7 +720,7 @@ function prosesCetakMassal(tipe, targetData, bagian) {
             <style>
                 body { background: #fff; font-family: Arial, sans-serif; margin: 0; padding: 0; -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
                 @page { size: A4 portrait; margin: 5mm !important; }
-                .print-page { display: grid; grid-template-columns: 85.2mm 85.2mm; grid-template-rows: repeat(5, 53.3mm); gap: 1mm 5mm; justify-content: center; align-content: start; width: 100%; page-break-after: always; padding-top: 0mm; }
+                .print-page { display: grid; grid-template-columns: 85.2mm 85.2mm; grid-template-rows: repeat(5, 53.3mm); gap: 1mm 5mm; justify-content: center; align-content: start; width: 100%; page-break-after: always; padding-top: 4mm; }
                 .print-card-wrapper { width: 85.2mm; height: 53.3mm; overflow: hidden; position: relative; border: 1px dashed #cbd5e1; border-radius: 8px; }
                 .id-card { width: 400px; height: 250px; background: white; position: relative; overflow: hidden; transform-origin: top left; transform: scale(0.805); margin: 0; }
                 .card-bg-gradient { position: absolute; inset: 0; background: linear-gradient(120deg, #4e73df 35%, #fff 35.5%); z-index: 1; }
