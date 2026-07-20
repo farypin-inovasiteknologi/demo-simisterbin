@@ -19,9 +19,31 @@ function loadSiswa() {
 
         if (chartGender) chartGender.destroy();
         chartGender = new ApexCharts(document.querySelector("#chartGender"), { series: [l, p], labels: ['Laki-laki', 'Perempuan'], colors: ['#4e73df', '#1cc88a'], chart: { type: 'pie', height: 250 }, legend: { position: 'bottom' }, dataLabels: { enabled: true } }); chartGender.render();
+        $('#genderCounts').html(`<span class="me-3"><i class="bi bi-circle-fill text-primary"></i> Laki-laki: ${l}</span><span><i class="bi bi-circle-fill text-success"></i> Perempuan: ${p}</span>`);
 
         if (chartStatus) chartStatus.destroy();
         chartStatus = new ApexCharts(document.querySelector("#chartStatus"), { series: [aktif, lulus, keluar], labels: ['Aktif', 'Lulus', 'Keluar'], colors: ['#36b9cc', '#1cc88a', '#e74a3b'], chart: { type: 'donut', height: 250 }, legend: { position: 'bottom' }, dataLabels: { enabled: false } }); chartStatus.render();
+        $('#statusCounts').html(`<span class="me-3"><i class="bi bi-circle-fill text-info"></i> Aktif: ${aktif}</span><span class="me-3"><i class="bi bi-circle-fill text-success"></i> Lulus: ${lulus}</span><span><i class="bi bi-circle-fill text-danger"></i> Keluar: ${keluar}</span>`);
+
+        let alumniList = listSiswa.filter(r => r[31] === 'Lulus');
+        let alumniByYear = {};
+        alumniList.forEach(r => {
+            let year = r[32] ? String(r[32]).substring(0, 4) : "Belum Set";
+            alumniByYear[year] = (alumniByYear[year] || 0) + 1;
+        });
+        let years = Object.keys(alumniByYear).sort();
+        let counts = years.map(y => alumniByYear[y]);
+
+        if (chartAlumni) chartAlumni.destroy();
+        chartAlumni = new ApexCharts(document.querySelector("#chartAlumni"), {
+            series: [{ name: 'Lulusan', data: counts }],
+            chart: { type: 'bar', height: 250, toolbar: { show: false } },
+            plotOptions: { bar: { borderRadius: 4, horizontal: false } },
+            dataLabels: { enabled: true },
+            xaxis: { categories: years },
+            colors: ['#f6c23e']
+        });
+        chartAlumni.render();
 
         callAPI('getDashboardStats').then(res => { $('#totalMapel').text(res.mapel); $('#totalRombel').text(res.rombel); $('#totalUser').text(res.user); });
 
@@ -320,6 +342,8 @@ function editStatusAlumni(nis) {
     $('#frmSiswa [name="nis"]').prop('disabled', false).prop('readonly', true); // NIS wajib ikut terkirim tapi tidak bisa diedit
     $('#frmSiswa [name="status_akhir"]').prop('disabled', false);
     $('#frmSiswa [name="tgl_keluar"]').prop('disabled', false);
+    $('#frmSiswa [name="noijazah_sma"]').prop('disabled', false);
+    $('#frmSiswa [name="lanjut_ke"]').prop('disabled', false);
 
     // 5. Otomatis arahkan pandangan ke Tab Akademik
     $('.nav-tabs a[href="#t4"]').tab('show');
@@ -1325,9 +1349,11 @@ function loadAlumniByTahun() {
     callAPI('getAlumniByTahun', { tahun: tahun }).then(res => {
         $('#loader').addClass('hidden');
         if ($.fn.DataTable.isDataTable('#tblAlumni')) $('#tblAlumni').DataTable().destroy();
+        if ($.fn.DataTable.isDataTable('#tblLegerAlumni')) $('#tblLegerAlumni').DataTable().destroy();
 
         if (res.status === 'success') {
             let htmlAlumni = "";
+            let htmlLegerAlumni = "";
 
             // DEFINISI HAK AKSES
             const isAdmin = ($('#uRole').text() == 'ADMINISTRATOR' || $('#uRole').text() == 'ADMIN');
@@ -1335,24 +1361,27 @@ function loadAlumniByTahun() {
             const canInputNilai = (isAdmin || isWaka); // Admin dan Waka bisa input nilai
 
             // Render ulang khusus data alumni tahun tersebut
-            res.data.forEach(r => {
+                        res.data.forEach(r => {
                 const nis = r[0], nisn = r[1], nama = r[2], jk = r[7], status = r[31], thnKeluar = r[32] ? String(r[32]).substring(0, 4) : "-";
                 const nisGabung = nisn ? `${nis} / ${nisn}` : nis;
 
-                let btnDataAlumni = `<button class="btn btn-sm btn-secondary me-1 shadow-sm" onclick="reviewSiswa('${nis}')" title="Lihat"><i class="bi bi-eye"></i></button> 
-                                     <button class="btn btn-sm btn-success me-1 shadow-sm" onclick="cetakKartuAdmin('${nis}')" title="Unduh Kartu"><i class="bi bi-card-heading"></i></button>`;
+                let btnDataAlumni = `<button class="btn btn-sm btn-success me-1 shadow-sm" onclick="cetakKartuAdmin('${nis}')" title="Unduh Kartu"><i class="bi bi-card-heading"></i></button>`;
 
-                if (canInputNilai) {
-                    btnDataAlumni += `<button class="btn btn-sm btn-primary me-1 shadow-sm" onclick="bukaModalNilai('${nis}', '${nama}')" title="Input Nilai"><i class="bi bi-journal-plus"></i></button>`;
-                }
                 if (isAdmin) {
                     btnDataAlumni += `<button class="btn btn-sm btn-warning me-1 shadow-sm" onclick="editStatusAlumni('${nis}')" title="Ubah Status/Tahun Lulus"><i class="bi bi-pencil"></i></button>
                                       <button class="btn btn-sm btn-dark me-1 shadow-sm" onclick="resetPassAdmin('${nis}')" title="Reset Password"><i class="bi bi-key"></i></button>`;
                 }
 
-                htmlAlumni += `<tr><td>${nisGabung}</td><td>${nama}</td><td>${jk}</td><td><span class="badge bg-primary">${status}</span></td><td>${thnKeluar}</td><td>${btnDataAlumni}</td></tr>`;
+                let btnLegerAlumni = `<button class="btn btn-sm btn-warning me-1 shadow-sm fw-bold" onclick="openTranskrip('${nis}')" title="Lihat Leger"><i class="bi bi-table"></i></button>`;
+                if (canInputNilai) {
+                    btnLegerAlumni = `<button class="btn btn-sm btn-primary me-1 shadow-sm fw-bold" onclick="bukaModalNilai('${nis}', '${nama}')" title="Input Nilai"><i class="bi bi-journal-plus"></i></button> ` + btnLegerAlumni;
+                }
 
-                // Masukkan data ini sementara ke globalSiswa agar fungsi Lihat Kartu dsb tetap jalan
+                let rowAlumniStr = `<tr><td>${nisGabung}</td><td>${nama}</td><td>${jk}</td><td><span class="badge bg-primary">${status}</span></td><td>${thnKeluar}</td>`;
+
+                htmlAlumni += rowAlumniStr + `<td>${btnDataAlumni}</td></tr>`;
+                htmlLegerAlumni += rowAlumniStr + `<td>${btnLegerAlumni}</td></tr>`;
+
                 if (!globalSiswa.find(x => x[0] == nis)) {
                     globalSiswa.push(r);
                 }
@@ -1360,6 +1389,9 @@ function loadAlumniByTahun() {
 
             $('#tbodyAlumni').html(htmlAlumni);
             $('#tblAlumni').DataTable({ language: { search: "Cari:", lengthMenu: "_MENU_ data", info: "_START_-_END_ dari _TOTAL_" } });
+
+            $('#tbodyLegerAlumni').html(htmlLegerAlumni);
+            $('#tblLegerAlumni').DataTable({ language: { search: "Cari:", lengthMenu: "_MENU_ data", info: "_START_-_END_ dari _TOTAL_" } });
         } else {
             $('#tbodyAlumni').html(`<tr><td colspan="6" class="text-center text-danger">${res.message}</td></tr>`);
         }
@@ -1381,20 +1413,26 @@ function loadIndukAlumniByTahun() {
             let htmlIndukAlumni = "";
             const isAdmin = ($('#uRole').text() == 'ADMINISTRATOR' || $('#uRole').text() == 'ADMIN');
 
-            res.data.forEach(r => {
-                const nis = r[0], nisn = r[1], nama = r[2], tgllahir = formatTglIndoJS(r[6]), jk = r[7];
-                const thnKeluar = r[32] ? String(r[32]).substring(0, 4) : "-";
+                        res.data.forEach(r => {
+                const nis = r[0], nisn = r[1], nama = r[2], jk = r[7], status = r[31], thnKeluar = r[32] ? String(r[32]).substring(0, 4) : "-";
                 const nisGabung = nisn ? `${nis} / ${nisn}` : nis;
 
-                // Tombol aksi sangat dibatasi (Hanya Cetak PDF, Lihat, Hapus)
-                let btnInduk = `<button class="btn btn-sm btn-info text-white me-1 shadow-sm" onclick="cetakPDF('${nis}')" title="Cetak Buku Induk"><i class="bi bi-file-pdf"></i></button>
-                                <button class="btn btn-sm btn-secondary me-1 shadow-sm" onclick="reviewSiswa('${nis}')" title="Detail"><i class="bi bi-eye"></i></button>`;
+                let btnDataAlumni = `<button class="btn btn-sm btn-success me-1 shadow-sm" onclick="cetakKartuAdmin('${nis}')" title="Unduh Kartu"><i class="bi bi-card-heading"></i></button>`;
 
                 if (isAdmin) {
-                    btnInduk += `<button class="btn btn-sm btn-danger shadow-sm" onclick="delSiswa('${nis}')" title="Hapus Permanen"><i class="bi bi-trash"></i></button>`;
+                    btnDataAlumni += `<button class="btn btn-sm btn-warning me-1 shadow-sm" onclick="editStatusAlumni('${nis}')" title="Ubah Status/Tahun Lulus"><i class="bi bi-pencil"></i></button>
+                                      <button class="btn btn-sm btn-dark me-1 shadow-sm" onclick="resetPassAdmin('${nis}')" title="Reset Password"><i class="bi bi-key"></i></button>`;
                 }
 
-                htmlIndukAlumni += `<tr><td>${nisGabung}</td><td>${nama}</td><td>${tgllahir}</td><td>${jk}</td><td>${thnKeluar}</td><td>${btnInduk}</td></tr>`;
+                let btnLegerAlumni = `<button class="btn btn-sm btn-warning me-1 shadow-sm fw-bold" onclick="openTranskrip('${nis}')" title="Lihat Leger"><i class="bi bi-table"></i></button>`;
+                if (canInputNilai) {
+                    btnLegerAlumni = `<button class="btn btn-sm btn-primary me-1 shadow-sm fw-bold" onclick="bukaModalNilai('${nis}', '${nama}')" title="Input Nilai"><i class="bi bi-journal-plus"></i></button> ` + btnLegerAlumni;
+                }
+
+                let rowAlumniStr = `<tr><td>${nisGabung}</td><td>${nama}</td><td>${jk}</td><td><span class="badge bg-primary">${status}</span></td><td>${thnKeluar}</td>`;
+
+                htmlAlumni += rowAlumniStr + `<td>${btnDataAlumni}</td></tr>`;
+                htmlLegerAlumni += rowAlumniStr + `<td>${btnLegerAlumni}</td></tr>`;
 
                 if (!globalSiswa.find(x => x[0] == nis)) {
                     globalSiswa.push(r);
@@ -2038,4 +2076,403 @@ function toggleEditDaftarUlang(noSpmb) {
             }
         });
     }
+}
+
+// ==========================================
+// ==========================================
+// ==========================================
+// ==========================================
+// LOGIKA MENU LAPORAN & UNDUH EXCEL MURNI (DITAMBAHKAN DENGAN AMAN)
+// ==========================================
+
+function onLapTipeChange() {
+    const tipe = $('#lapTipeSiswa').val();
+    const filterContainer = $('#lapKolomKeduaContainer');
+    const lapLabelKedua = $('#lapLabelKedua');
+    const lapFilterKedua = $('#lapFilterKedua');
+    const urutanContainer = $('#lapKolomUrutanContainer');
+
+    lapFilterKedua.empty();
+
+    if (tipe === 'Semua Siswa') {
+        filterContainer.hide();
+        urutanContainer.show();
+    } else if (tipe === 'Siswa Aktif') {
+        filterContainer.show();
+        lapLabelKedua.text('Pilih Kelas');
+        lapFilterKedua.append('<option value="">Semua Kelas</option>');
+        
+        let arrKelas = [];
+        if (typeof globalSiswa !== 'undefined') {
+            globalSiswa.forEach(s => {
+                if (s[31] === 'Aktif' && s[40]) {
+                    let kls = String(s[40]).trim();
+                    if (kls !== '-' && kls !== '' && !arrKelas.includes(kls)) arrKelas.push(kls);
+                }
+            });
+        }
+        arrKelas.sort();
+        arrKelas.forEach(k => lapFilterKedua.append(`<option value="${k}">${k}</option>`));
+        urutanContainer.show();
+    } else if (tipe === 'Alumni') {
+        filterContainer.show();
+        lapLabelKedua.text('Tahun Lulus');
+        lapFilterKedua.append('<option value="">Semua Tahun</option>');
+        
+        let arrTahun = [];
+        if (typeof globalSiswa !== 'undefined') {
+            globalSiswa.forEach(s => {
+                if (s[31] === 'Lulus' && s[32]) {
+                    let thn = String(s[32]).substring(0, 4);
+                    if (!arrTahun.includes(thn)) arrTahun.push(thn);
+                }
+            });
+        }
+        arrTahun.sort((a,b)=>b-a);
+        arrTahun.forEach(t => lapFilterKedua.append(`<option value="${t}">${t}</option>`));
+        urutanContainer.hide();
+    } else if (tipe === 'Keluar/Pindah') {
+        filterContainer.show();
+        lapLabelKedua.text('Tahun Keluar');
+        lapFilterKedua.append('<option value="">Semua Tahun</option>');
+        
+        let arrTahun = [];
+        if (typeof globalSiswaKeluar !== 'undefined') {
+            globalSiswaKeluar.forEach(s => {
+                if (s[32]) {
+                    let thn = String(s[32]).substring(0, 4);
+                    if (!arrTahun.includes(thn)) arrTahun.push(thn);
+                }
+            });
+        }
+        arrTahun.sort((a,b)=>b-a);
+        arrTahun.forEach(t => lapFilterKedua.append(`<option value="${t}">${t}</option>`));
+        urutanContainer.hide();
+    }
+    
+    // Panggil render preview
+    renderLapPreview();
+}
+
+// Tambahkan event listener untuk memicu render preview saat filter kedua / urutan berubah
+$(document).ready(function() {
+    $('#lapFilterKedua, #lapOrderBerdasarkan').on('change', function() {
+        renderLapPreview();
+    });
+    
+    // Render awal saat tab ditekan
+    $('button[data-bs-toggle="pill"]').on('shown.bs.tab', function (e) {
+        let target = $(e.target).attr('data-bs-target');
+        if(target === '#tabLapSiswa' || target === '#tabLapLeger') {
+            renderLapPreview();
+        }
+    });
+
+    // Jalankan sekali agar awal buka sudah terisi jika globalSiswa sudah ready
+    setTimeout(onLapTipeChange, 1500);
+
+    // Memicu saat menu laporan diklik
+    $('a[onclick*="laporan"]').on('click', function() {
+        setTimeout(onLapTipeChange, 300);
+    });
+});
+
+function getFilteredDataLaporan() {
+    const tipe = $('#lapTipeSiswa').val();
+    const filter2 = $('#lapFilterKedua').val();
+    const urutan = $('#lapOrderBerdasarkan').val();
+
+    let data = [];
+    if (tipe === 'Semua Siswa') {
+        if (typeof globalSiswa !== 'undefined') data = data.concat(globalSiswa);
+        if (typeof globalSiswaKeluar !== 'undefined') {
+            let existingNis = new Set(data.map(s => s[0]));
+            globalSiswaKeluar.forEach(s => {
+                if (!existingNis.has(s[0])) data.push(s);
+            });
+        }
+    } else if (tipe === 'Siswa Aktif') {
+        if (typeof globalSiswa !== 'undefined') {
+            data = globalSiswa.filter(s => s[31] === 'Aktif');
+            if (filter2) data = data.filter(s => String(s[40] || '').trim() === filter2);
+        }
+    } else if (tipe === 'Alumni') {
+        if (typeof globalSiswa !== 'undefined') {
+            data = globalSiswa.filter(s => s[31] === 'Lulus');
+            if (filter2) data = data.filter(s => s[32] && String(s[32]).startsWith(filter2));
+        }
+    } else if (tipe === 'Keluar/Pindah') {
+        if (typeof globalSiswaKeluar !== 'undefined') {
+            data = globalSiswaKeluar.slice();
+            if (filter2) data = data.filter(s => s[32] && String(s[32]).startsWith(filter2));
+        }
+    }
+
+    if (tipe === 'Semua Siswa' || tipe === 'Siswa Aktif') {
+        if (urutan === 'NIS') {
+            data.sort((a, b) => String(a[0]).localeCompare(String(b[0]), undefined, { numeric: true }));
+        } else {
+            data.sort((a, b) => String(a[2]).localeCompare(String(b[2])));
+        }
+    }
+    return data;
+}
+
+function renderLapPreview() {
+    const data = getFilteredDataLaporan();
+    const isLeger = $('#tabLapLeger').hasClass('active') || $('#tabLapLeger').hasClass('show');
+
+    let htmlSiswa = '';
+    let htmlLeger = '';
+
+    if (data.length === 0) {
+        let emptyTr = `<tr><td colspan="11" class="text-center text-danger py-4">Data tidak ditemukan atau belum dimuat.</td></tr>`;
+        $('#tbodyLapPreviewSiswa').html(emptyTr);
+        $('#tbodyLapPreviewLeger').html(emptyTr);
+        return;
+    }
+
+    data.forEach((s, idx) => {
+        let kelasStatus = s[40] || s[31] || '-';
+        let badgeClass = s[31] === 'Aktif' ? 'bg-success' : 'bg-secondary';
+        
+        let barisBase = `
+            <td>${idx + 1}</td>
+            <td>${s[0] || '-'}</td>
+            <td>${s[1] || '-'}</td>
+            <td class="fw-bold text-wrap" style="min-width: 150px;">${s[2] || '-'}</td>
+            <td>${s[7] || '-'}</td>
+            <td>${s[5] || '-'}</td>
+            <td>${s[6] || '-'}</td>
+            <td>${s[20] || '-'}</td>
+            <td>${s[23] || '-'}</td>
+            <td>${kelasStatus}</td>
+        `;
+
+        htmlSiswa += `<tr>${barisBase}<td><span class="badge ${badgeClass}">${s[31] || '-'}</span></td></tr>`;
+        htmlLeger += `<tr>${barisBase}<td class="text-muted fst-italic">Belum Diinput</td></tr>`;
+    });
+
+    $('#tbodyLapPreviewSiswa').html(htmlSiswa);
+    $('#tbodyLapPreviewLeger').html(htmlLeger);
+}
+
+async function unduhLaporanExcel() {
+    const tipe = $('#lapTipeSiswa').val();
+    const filter2 = $('#lapFilterKedua').val();
+    const isLeger = $('#tabLapLeger').hasClass('active') || $('#tabLapLeger').hasClass('show');
+
+    const dataToExport = getFilteredDataLaporan();
+
+    if (dataToExport.length === 0) {
+        Swal.fire('Data Kosong', 'Tidak ada data yang sesuai dengan filter.', 'info');
+        return;
+    }
+
+    $('#loader').removeClass('hidden');
+    $('#loaderText').text('Menyiapkan file Excel...');
+
+    const workbook = new ExcelJS.Workbook();
+    workbook.creator = 'SIMISTERBIN';
+    workbook.created = new Date();
+    
+    let title = (isLeger ? 'Data Leger ' : 'Data ') + tipe;
+    if (filter2) title += ' - ' + filter2;
+
+    const sheet = workbook.addWorksheet('Laporan');
+
+    // Pengaturan Halaman: A4, Landscape, Margin 0.5cm (~0.2 inch)
+    sheet.pageSetup = {
+        paperSize: 9,
+        orientation: 'landscape',
+        margins: {
+            left: 0.2, right: 0.2,
+            top: 0.2, bottom: 0.2,
+            header: 0.2, footer: 0.2
+        },
+        fitToPage: true,
+        fitToWidth: 1,
+        fitToHeight: 0
+    };
+
+    sheet.properties.defaultRowHeight = 20;
+
+    sheet.mergeCells('A1:K1');
+    const titleCell = sheet.getCell('A1');
+    titleCell.value = 'LAPORAN ' + title.toUpperCase();
+    titleCell.font = { name: 'Arial', size: 14, bold: true };
+    titleCell.alignment = { vertical: 'middle', horizontal: 'center' };
+    
+    sheet.mergeCells('A2:K2');
+    const subTitleCell = sheet.getCell('A2');
+    subTitleCell.value = 'Dicetak pada: ' + new Date().toLocaleDateString('id-ID');
+    subTitleCell.font = { name: 'Arial', size: 10, italic: true };
+    subTitleCell.alignment = { vertical: 'middle', horizontal: 'center' };
+
+    sheet.addRow([]); 
+
+    const headers = ['NO', 'NIS', 'NISN', 'NAMA LENGKAP', 'L/P', 'TEMPAT LAHIR', 'TANGGAL LAHIR', 'NAMA AYAH', 'NAMA IBU', 'KELAS / STATUS', isLeger ? 'NILAI RATA-RATA' : 'KETERANGAN'];
+    const headerRow = sheet.addRow(headers);
+    headerRow.height = 25;
+    headerRow.eachCell((cell) => {
+        cell.font = { name: 'Arial', size: 11, bold: true, color: { argb: 'FFFFFFFF' } };
+        cell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FF4E73DF' } };
+        cell.alignment = { vertical: 'middle', horizontal: 'center' };
+        cell.border = { top: {style:'thin'}, left: {style:'thin'}, bottom: {style:'thin'}, right: {style:'thin'} };
+    });
+
+    dataToExport.forEach((s, idx) => {
+        let kelasStatus = s[40] || s[31] || '-';
+        let nilaiKeterangan = isLeger ? 'Belum Diinput' : (s[31] || '-');
+        
+        let row = sheet.addRow([
+            idx + 1, 
+            s[0] || '-', 
+            s[1] || '-', 
+            s[2] || '-', 
+            s[7] || '-', 
+            s[5] || '-', 
+            s[6] || '-', 
+            s[20] || '-', 
+            s[23] || '-', 
+            kelasStatus, 
+            nilaiKeterangan
+        ]);
+        
+        row.eachCell((cell) => {
+            cell.font = { name: 'Arial', size: 10 };
+            cell.alignment = { vertical: 'middle', horizontal: 'left', wrapText: true };
+            cell.border = { top: {style:'thin'}, left: {style:'thin'}, bottom: {style:'thin'}, right: {style:'thin'} };
+        });
+        row.getCell(1).alignment = { vertical: 'middle', horizontal: 'center' };
+        row.getCell(5).alignment = { vertical: 'middle', horizontal: 'center' };
+    });
+
+    sheet.columns.forEach((column, i) => {
+        let maxLength = 0;
+        column.eachCell({ includeEmpty: true }, function (cell, rowNumber) {
+            if (rowNumber > 3) {
+                let columnLength = cell.value ? cell.value.toString().length : 10;
+                if (columnLength > maxLength) maxLength = columnLength;
+            }
+        });
+        column.width = maxLength < 10 ? 10 : Math.min(maxLength + 2, 40); // Batasi maks 40 char lebar kolom agar tidak terlalu panjang
+    });
+
+    sheet.getColumn(1).width = 5; // NO
+    sheet.getColumn(2).width = 12; // NIS
+    sheet.getColumn(3).width = 15; // NISN
+    
+    // Perlebar khusus untuk kolom Nama Lengkap (kolom ke 4)
+    if (sheet.getColumn(4).width < 25) {
+        sheet.getColumn(4).width = 25;
+    }
+
+    sheet.addRow([]); sheet.addRow([]);
+    
+    let ttdRow1 = sheet.addRow(['', '', '', '', '', '', '', '', '', 'Mengetahui,', '']);
+    let ttdRow2 = sheet.addRow(['', '', '', '', '', '', '', '', '', 'Kepala Sekolah', '']);
+    sheet.addRow([]); sheet.addRow([]);
+    
+    let kepsekName = localStorage.getItem('kepsekName') || '..............................';
+    let ttdRow3 = sheet.addRow(['', '', '', '', '', '', '', '', '', kepsekName, '']);
+    
+    [ttdRow1, ttdRow2].forEach(row => {
+        row.getCell(10).font = { name: 'Arial', size: 10 };
+        row.getCell(10).alignment = { horizontal: 'center' };
+        sheet.mergeCells(`J${row.number}:K${row.number}`);
+    });
+
+    ttdRow3.getCell(10).font = { name: 'Arial', size: 10, bold: true, underline: true };
+    ttdRow3.getCell(10).alignment = { horizontal: 'center' };
+    sheet.mergeCells(`J${ttdRow3.number}:K${ttdRow3.number}`);
+
+    workbook.xlsx.writeBuffer().then((data) => {
+        let blob = new Blob([data], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
+        saveAs(blob, `Laporan ${title.replace(/\//g, '_')}.xlsx`);
+        $('#loader').addClass('hidden');
+    }).catch(e => {
+        $('#loader').addClass('hidden');
+        Swal.fire('Error', 'Gagal membuat file Excel: ' + e, 'error');
+    });
+}
+
+// OVERRIDE FUNGSI FILTER UNTUK SINKRONISASI LEGER
+
+function terapkanFilterKelas() {
+    let selectedClasses = [];
+    $('.chk-kelas-filter:checked').each(function () {
+        let escapeText = $(this).val().replace(/[.*+?^\$\{}()|[\]\\]/g, '\\$&');
+        selectedClasses.push(escapeText);
+    });
+
+    let table = $('#tblDataSiswa').DataTable();
+    let tableLeger = $('#tblLegerDataSiswa').DataTable();
+
+    if (selectedClasses.length === 0) {
+        table.column(4).search('^$', true, false).draw();
+        if (tableLeger) tableLeger.column(4).search('^$', true, false).draw();
+    } else {
+        let regexPencarian = "^(" + selectedClasses.join("|") + ")$";
+        table.column(4).search(regexPencarian, true, false).draw();
+        if (tableLeger) tableLeger.column(4).search(regexPencarian, true, false).draw();
+    }
+}
+
+function loadAlumniByTahun() {
+    const tahun = $('#filterTahunAlumni').val();
+    if (!tahun) return;
+
+    $('#loader').removeClass('hidden');
+    $('#loaderText').text(`Memuat Alumni Tahun ${tahun}...`);
+
+    callAPI('getAlumniByTahun', { tahun: tahun }).then(res => {
+        $('#loader').addClass('hidden');
+        if ($.fn.DataTable.isDataTable('#tblAlumni')) $('#tblAlumni').DataTable().destroy();
+        if ($.fn.DataTable.isDataTable('#tblLegerAlumni')) $('#tblLegerAlumni').DataTable().destroy();
+
+        if (res.status === 'success') {
+            let htmlAlumni = "";
+            let htmlLegerAlumni = "";
+
+            const isAdmin = ($('#uRole').text() == 'ADMINISTRATOR' || $('#uRole').text() == 'ADMIN');
+            const isWaka = ($('#uRole').text() == 'WAKAKURIKULUM');
+            const canInputNilai = (isAdmin || isWaka);
+
+                        res.data.forEach(r => {
+                const nis = r[0], nisn = r[1], nama = r[2], jk = r[7], status = r[31], thnKeluar = r[32] ? String(r[32]).substring(0, 4) : "-";
+                const nisGabung = nisn ? `${nis} / ${nisn}` : nis;
+
+                let btnDataAlumni = `<button class="btn btn-sm btn-success me-1 shadow-sm" onclick="cetakKartuAdmin('${nis}')" title="Unduh Kartu"><i class="bi bi-card-heading"></i></button>`;
+
+                if (isAdmin) {
+                    btnDataAlumni += `<button class="btn btn-sm btn-warning me-1 shadow-sm" onclick="editStatusAlumni('${nis}')" title="Ubah Status/Tahun Lulus"><i class="bi bi-pencil"></i></button>
+                                      <button class="btn btn-sm btn-dark me-1 shadow-sm" onclick="resetPassAdmin('${nis}')" title="Reset Password"><i class="bi bi-key"></i></button>`;
+                }
+
+                let btnLegerAlumni = `<button class="btn btn-sm btn-warning me-1 shadow-sm fw-bold" onclick="openTranskrip('${nis}')" title="Lihat Leger"><i class="bi bi-table"></i></button>`;
+                if (canInputNilai) {
+                    btnLegerAlumni = `<button class="btn btn-sm btn-primary me-1 shadow-sm fw-bold" onclick="bukaModalNilai('${nis}', '${nama}')" title="Input Nilai"><i class="bi bi-journal-plus"></i></button> ` + btnLegerAlumni;
+                }
+
+                let rowAlumniStr = `<tr><td>${nisGabung}</td><td>${nama}</td><td>${jk}</td><td><span class="badge bg-primary">${status}</span></td><td>${thnKeluar}</td>`;
+
+                htmlAlumni += rowAlumniStr + `<td>${btnDataAlumni}</td></tr>`;
+                htmlLegerAlumni += rowAlumniStr + `<td>${btnLegerAlumni}</td></tr>`;
+
+                if (!globalSiswa.find(x => x[0] == nis)) {
+                    globalSiswa.push(r);
+                }
+            });
+
+            $('#tbodyAlumni').html(htmlAlumni);
+            $('#tblAlumni').DataTable({ language: { search: "Cari:", lengthMenu: "_MENU_ data", info: "_START_-_END_ dari _TOTAL_" } });
+
+            $('#tbodyLegerAlumni').html(htmlLegerAlumni);
+            $('#tblLegerAlumni').DataTable({ language: { search: "Cari:", lengthMenu: "_MENU_ data", info: "_START_-_END_ dari _TOTAL_" } });
+        } else {
+            $('#tbodyAlumni').html(`<tr><td colspan="6" class="text-center text-danger">${res.message}</td></tr>`);
+            $('#tbodyLegerAlumni').html(`<tr><td colspan="6" class="text-center text-danger">${res.message}</td></tr>`);
+        }
+    });
 }
