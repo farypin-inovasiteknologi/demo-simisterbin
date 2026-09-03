@@ -419,6 +419,7 @@ function loadSettings() {
         if (s.background_login) callAPI('getImage', { id: s.background_login }).then(b => { if (b) { $('#prev_bg_login').attr('src', b).removeClass('hidden'); bgLoginUrl = 'url(' + b + ')'; applyLoginPageBackground(); } });
         
         $('#boxLinkExec').removeClass('hidden');
+        $('#boxForcePush').removeClass('hidden');
         if (s.link_exec) {
             $('#inputLinkExec').val(s.link_exec);
         }
