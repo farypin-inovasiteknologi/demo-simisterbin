@@ -1,0 +1,85 @@
+
+                        <div class="d-flex flex-column flex-md-row justify-content-between mb-3 gap-2">
+                            <h3 class="m-0 text-secondary fw-bold">Kelola Alumni</h3>
+
+                            <div class="action-bar-mobile">
+                                <button class="btn btn-sm btn-outline-secondary shadow-sm fw-bold"
+                                    onclick="refreshPage()">
+                                    <i class="bi bi-arrow-clockwise"></i> <span class="mobile-hide">Segarkan</span>
+                                </button>
+
+                                <select id="filterTahunAlumni"
+                                    class="form-select form-select-sm fw-bold shadow-sm border-primary"
+                                    style="flex:1; width:auto; font-size: 0.75rem;" onchange="loadAlumniByTahun()">
+                                    <option value="">Semua Tahun</option>
+                                </select>
+
+                                <button class="btn btn-sm btn-info text-white shadow-sm fw-bold"
+                                    onclick="cetakKlaperPDF('Alumni')">
+                                    <i class="bi bi-journal-text"></i> Klaper
+                                </button>
+                                
+                                <button class="btn btn-sm btn-success shadow-sm fw-bold"
+                                    onclick="cetakKartuMassal('alumni')">
+                                    <i class="bi bi-printer"></i> Semua Kartu
+                                </button>
+
+                                
+                            </div>
+                        </div>
+
+                        <ul class="nav nav-pills mb-3" role="tablist">
+                            <li class="nav-item" role="presentation">
+                                <button class="nav-link active fw-bold px-4" data-bs-toggle="pill"
+                                    data-bs-target="#tabAlData" type="button"><i
+                                        class="bi bi-mortarboard-fill me-1"></i>
+                                    Data Alumni</button>
+                            </li>
+                            <li class="nav-item" role="presentation">
+                                <button class="nav-link fw-bold px-4" data-bs-toggle="pill" data-bs-target="#tabAlLeger"
+                                    type="button"><i class="bi bi-journal-text me-1"></i> Leger Alumni</button>
+                            </li>
+                        </ul>
+
+                        <div class="tab-content">
+                            <div class="tab-pane fade show active" id="tabAlData" role="tabpanel">
+                                <div class="card p-4 bg-white">
+                                    <div class="table-responsive">
+                                        <table id="tblAlumni" class="table table-hover w-100">
+                                            <thead class="table-light">
+                                                <tr>
+                                                    <th>NIS / NISN</th>
+                                                    <th>Nama Lengkap</th>
+                                                    <th>L/P</th>
+                                                    <th>Status</th>
+                                                    <th>Thn Lulus</th>
+                                                    <th>Aksi</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody id="tbodyAlumni"></tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="tab-pane fade" id="tabAlLeger" role="tabpanel">
+                                <div class="card p-4 bg-white">
+                                    <div class="table-responsive">
+                                        <table id="tblLegerAlumni" class="table table-hover w-100">
+                                            <thead class="table-light">
+                                                <tr>
+                                                    <th>NIS / NISN</th>
+                                                    <th>Nama Lengkap</th>
+                                                    <th>L/P</th>
+                                                    <th>Status</th>
+                                                    <th>Thn Lulus</th>
+                                                    <th>Aksi</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody id="tbodyLegerAlumni"></tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    

@@ -1,0 +1,315 @@
+
+                        <h3 class="text-secondary fw-bold mb-4">Pengaturan Sistem</h3>
+
+                        <ul class="nav nav-pills mb-4" role="tablist">
+                            <li class="nav-item" role="presentation">
+                                <button class="nav-link active fw-bold px-4" data-bs-toggle="pill"
+                                    data-bs-target="#tabSetIdentitas" type="button"><i class="bi bi-building me-1"></i>
+                                    Identitas Sekolah</button>
+                            </li>
+                            <li class="nav-item" role="presentation">
+                                <button class="nav-link fw-bold px-4" data-bs-toggle="pill"
+                                    data-bs-target="#tabSetLogoTema" type="button"><i class="bi bi-palette me-1"></i>
+                                    Logo & Tema</button>
+                            </li>
+                            <li class="nav-item" role="presentation">
+                                <button class="nav-link fw-bold px-4" data-bs-toggle="pill"
+                                    data-bs-target="#tabSetKeamanan" type="button"><i
+                                        class="bi bi-shield-lock me-1"></i> Keamanan Akun</button>
+                            </li>
+                        </ul>
+
+                        <div class="tab-content">
+                            <div class="tab-pane fade show active" id="tabSetIdentitas" role="tabpanel">
+                                <div class="row g-4">
+                                    <div class="col-lg-12">
+                                        <div class="card p-4 bg-white h-100">
+                                            <h5 class="text-primary fw-bold mb-4 border-bottom pb-2">Identitas Sekolah
+                                            </h5>
+                                            <form onsubmit="saveSettings(event)">
+                                                <div class="row g-3">
+                                                    <div class="col-md-6"><label class="fw-bold small">Nama
+                                                            Instansi</label><input id="setInstansi" class="form-control"
+                                                            placeholder="PEMERINTAH ............"></div>
+                                                    <div class="col-md-6"><label class="fw-bold small">OPD / Dinas
+                                                            (Boleh
+                                                            dikosongkan)</label><input id="setOpd" class="form-control"
+                                                            placeholder="DINAS PENDIDIKAN........"></div>
+                                                    <div class="col-md-12"><label class="fw-bold small">Nama
+                                                            Sekolah</label><input id="setNama" class="form-control">
+                                                    </div>
+                                                    <div class="col-12"><label class="fw-bold small">Alamat
+                                                            Lengkap</label><textarea id="setAlamat" class="form-control"
+                                                            rows="2"></textarea></div>
+                                                    <div class="col-md-6"><label class="fw-bold small">No. Telp
+                                                            Sekolah</label><input id="setTelp" class="form-control">
+                                                    </div>
+                                                    <div class="col-md-6"><label class="fw-bold small">Email
+                                                            Sekolah</label><input id="setEmail" class="form-control"
+                                                            placeholder="contoh: email@gmail.com"></div>
+                                                    <div class="col-md-6"><label class="fw-bold small">Website
+                                                            Sekolah</label><input id="setWeb" class="form-control"
+                                                            placeholder="contoh: sman19nusantara.sch.id"></div>
+                                                    <div class="col-md-6"><label class="fw-bold small">Link Validasi
+                                                            Kartu
+                                                            (Tujuan Scan QR)</label><input id="setLinkValidasi"
+                                                            class="form-control"
+                                                            placeholder="contoh: https://simisterbin.my.id"></div>
+                                                    <div class="col-md-6"><label class="fw-bold small">Kepala
+                                                            Sekolah</label><input id="setKepsek" class="form-control">
+                                                    </div>
+                                                    <div class="col-md-6"><label class="fw-bold small">NIP Kepala
+                                                            Sekolah</label><input id="setNip" class="form-control">
+                                                    </div>
+
+
+                                                </div>
+                                                <button type="submit"
+                                                    class="btn btn-primary w-100 mt-4 fw-bold shadow-sm bg-theme">SIMPAN
+                                                    PENGATURAN</button>
+                                            </form>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="tab-pane fade" id="tabSetLogoTema" role="tabpanel">
+                                <div class="row g-4">
+                                    <div class="col-lg-12">
+                                        <div class="card p-4 bg-white h-100">
+                                            <h5 class="text-primary fw-bold mb-4 border-bottom pb-2">Logo & Tema</h5>
+                                            <form onsubmit="saveSettings(event)">
+                                                <div class="row g-3">
+                                                    <div class="col-md-6">
+                                                        <label class="fw-bold small text-muted">Logo Instansi</label>
+                                                        <div class="input-group input-group-sm mt-1 shadow-sm">
+                                                            <input type="file" id="file_logo_instansi"
+                                                                class="form-control"
+                                                                onchange="cropImage(this, 'logo_instansi')">
+                                                            <button type="button" class="btn btn-outline-danger"
+                                                                onclick="hapusGambarSettings('logo_instansi', 'prevLogoInstansi')"
+                                                                title="Hapus Logo"><i class="bi bi-trash"></i></button>
+                                                        </div>
+                                                        <img id="prevLogoInstansi" class="settings-preview hidden">
+                                                        <input type="hidden" id="logo_instansi">
+                                                    </div>
+
+                                                    <div class="col-md-6">
+                                                        <label class="fw-bold small text-muted">Logo Sekolah</label>
+                                                        <div class="input-group input-group-sm mt-1 shadow-sm">
+                                                            <input type="file" id="file_logo_sekolah"
+                                                                class="form-control"
+                                                                onchange="cropImage(this, 'logo_sekolah')">
+                                                            <button type="button" class="btn btn-outline-danger"
+                                                                onclick="hapusGambarSettings('logo_sekolah', 'prevLogoSekolah')"
+                                                                title="Hapus Logo"><i class="bi bi-trash"></i></button>
+                                                        </div>
+                                                        <img id="prevLogoSekolah" class="settings-preview hidden">
+                                                        <input type="hidden" id="logo_sekolah">
+                                                    </div>
+
+                                                    <div class="col-md-6 mt-3">
+                                                        <label class="fw-bold small text-muted">Background Depan (8.5 x
+                                                            5.5)</label>
+                                                        <div class="input-group input-group-sm mt-1 shadow-sm">
+                                                            <input type="file" id="file_background_kartu"
+                                                                class="form-control"
+                                                                onchange="cropImage(this, 'background_kartu')">
+                                                            <button type="button" class="btn btn-outline-danger"
+                                                                onclick="hapusGambarSettings('background_kartu', 'prev_bg_depan')"
+                                                                title="Hapus Background"><i
+                                                                    class="bi bi-trash"></i></button>
+                                                        </div>
+                                                        <img id="prev_bg_depan" class="settings-preview hidden">
+                                                        <input type="hidden" id="background_kartu">
+                                                    </div>
+
+                                                    <div class="col-md-6 mt-3">
+                                                        <label class="fw-bold small text-muted">Background Belakang (8.5
+                                                            x
+                                                            5.5)</label>
+                                                        <div class="input-group input-group-sm mt-1 shadow-sm">
+                                                            <input type="file" id="file_background_belakang"
+                                                                class="form-control"
+                                                                onchange="cropImage(this, 'background_belakang')">
+                                                            <button type="button" class="btn btn-outline-danger"
+                                                                onclick="hapusGambarSettings('background_belakang', 'prev_bg_belakang')"
+                                                                title="Hapus Background"><i
+                                                                    class="bi bi-trash"></i></button>
+                                                        </div>
+                                                        <img id="prev_bg_belakang" class="settings-preview hidden">
+                                                        <input type="hidden" id="background_belakang">
+                                                    </div> -->
+
+                                                    <div class="col-12 mt-3">
+                                                        <label class="fw-bold small">Warna Tema Aplikasi (Gradasi 3 Warna)</label>
+                                                        <div class="d-flex gap-2">
+                                                            <input type="color" id="setTheme1" class="form-control form-control-color w-100" title="Warna 1">
+                                                            <input type="color" id="setTheme2" class="form-control form-control-color w-100" title="Warna 2">
+                                                            <input type="color" id="setTheme3" class="form-control form-control-color w-100" title="Warna 3">
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-md-6 mt-3">
+                                                        <label class="fw-bold small text-muted">Background Halaman
+                                                            Landing</label>
+                                                        <div class="input-group input-group-sm mt-1 shadow-sm">
+                                                            <input type="file" id="file_background_landing"
+                                                                class="form-control"
+                                                                onchange="cropImage(this, 'background_landing')">
+                                                            <button type="button" class="btn btn-outline-danger"
+                                                                onclick="hapusGambarSettings('background_landing', 'prev_bg_landing')"
+                                                                title="Hapus Background"><i
+                                                                    class="bi bi-trash"></i></button>
+                                                        </div>
+                                                        <img id="prev_bg_landing" class="settings-preview hidden">
+                                                        <input type="hidden" id="background_landing">
+                                                    </div>
+                                                    <div class="col-md-6 mt-3">
+                                                        <label class="fw-bold small text-muted">Background Halaman
+                                                            Login</label>
+                                                        <div class="input-group input-group-sm mt-1 shadow-sm">
+                                                            <input type="file" id="file_background_login"
+                                                                class="form-control"
+                                                                onchange="cropImage(this, 'background_login')">
+                                                            <button type="button" class="btn btn-outline-danger"
+                                                                onclick="hapusGambarSettings('background_login', 'prev_bg_login')"
+                                                                title="Hapus Background"><i
+                                                                    class="bi bi-trash"></i></button>
+                                                        </div>
+                                                        <img id="prev_bg_login" class="settings-preview hidden">
+                                                        <input type="hidden" id="background_login">
+                                                    </div>
+                                                </div>
+                                                <button type="submit"
+                                                    class="btn btn-primary w-100 mt-4 fw-bold shadow-sm bg-theme">SIMPAN
+                                                    PENGATURAN</button>
+                                            </form>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="tab-pane fade" id="tabSetKeamanan" role="tabpanel">
+                                <div class="row g-4">
+                                    <div class="col-lg-12">
+                                        <div class="card p-4 bg-white h-100">
+                                            <h5 class="text-danger fw-bold mb-4 border-bottom pb-2">Keamanan Akun</h5>
+
+
+                                            <div class="row">
+                                                <div class="col-md-6 border-end pe-4">
+                                                    <h5 class="text-danger fw-bold mb-3 border-bottom pb-2">Update
+                                                        Password</h5>
+                                                    <form onsubmit="updateAccount(event, 'admin')"
+                                                        class="mb-4 p-3 bg-light border rounded">
+                                                        <h6 class="fw-bold small text-uppercase">Admin</h6>
+                                                        <input id="adminUser" class="form-control form-control-sm mb-2"
+                                                            placeholder="User Baru">
+                                                        <div class="input-group input-group-sm mb-2">
+                                                            <input id="adminPass" type="password" class="form-control"
+                                                                placeholder="Pass Baru">
+                                                            <span class="input-group-text bg-white"
+                                                                onclick="togglePass('adminPass', this.querySelector('i'))"
+                                                                style="cursor:pointer">
+                                                                <i class="bi bi-eye-slash"></i>
+                                                            </span>
+                                                        </div>
+                                                        <button type="submit"
+                                                            class="btn btn-sm btn-danger w-100 fw-bold">Update
+                                                            Admin</button>
+                                                    </form>
+                                                    <form onsubmit="updateAccount(event, 'wakakurikulum')"
+                                                        class="p-3 bg-light border rounded">
+                                                        <h6 class="fw-bold small text-uppercase">Waka Kurikulum</h6>
+                                                        <input id="guruUser" class="form-control form-control-sm mb-2"
+                                                            placeholder="User Baru">
+                                                        <div class="input-group input-group-sm mb-2">
+                                                            <input id="guruPass" type="password" class="form-control"
+                                                                placeholder="Pass Baru">
+                                                            <span class="input-group-text bg-white"
+                                                                onclick="togglePass('guruPass', this.querySelector('i'))"
+                                                                style="cursor:pointer">
+                                                                <i class="bi bi-eye-slash"></i>
+                                                            </span>
+                                                        </div>
+                                                        <button type="submit"
+                                                            class="btn btn-sm btn-success w-100 fw-bold">Update
+                                                            Waka</button>
+                                                    </form>
+                                                </div>
+                                                <div class="col-md-6 ps-4 d-flex flex-column gap-3">
+                                                    <!-- NEW: Link Exec (Khusus Offline) -->
+                                                    <div id="boxLinkExec" class="card p-4 bg-white shadow-sm border-0 hidden">
+                                                        <h5 class="text-primary fw-bold mb-3 border-bottom pb-2">Link Exec (Sinkronisasi)</h5>
+                                                        <div class="input-group input-group-sm mb-2">
+                                                            <input type="text" id="inputLinkExec" class="form-control bg-light text-muted" readonly placeholder="Loading link...">
+                                                            <button class="btn btn-primary" onclick="copyLinkExec()" title="Salin Link"><i class="bi bi-clipboard"></i></button>
+                                                        </div>
+                                                        <p class="small text-muted mb-0" style="font-size: 0.8rem; line-height: 1.2;">
+                                                            *Link ini berfungsi untuk sinkronisasi, salin link exec ini dan tempelkan di kolom sinkron.
+                                                        </p>
+                                                    </div>
+
+                                                    <div class="card p-4 bg-white shadow-sm border-0 flex-grow-1">
+                                                        <h5 class="text-success fw-bold mb-3 border-bottom pb-2">Backup
+                                                            & Restore</h5>
+                                                        <p class="small text-muted mb-3">Sistem akan menduplikasi
+                                                            Database saat ini dan menyimpannya di folder komputer Anda
+                                                            sebagai cadangan.</p>
+                                                        <div class="d-grid gap-3 mt-auto">
+                                                            <button onclick="doBackup()"
+                                                                class="btn btn-success fw-bold shadow-sm py-2">
+                                                                <i class="bi bi-cloud-download me-2"></i> BACKUP
+                                                                SEKARANG
+                                                            </button>
+                                                            <button onclick="doRestore()"
+                                                                class="btn btn-outline-danger fw-bold shadow-sm py-2">
+                                                                <i class="bi bi-arrow-counterclockwise me-2"></i>
+                                                                RESTORE DATABASE
+                                                            </button>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+
+                        <footer class="app-footer">
+                            <div class="container small">
+                                &copy; <span id="yearApp"></span> SiMISTerBIn <span id="footSchoolName"
+                                    class="fw-bold"></span>.
+                                Hak Cipta Dilindungi. <br>
+                                <a href="javascript:void(0)" onclick="showPrivacy()">Kebijakan Privasi</a> &bull;
+                                Powered by :
+                                <a href='https://www.farypin-inovasiteknologi.com' rel='dofollow' style='color:blue;'>PT
+                                    Farypin
+                                    Inovasi Teknologi</a>
+                            </div>
+                        </footer>
+                        <!--
+<button id="btnChatbot" class="btn btn-primary rounded-circle shadow-lg" style="position: fixed; bottom: 30px; left: 30px; width: 60px; height: 60px; z-index: 9999; display: flex; align-items: center; justify-content: center;" onclick="$('#chatWindow').toggleClass('hidden')">
+    <i class="bi bi-robot fs-3"></i>
+</button> 
+
+<div id="chatWindow" class="card shadow-lg hidden" style="position: fixed; bottom: 100px; left: 30px; width: 350px; max-width: 90vw; height: 450px; z-index: 9999; display: flex; flex-direction: column;">
+    <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+        <span class="fw-bold"><i class="bi bi-robot"></i> Asisten Data AI</span>
+        <button class="btn-close btn-close-white" onclick="$('#chatWindow').addClass('hidden')"></button>
+    </div>
+    <div id="chatBody" class="card-body bg-light" style="overflow-y: auto; flex-grow: 1;">
+        <div class="mb-2 text-start"><span class="badge bg-secondary p-2 rounded-3 text-wrap text-start" style="max-width: 80%; line-height: 1.4;">Halo! Aku asisten AI-mu. Ada yang ingin dicari tentang data siswa kita hari ini?</span></div>
+    </div>
+    <div class="card-footer bg-white">
+        <div class="input-group">
+            <input type="text" id="chatInput" class="form-control" placeholder="Ketik pertanyaan..." onkeypress="if(event.key === 'Enter') kirimChat()">
+            <button class="btn btn-primary" onclick="kirimChat()"><i class="bi bi-send"></i></button>
+        </div>
+    </div>
+</div> -->
+
+
+
+                    
