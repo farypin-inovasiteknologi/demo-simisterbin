@@ -18,6 +18,8 @@ document.addEventListener('HtmlIncludesLoaded', function () {
                     restoreSession(decodedData);
                 } catch (e) {
                     localStorage.removeItem('simisterbin_session');
+                    $('#boxLinkExec').removeClass('hidden');
+                    $('#boxForcePush').removeClass('hidden');
                     $('#loginPage').removeClass('hidden');
                     $('#yearLogin').text(new Date().getFullYear());
                     $('#loader').addClass('hidden'); // MATIKAN LOADING
