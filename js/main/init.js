@@ -4,9 +4,8 @@
 document.addEventListener('HtmlIncludesLoaded', function () {
     // 1. JALANKAN SETUP DATABASE DULU (WAJIB AGAR LOADING BISA BERHENTI)
     callAPI('setupDatabase').then(res => {
-        $('#loader').addClass('hidden'); // MATIKAN LOADING
-
         if (res.status == 'error') {
+            $('#loader').addClass('hidden'); // MATIKAN LOADING
             Swal.fire('Error DB', res.message, 'error');
         } else {
             loadSettings();
@@ -21,13 +20,16 @@ document.addEventListener('HtmlIncludesLoaded', function () {
                     localStorage.removeItem('simisterbin_session');
                     $('#loginPage').removeClass('hidden');
                     $('#yearLogin').text(new Date().getFullYear());
+                    $('#loader').addClass('hidden'); // MATIKAN LOADING
                 }
             } else {
                 $('#loginPage').removeClass('hidden');
                 $('#yearLogin').text(new Date().getFullYear());
+                $('#loader').addClass('hidden'); // MATIKAN LOADING
             }
         }
     }).catch(e => {
+
         $('#loader').addClass('hidden'); // Paksa mati loading jika error jaringan
         console.error(e);
         Swal.fire('Error', 'Gagal terhubung ke database. Cek API URL Anda.', 'error');
