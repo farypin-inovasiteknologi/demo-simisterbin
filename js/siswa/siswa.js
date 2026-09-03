@@ -18,7 +18,7 @@ function cetakKlaperPDF(tipe) {
                 if (!tahun) {
                     // Jika dropdown "Semua Tahun"
                     filteredData = globalSiswa.filter(r => r[31] === 'Lulus');
-                    judulSub = "SELURUH LULUSAN ALUMNI";
+                    judulSub = "SELURUH LULUSAN/ALUMNI";
                 } else {
                     // Jika filter tahun spesifik dipilih
                     filteredData = globalSiswa.filter(r => r[31] === 'Lulus' && r[32] && String(r[32]).substring(0, 4) === tahun);
@@ -39,7 +39,7 @@ function cetakKlaperPDF(tipe) {
 
                 // Cocokkan NIS yang tampil dengan database utama
                 filteredData = globalSiswa.filter(r => r[31] === 'Aktif' && nisVisible.includes(String(r[0])));
-                judulSub = "DATA SISWA AKTIF (SESUAI FILTER)";
+                judulSub = "DATA SISWA AKTIF";
             }
 
             // 2. Sortir Abjad (A-Z) berdasarkan Nama
@@ -56,7 +56,7 @@ function cetakKlaperPDF(tipe) {
             let alamatSekolah = globalConf.alamat_sekolah ? globalConf.alamat_sekolah.replace(/\n/g, '<br>') : '-';
             let imgInstansi = $('#headerLogoInstansi').attr('src') || $('#prevLogoInstansi').attr('src') || '';
             let imgSekolah = $('#headerLogoSekolah').attr('src') || $('#prevLogoSekolah').attr('src') || '';
-            
+
             let html = `
             <div style="font-family: 'Arial', sans-serif; font-size: 10pt; color: #000; padding: 20px;">
                 <table style="width: 100%; border-collapse: collapse; margin-bottom: 5px;">
@@ -111,7 +111,7 @@ function cetakKlaperPDF(tipe) {
                 let ortu = `${s[20] || '-'} / ${s[23] || '-'}`;
                 let tglMasukX = `${s[30] || '-'}`;
                 let tglLulus = s[32] || '-';
-                
+
                 html += `
                     <tr>
                         <td>${idx + 1}</td>
@@ -152,10 +152,10 @@ function cetakKlaperPDF(tipe) {
                 jsPDF: { unit: 'cm', format: 'A4', orientation: 'landscape' }
             };
 
-            html2pdf().set(opt).from(html).toPdf().get('pdf').then(function(pdf) {
+            html2pdf().set(opt).from(html).toPdf().get('pdf').then(function (pdf) {
                 let blobUrl = pdf.output('bloburl');
                 $('#pdfPreviewFrame').attr('src', blobUrl);
-                $('#btnDownloadPdf').off('click').on('click', function() {
+                $('#btnDownloadPdf').off('click').on('click', function () {
                     pdf.save(opt.filename);
                 });
                 $('#mdlPdfPreview').modal('show');
@@ -185,7 +185,7 @@ function inisialisasiDropdownAlumni() {
             sel.val(tahunArr[0]);
             selInduk.val(tahunArr[0]);
         }
-        
+
         loadAlumniByTahun(); // Panggil Data Alumni
         loadIndukAlumniByTahun(); // Panggil Buku Induk Alumni
     });
@@ -193,7 +193,7 @@ function inisialisasiDropdownAlumni() {
 
 function loadAlumniByTahun() {
     const tahun = $('#filterTahunAlumni').val();
-    
+
     // $('#loader').removeClass('hidden');
     // $('#loaderText').text(`Memuat Alumni Tahun ${tahun}...`);
 
@@ -212,16 +212,16 @@ function loadAlumniByTahun() {
             const canInputNilai = (isAdmin || isWaka); // Admin dan Waka bisa input nilai
 
             // Render ulang khusus data alumni tahun tersebut
-                        res.data.forEach(r => {
+            res.data.forEach(r => {
                 const nis = r[0], nisn = r[1], nama = r[2], jk = r[7], status = r[31], thnKeluar = r[32] ? String(r[32]).substring(0, 4) : "-";
                 const nisGabung = nisn ? `${nis} / ${nisn}` : nis;
 
                 let btnDataAlumni = `<button class="btn btn-sm btn-success me-1 shadow-sm" onclick="cetakKartuAdmin('${nis}')" title="Unduh Kartu"><i class="bi bi-card-heading"></i></button>`;
                 btnDataAlumni += `<button class="btn btn-sm btn-secondary me-1 shadow-sm" onclick="reviewSiswa('${nis}')" title="Lihat Profil"><i class="bi bi-eye"></i></button>`;
-             if (isAdmin) {
-                 btnDataAlumni += `<button class="btn btn-sm btn-warning me-1 shadow-sm" onclick="editSiswa('${nis}')" title="Edit Data"><i class="bi bi-pencil"></i></button>`;
-                 btnDataAlumni += `<button class="btn btn-sm btn-dark shadow-sm" onclick="resetPassAdmin('${nis}')" title="Reset Password"><i class="bi bi-key"></i></button>`;
-             }
+                if (isAdmin) {
+                    btnDataAlumni += `<button class="btn btn-sm btn-warning me-1 shadow-sm" onclick="editSiswa('${nis}')" title="Edit Data"><i class="bi bi-pencil"></i></button>`;
+                    btnDataAlumni += `<button class="btn btn-sm btn-dark shadow-sm" onclick="resetPassAdmin('${nis}')" title="Reset Password"><i class="bi bi-key"></i></button>`;
+                }
 
                 let btnLegerAlumni = `<button class="btn btn-sm btn-warning me-1 shadow-sm fw-bold" onclick="openTranskrip('${nis}')" title="Lihat Leger"><i class="bi bi-table"></i></button>`;
                 if (canInputNilai) {
@@ -252,7 +252,7 @@ function loadAlumniByTahun() {
 // Fungsi untuk memuat data Alumni khusus di Tabel Buku Induk (Tanpa Edit/Input Nilai)
 function loadIndukAlumniByTahun() {
     const tahun = $('#filterTahunIndukAlumni').val();
-    
+
     // $('#loader').removeClass('hidden');
 
     callAPI('getAlumniByTahun', { tahun: tahun }).then(res => {
@@ -263,7 +263,7 @@ function loadIndukAlumniByTahun() {
             let htmlIndukAlumni = "";
             const isAdmin = ($('#uRole').text() == 'ADMINISTRATOR' || $('#uRole').text() == 'ADMIN');
 
-                        res.data.forEach(r => {
+            res.data.forEach(r => {
                 const nis = r[0], nisn = r[1], nama = r[2], jk = r[7], status = r[31], thnKeluar = r[32] ? String(r[32]).substring(0, 4) : "-";
                 const nisGabung = nisn ? `${nis} / ${nisn}` : nis;
 
@@ -339,7 +339,7 @@ function bukaModalDaftarUlang() {
 function toggleEditDaftarUlang(noSpmb) {
     const btn = $('#btnEditDaftarUlang');
     const isEditing = btn.text().includes('Simpan');
-    
+
     if (!isEditing) {
         $('#frmDaftarUlang input, #frmDaftarUlang select, #frmDaftarUlang textarea').prop('disabled', false);
         $('#frmDaftarUlang input[type="file"]').prop('disabled', true); // Keep files disabled
@@ -369,7 +369,7 @@ async function simpanEditDaftarUlang(noSpmb) {
         d[k.name] = k.value.trim();
     });
     d.no_spmb = noSpmb;
-    
+
     try {
         const r = await callAPI('editDaftarUlang', d);
         $('#loader').addClass('hidden');
@@ -453,7 +453,7 @@ function reviewDaftarUlang(noSpmb) {
 
     // Akademik
     setValSafe('pindahan', s[26]);
-    setValSafe('lulusan', s[27]); 
+    setValSafe('lulusan', s[27]);
     setValSafe('noijazah_sltp', s[28]);
     setValSafe('kls_masuk', s[29]);
     if (s[30]) setValSafe('tgl_masuk', s[30]);
@@ -788,7 +788,7 @@ async function submitDaftarUlang(e) {
 
     // 2. CEK VALIDASI DIGIT (NIK, No. KK)
     let nik = $('#du_nik').val().trim();
-    let kk  = $('#du_nokk').val().trim();
+    let kk = $('#du_nokk').val().trim();
     if (nik.length !== 16) {
         Swal.fire('Data Belum Lengkap', 'NIK harus 16 digit.', 'warning');
         $('.nav-tabs a[href="#du_t1"]').tab('show');
@@ -876,7 +876,7 @@ function renderDaftarUlangTable() {
 
 function toggleEditDaftarUlang(noSpmb) {
     const isEditing = !$('#frmDaftarUlang input').prop('disabled');
-    
+
     if (!isEditing) {
         // Berubah jadi mode edit
         $('#frmDaftarUlang input, #frmDaftarUlang select, #frmDaftarUlang textarea').prop('disabled', false);
@@ -895,21 +895,21 @@ function toggleEditDaftarUlang(noSpmb) {
             if (result.isConfirmed) {
                 $('#loader').removeClass('hidden');
                 $('#loaderText').text('Menyimpan perubahan...');
-                
+
                 const fData = {};
                 $.each($('#frmDaftarUlang').serializeArray(), function (_, kv) { fData[kv.name] = kv.value; });
                 fData.no_spmb = noSpmb; // Pastikan nomor spmb ikut terkirim untuk update
-                
+
                 const res = await callAPI('saveDaftarUlang', fData);
                 $('#loader').addClass('hidden');
-                
+
                 if (res.status === 'success') {
                     Swal.fire('Berhasil!', 'Perubahan berhasil disimpan.', 'success');
                     // Kembalikan ke mode read-only
                     $('#frmDaftarUlang input, #frmDaftarUlang select, #frmDaftarUlang textarea').prop('disabled', true);
                     $('#btnEditDaftarUlang').html('<i class="bi bi-pencil"></i> Edit')
                         .removeClass('btn-success').addClass('btn-primary');
-                        
+
                     // Segarkan tabel daftar ulang
                     if (typeof loadDaftarUlang === 'function') loadDaftarUlang();
                 } else {
@@ -943,7 +943,7 @@ function inisialisasiDropdownKeluar() {
 
 function loadSiswaKeluarByTahun() {
     const tahun = $('#filterTahunKeluar').val();
-    
+
     // $('#loader').removeClass('hidden');
 
     callAPI('getSiswaKeluarByTahun', { tahun: tahun }).then(res => {
@@ -961,11 +961,11 @@ function loadSiswaKeluarByTahun() {
             res.data.forEach((r, i) => {
                 const nis = r[0], nisn = r[1], nama = r[2], jk = r[7], status = r[31], thnKeluar = r[32] ? String(r[32]).substring(0, 4) : "-";
                 const nisGabung = nisn ? `${nis} / ${nisn}` : nis;
-                
+
                 const badgeStatus = `<span class="badge bg-danger">Mutasi/Keluar</span>`;
-                
+
                 let actionBtns = `<button class="btn btn-sm btn-secondary me-1 shadow-sm" onclick="reviewSiswa('${nis}')" title="Lihat Profil"><i class="bi bi-eye"></i></button>`;
-                if(isAdmin) {
+                if (isAdmin) {
                     actionBtns += `<button class="btn btn-sm btn-warning shadow-sm" onclick="editSiswa('${nis}')" title="Edit Data"><i class="bi bi-pencil"></i></button>`;
                 }
 
@@ -981,7 +981,7 @@ function loadSiswaKeluarByTahun() {
                     ${rowKeluarStr}
                     <td class="text-center">${actionBtns}</td>
                 </tr>`;
-                
+
                 let btnLegerKeluar = `<button class="btn btn-sm btn-warning me-1 shadow-sm fw-bold" onclick="openTranskrip('${nis}')" title="Lihat Leger"><i class="bi bi-table"></i></button>`;
                 if (canInputNilai) {
                     btnLegerKeluar = `<button class="btn btn-sm btn-primary me-1 shadow-sm fw-bold" onclick="bukaModalNilai('${nis}', '${nama}')" title="Input Nilai"><i class="bi bi-journal-plus"></i></button>` + btnLegerKeluar;
