@@ -19,6 +19,12 @@ body {
     overscroll-behavior-y: none;
 }
 
+@media (max-width: 768px) {
+    #desktop-toolbar {
+        display: none !important;
+    }
+}
+
 /* Mencegah zoom otomatis saat mengklik kolom input / form */
 input,
 button,
