@@ -135,6 +135,10 @@ async function callAPI(actionName, payloadData = {}) {
 
     // ===== MODE ONLINE (Browser — Google Apps Script) =====
     try {
+        if (actionName === 'getImage' && payloadData && payloadData.id) {
+            if (String(payloadData.id).startsWith('data:')) return payloadData.id;
+            return `https://lh3.googleusercontent.com/d/${payloadData.id}`;
+        }
         let session = localStorage.getItem('simisterbin_session');
         let tokenAman = "";
         let userAktif = "";
@@ -145,12 +149,39 @@ async function callAPI(actionName, payloadData = {}) {
             userAktif = parsed.username || "";
         }
 
+        // --- ENKRIPSI OTOMATIS DATA SENSITIF SEBELUM DISIMPAN ONLINE ---
+        let payloadKirim = payloadData;
+        if (actionName === 'saveStudent' && payloadKirim) {
+            payloadKirim = JSON.parse(JSON.stringify(payloadData)); // clone
+            if (payloadKirim.nik) payloadKirim.nik = enkripsiLokal(payloadKirim.nik);
+            if (payloadKirim.nokk) payloadKirim.nokk = enkripsiLokal(payloadKirim.nokk);
+            if (payloadKirim.nama_ibu) payloadKirim.nama_ibu = enkripsiLokal(payloadKirim.nama_ibu);
+        }
+
         const response = await fetch(API_URL, {
             method: 'POST',
             headers: { 'Content-Type': 'text/plain' },
-            body: JSON.stringify({ action: actionName, token: tokenAman, username: userAktif, data: payloadData })
+            body: JSON.stringify({ action: actionName, token: tokenAman, username: userAktif, data: payloadKirim })
         });
-        return await response.json();
+        let resData = await response.json();
+
+        // --- DEKRIPSI OTOMATIS DATA SENSITIF ONLINE ---
+        if (resData && resData.status === 'success') {
+            const arrActions = ['getStudents', 'getAlumniByTahun', 'getSiswaKeluarByTahun'];
+            if (arrActions.includes(actionName) && Array.isArray(resData.data)) {
+                resData.data = resData.data.map(r => {
+                    if (r[3]) r[3] = dekripsiLokal(r[3]);
+                    if (r[4]) r[4] = dekripsiLokal(r[4]);
+                    if (r[23]) r[23] = dekripsiLokal(r[23]);
+                    return r;
+                });
+            } else if (actionName === 'cariDataAlumniPublic' && resData.data) {
+                if (resData.data[3]) resData.data[3] = dekripsiLokal(resData.data[3]);
+                if (resData.data[4]) resData.data[4] = dekripsiLokal(resData.data[4]);
+                if (resData.data[23]) resData.data[23] = dekripsiLokal(resData.data[23]);
+            }
+        }
+        return resData;
     } catch (error) {
         return { status: "error", message: "Gagal terhubung ke server database." };
     }
