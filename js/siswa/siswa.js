@@ -12,20 +12,23 @@ function cetakKlaperPDF(tipe) {
             let filteredData = [];
             let judulSub = "";
 
+            // Helper for case-insensitive matching
+            const isStatus = (r, st) => String(r[31] || '').trim().toLowerCase() === st;
+
             // 1. TARIK DATA BERDASARKAN APA YANG TAMPIL DI LAYAR
             if (tipe === 'Alumni') {
                 let tahun = $('#filterTahunAlumni').val();
+                let alumniSource = window.globalAlumniData || [];
                 if (!tahun) {
                     // Jika dropdown "Semua Tahun"
-                    filteredData = globalSiswa.filter(r => r[31] === 'Lulus');
+                    filteredData = alumniSource.filter(r => isStatus(r, 'lulus'));
                     judulSub = "SELURUH LULUSAN/ALUMNI";
                 } else {
                     // Jika filter tahun spesifik dipilih
-                    filteredData = globalSiswa.filter(r => r[31] === 'Lulus' && r[32] && String(r[32]).substring(0, 4) === tahun);
+                    filteredData = alumniSource.filter(r => isStatus(r, 'lulus') && r[32] && String(r[32]).substring(0, 4) === tahun);
                     judulSub = "TAHUN PELAJARAN " + (parseInt(tahun) - 1) + "/" + tahun;
                 }
-            }
-            else if (tipe === 'Siswa Aktif') {
+            } else if (tipe === 'Siswa Aktif') {
                 // Tarik NIS siswa yang SEDANG TAMPIL di tabel Data Siswa saat ini
                 let table = $('#tblDataSiswa').DataTable();
                 let visibleRows = table.rows({ search: 'applied' }).nodes();
@@ -38,7 +41,7 @@ function cetakKlaperPDF(tipe) {
                 });
 
                 // Cocokkan NIS yang tampil dengan database utama
-                filteredData = globalSiswa.filter(r => r[31] === 'Aktif' && nisVisible.includes(String(r[0])));
+                filteredData = globalSiswa.filter(r => isStatus(r, 'aktif') && nisVisible.includes(String(r[0])));
                 judulSub = "DATA SISWA AKTIF";
             }
 
@@ -203,6 +206,7 @@ function loadAlumniByTahun() {
         if ($.fn.DataTable.isDataTable('#tblLegerAlumni')) $('#tblLegerAlumni').DataTable().clear().destroy();
 
         if (res.status === 'success') {
+            window.globalAlumniData = res.data; // Store for printing
             let htmlAlumni = "";
             let htmlLegerAlumni = "";
 
