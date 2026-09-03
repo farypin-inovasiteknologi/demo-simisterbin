@@ -40,8 +40,7 @@
         -webkit-app-region: drag;
     ">
         <div style="display:flex; align-items:center; gap:10px; -webkit-app-region: no-drag;">
-            <img src="./icon.png"
-                style="height:20px;">
+            <img src="./icon.png" style="height:20px;">
             <span style="font-weight:700; letter-spacing:1px;">SiMISTerBIn</span>
             <span style="background:#4e73df; padding:1px 7px; border-radius:10px; font-size:10px;">DESKTOP</span>
         </div>
@@ -91,12 +90,11 @@
                 class="d-md-none fixed-top bg-theme text-white shadow-sm px-3 d-flex justify-content-between align-items-center"
                 style="height: 60px; z-index: 1030;">
                 <div class="fw-bold fs-5 text-truncate d-flex align-items-center">
-                    <img src="./icon.png"
-                        style="height: 25px; margin-right: 8px; object-fit: contain;">
+                    <img src="./icon.png" style="height: 25px; margin-right: 8px; object-fit: contain;">
                     SiMISTerBIn
                 </div>
                 <div class="d-flex align-items-center gap-3">
-                    
+
 
                     <i id="mobTopSetting" class="bi bi-gear-fill fs-5" onclick="nav('settings', null)"
                         style="cursor:pointer; display:none;"></i>
@@ -187,7 +185,7 @@
                         class="m-nav-item text-center text-decoration-none"><i class="bi bi-key-fill fs-4 d-block mb-1"
                             style="line-height: 1;"></i><span
                             style="font-size: 10px; font-weight: bold;">Sandi</span></a>
-                    
+
                     <a href="javascript:void(0)" onclick="$('#mdlBantuan').modal('show')"
                         class="m-nav-item text-center text-decoration-none"><i class="bi bi-headset fs-4 d-block mb-1"
                             style="line-height: 1;"></i><span
@@ -208,8 +206,7 @@
             <div class="col-md-2 sidebar p-0 d-flex flex-column" id="mainSidebar">
                 <div class="brand d-flex justify-content-between align-items-center">
                     <span class="d-flex align-items-center">
-                        <img src="./icon.png"
-                            style="height: 25px; margin-right: 10px; object-fit: contain;">
+                        <img src="./icon.png" style="height: 25px; margin-right: 10px; object-fit: contain;">
                         simisterbin
                     </span>
                     <i class="bi bi-x-lg d-md-none" style="cursor:pointer" onclick="toggleSidebar()"></i>
@@ -234,7 +231,7 @@
                         class="badge bg-danger ms-1 hidden">0</span></a>
                 <a href="javascript:void(0)" onclick="nav('mutasi', this)"><i class="bi bi-box-arrow-right me-2"></i>
                     Kelola Mutasi/Keluar</a>
-                
+
 
                 <div class="admin-only">
                     <a href="javascript:void(0)" onclick="nav('laporan', this)"><i
@@ -273,7 +270,8 @@
                     <div id="view-mutasi" class="hidden" data-include="views/view-keluar.html"></div>
 
                     <div id="view-profil_siswa" class="hidden"
-                        style="width: 100%; max-width: 900px; margin: 0 auto; align-self: flex-start;" data-include="views/view-profil_siswa.html"></div>
+                        style="width: 100%; max-width: 900px; margin: 0 auto; align-self: flex-start;"
+                        data-include="views/view-profil_siswa.html"></div>
 
 
 
@@ -285,10 +283,15 @@
                 </div>
 
                 <!-- GLOBAL FOOTER -->
-                <div class="text-center p-3 small text-secondary bg-white" style="border-top: 1px solid #eaeaea; margin-bottom: 60px;">
-                    &copy; <span id="yearAppMain"></span> SiMISTerBIn <span id="footSchoolMain" class="fw-bold"></span>. Hak Cipta Dilindungi.<br>
-                    <a href="javascript:void(0)" onclick="$('#mdlPrivacy').modal('show')" class="text-decoration-none text-primary fw-bold" style="font-size: 11px;">Kebijakan Privasi & Keamanan Data</a><br>
-                    Powered by: <a href='https://www.farypin-inovasiteknologi.com' rel='dofollow' style='color:blue;'>PT Farypin Inovasi Teknologi</a><br>
+                <div class="text-center p-3 small text-secondary bg-white"
+                    style="border-top: 1px solid #eaeaea; margin-bottom: 60px;">
+                    &copy; <span id="yearAppMain"></span> SiMISTerBIn <span id="footSchoolMain" class="fw-bold"></span>.
+                    Hak Cipta Dilindungi Undang-undang.<br>
+                    <a href="javascript:void(0)" onclick="$('#mdlPrivacy').modal('show')"
+                        class="text-decoration-none text-primary">Kebijakan Privasi &
+                        Keamanan Data</a>&bull;
+                    Powered by: <a href='https://www.farypin-inovasiteknologi.com' rel='dofollow' style='color:blue;'>PT
+                        Farypin Inovasi Teknologi</a><br>
                     <span class="text-muted fw-bold" style="font-size: 10px;">App Version : 2.2026.09</span>
                 </div>
 
@@ -522,16 +525,33 @@
                                     <div class="col-md-6"><label class="form-label small fw-bold">Penyakit (kosongkan
                                             jika tidak ada)</label><input name="penyakit" id="du_penyakit"
                                             class="form-control"></div>
-                                    <div class="col-md-3"><label class="form-label small fw-bold">Berkebutuhan Khusus</label>
-                                        <select name="berkebutuhan_khusus" id="du_berkebutuhan_khusus" class="form-select" 
-                                        onchange="toggleKebutuhanKhusus(this, this.form)"><option value="Tidak">Tidak</option><option value="Ya">Ya</option></select>
+                                    <div class="col-md-3"><label class="form-label small fw-bold">Berkebutuhan
+                                            Khusus</label>
+                                        <select name="berkebutuhan_khusus" id="du_berkebutuhan_khusus"
+                                            class="form-select" onchange="toggleKebutuhanKhusus(this, this.form)">
+                                            <option value="Tidak">Tidak</option>
+                                            <option value="Ya">Ya</option>
+                                        </select>
                                     </div>
-                                    <div class="col-md-3 d-none" data-kebutuhan-field><label class="form-label small fw-bold">Jenis Kebutuhan</label>
-                                        <select name="jenis_kebutuhan_khusus" id="du_jenis_kebutuhan_khusus" class="form-select">
-                                            <option value="">- Pilih -</option><option>Tunanetra</option><option>Tunarungu</option><option>Tunagrahita</option>
-                                            <option>Tunadaksa</option><option>Tunalaras</option><option>Kesulitan belajar</option><option>Lamban belajar</option>
-                                            <option>Autis</option><option>Gangguan komunikasi</option><option>Hiperaktif</option><option>Cerdas istimewa</option>
-                                            <option>Bakat istimewa</option><option>Down syndrome</option><option>Lainnya</option>
+                                    <div class="col-md-3 d-none" data-kebutuhan-field><label
+                                            class="form-label small fw-bold">Jenis Kebutuhan</label>
+                                        <select name="jenis_kebutuhan_khusus" id="du_jenis_kebutuhan_khusus"
+                                            class="form-select">
+                                            <option value="">- Pilih -</option>
+                                            <option>Tunanetra</option>
+                                            <option>Tunarungu</option>
+                                            <option>Tunagrahita</option>
+                                            <option>Tunadaksa</option>
+                                            <option>Tunalaras</option>
+                                            <option>Kesulitan belajar</option>
+                                            <option>Lamban belajar</option>
+                                            <option>Autis</option>
+                                            <option>Gangguan komunikasi</option>
+                                            <option>Hiperaktif</option>
+                                            <option>Cerdas istimewa</option>
+                                            <option>Bakat istimewa</option>
+                                            <option>Down syndrome</option>
+                                            <option>Lainnya</option>
                                         </select>
                                     </div>
                                 </div>
@@ -784,21 +804,47 @@
                                     </div>
                                 </div>
                             </div>
-                            
+
                             <div class="tab-pane fade" id="du_t6">
                                 <div class="row g-3">
                                     <div class="col-md-4"><label class="form-label small fw-bold">Penerima KIP</label>
-                                        <select name="penerima_kip" id="du_penerima_kip" class="form-select" onchange="toggleBantuanFields(this.form)"><option value="Tidak">Tidak</option><option value="Ya">Ya</option></select></div>
-                                    <div class="col-md-4 d-none" data-kip-field><label class="form-label small fw-bold">Nomor KIP</label><input name="no_kip" id="du_no_kip" class="form-control"></div>
-                                    <div class="col-md-4 d-none" data-kip-field><label class="form-label small fw-bold">Nama di KIP</label><input name="nama_kip" id="du_nama_kip" class="form-control"></div>
-                                    <div class="col-md-4 d-none" data-kip-field><label class="form-label small fw-bold">Nomor KKS</label><input name="no_kks" id="du_no_kks" class="form-control"></div>
+                                        <select name="penerima_kip" id="du_penerima_kip" class="form-select"
+                                            onchange="toggleBantuanFields(this.form)">
+                                            <option value="Tidak">Tidak</option>
+                                            <option value="Ya">Ya</option>
+                                        </select>
+                                    </div>
+                                    <div class="col-md-4 d-none" data-kip-field><label
+                                            class="form-label small fw-bold">Nomor KIP</label><input name="no_kip"
+                                            id="du_no_kip" class="form-control"></div>
+                                    <div class="col-md-4 d-none" data-kip-field><label
+                                            class="form-label small fw-bold">Nama di KIP</label><input name="nama_kip"
+                                            id="du_nama_kip" class="form-control"></div>
+                                    <div class="col-md-4 d-none" data-kip-field><label
+                                            class="form-label small fw-bold">Nomor KKS</label><input name="no_kks"
+                                            id="du_no_kks" class="form-control"></div>
                                     <div class="col-md-4"><label class="form-label small fw-bold">Penerima KPS</label>
-                                        <select name="penerima_kps" id="du_penerima_kps" class="form-select" onchange="toggleBantuanFields(this.form)"><option value="Tidak">Tidak</option><option value="Ya">Ya</option></select></div>
-                                    <div class="col-md-4" data-kps-field><label class="form-label small fw-bold">Nomor KPS</label><input name="no_kps" id="du_no_kps" class="form-control"></div>
-                                    <div class="col-12"><hr><h6 class="text-primary fw-bold">Data Bank</h6></div>
-                                    <div class="col-md-4"><label class="form-label small fw-bold">Nama Bank</label><input name="nama_bank" id="du_nama_bank" class="form-control"></div>
-                                    <div class="col-md-4"><label class="form-label small fw-bold">Nomor Rekening Bank</label><input name="no_rekening_bank" id="du_no_rekening_bank" class="form-control"></div>
-                                    <div class="col-md-4"><label class="form-label small fw-bold">Rekening Atas Nama</label><input name="rekening_atas_nama" id="du_rekening_atas_nama" class="form-control"></div>
+                                        <select name="penerima_kps" id="du_penerima_kps" class="form-select"
+                                            onchange="toggleBantuanFields(this.form)">
+                                            <option value="Tidak">Tidak</option>
+                                            <option value="Ya">Ya</option>
+                                        </select>
+                                    </div>
+                                    <div class="col-md-4" data-kps-field><label class="form-label small fw-bold">Nomor
+                                            KPS</label><input name="no_kps" id="du_no_kps" class="form-control"></div>
+                                    <div class="col-12">
+                                        <hr>
+                                        <h6 class="text-primary fw-bold">Data Bank</h6>
+                                    </div>
+                                    <div class="col-md-4"><label class="form-label small fw-bold">Nama
+                                            Bank</label><input name="nama_bank" id="du_nama_bank" class="form-control">
+                                    </div>
+                                    <div class="col-md-4"><label class="form-label small fw-bold">Nomor Rekening
+                                            Bank</label><input name="no_rekening_bank" id="du_no_rekening_bank"
+                                            class="form-control"></div>
+                                    <div class="col-md-4"><label class="form-label small fw-bold">Rekening Atas
+                                            Nama</label><input name="rekening_atas_nama" id="du_rekening_atas_nama"
+                                            class="form-control"></div>
                                 </div>
                             </div>
                         </div>
@@ -921,9 +967,9 @@
                                     Alamat</a></li>
                             <li class="nav-item"><a class="nav-link fw-bold" data-bs-toggle="tab" href="#t3">Orang
                                     Tua/Wali</a></li>
-                                <li class="nav-item"><a class="nav-link fw-bold text-success" data-bs-toggle="tab"
+                            <li class="nav-item"><a class="nav-link fw-bold text-success" data-bs-toggle="tab"
                                     href="#t6">KIP & Bank</a></li>
-                                <li class="nav-item"><a class="nav-link fw-bold" data-bs-toggle="tab"
+                            <li class="nav-item"><a class="nav-link fw-bold" data-bs-toggle="tab"
                                     href="#t4">Akademik</a></li>
                             <li class="nav-item"><a class="nav-link fw-bold text-success" data-bs-toggle="tab"
                                     href="#t5">Upload Foto</a></li>
@@ -986,10 +1032,16 @@
                                             <option value="L">Laki-laki</option>
                                             <option value="P">Perempuan</option>
                                         </select></div>
-                                    <div class="col-md-4"><label class="form-label small fw-bold">No. Registrasi Akta Lahir</label>
-                                        <input name="no_reg_akta" class="form-control"></div>
-                                    <div class="col-md-4"><label class="form-label small fw-bold">Kewarganegaraan</label>
-                                        <select name="kewarganegaraan" class="form-select"><option value="WNI">WNI</option><option value="WNA">WNA</option></select>
+                                    <div class="col-md-4"><label class="form-label small fw-bold">No. Registrasi Akta
+                                            Lahir</label>
+                                        <input name="no_reg_akta" class="form-control">
+                                    </div>
+                                    <div class="col-md-4"><label
+                                            class="form-label small fw-bold">Kewarganegaraan</label>
+                                        <select name="kewarganegaraan" class="form-select">
+                                            <option value="WNI">WNI</option>
+                                            <option value="WNA">WNA</option>
+                                        </select>
                                     </div>
                                 </div>
                             </div>
@@ -1040,11 +1092,33 @@
                                     <div class="col-md-6"><label class="form-label small fw-bold">Penyakit (kosongkan
                                             jika
                                             tidak ada)</label><input name="penyakit" class="form-control"></div>
-                                    <div class="col-md-4"><label class="form-label small fw-bold">Berkebutuhan Khusus</label>
-                                        <select name="berkebutuhan_khusus" class="form-select" onchange="toggleKebutuhanKhusus(this, this.form)"><option value="Tidak">Tidak</option><option value="Ya">Ya</option></select>
+                                    <div class="col-md-4"><label class="form-label small fw-bold">Berkebutuhan
+                                            Khusus</label>
+                                        <select name="berkebutuhan_khusus" class="form-select"
+                                            onchange="toggleKebutuhanKhusus(this, this.form)">
+                                            <option value="Tidak">Tidak</option>
+                                            <option value="Ya">Ya</option>
+                                        </select>
                                     </div>
-                                    <div class="col-md-8 d-none" data-kebutuhan-field><label class="form-label small fw-bold">Jenis Kebutuhan Khusus</label>
-                                        <select name="jenis_kebutuhan_khusus" class="form-select"><option value="">- Pilih -</option><option>Tunanetra</option><option>Tunarungu</option><option>Tunagrahita</option><option>Tunadaksa</option><option>Tunalaras</option><option>Kesulitan belajar</option><option>Lamban belajar</option><option>Autis</option><option>Gangguan komunikasi</option><option>Hiperaktif</option><option>Cerdas istimewa</option><option>Bakat istimewa</option><option>Down syndrome</option><option>Lainnya</option></select>
+                                    <div class="col-md-8 d-none" data-kebutuhan-field><label
+                                            class="form-label small fw-bold">Jenis Kebutuhan Khusus</label>
+                                        <select name="jenis_kebutuhan_khusus" class="form-select">
+                                            <option value="">- Pilih -</option>
+                                            <option>Tunanetra</option>
+                                            <option>Tunarungu</option>
+                                            <option>Tunagrahita</option>
+                                            <option>Tunadaksa</option>
+                                            <option>Tunalaras</option>
+                                            <option>Kesulitan belajar</option>
+                                            <option>Lamban belajar</option>
+                                            <option>Autis</option>
+                                            <option>Gangguan komunikasi</option>
+                                            <option>Hiperaktif</option>
+                                            <option>Cerdas istimewa</option>
+                                            <option>Bakat istimewa</option>
+                                            <option>Down syndrome</option>
+                                            <option>Lainnya</option>
+                                        </select>
                                     </div>
                                 </div>
                             </div>
@@ -1258,17 +1332,40 @@
                             <div class="tab-pane fade" id="t6">
                                 <div class="row g-3">
                                     <div class="col-md-4"><label class="form-label small fw-bold">Penerima KIP</label>
-                                        <select name="penerima_kip" class="form-select" onchange="toggleBantuanFields(this.form)"><option value="Tidak">Tidak</option><option value="Ya">Ya</option></select></div>
-                                    <div class="col-md-4 d-none" data-kip-field><label class="form-label small fw-bold">Nomor KIP</label><input name="no_kip" class="form-control"></div>
-                                    <div class="col-md-4 d-none" data-kip-field><label class="form-label small fw-bold">Nama di KIP</label><input name="nama_kip" class="form-control"></div>
-                                    <div class="col-md-4 d-none" data-kip-field><label class="form-label small fw-bold">Nomor KKS</label><input name="no_kks" class="form-control"></div>
+                                        <select name="penerima_kip" class="form-select"
+                                            onchange="toggleBantuanFields(this.form)">
+                                            <option value="Tidak">Tidak</option>
+                                            <option value="Ya">Ya</option>
+                                        </select>
+                                    </div>
+                                    <div class="col-md-4 d-none" data-kip-field><label
+                                            class="form-label small fw-bold">Nomor KIP</label><input name="no_kip"
+                                            class="form-control"></div>
+                                    <div class="col-md-4 d-none" data-kip-field><label
+                                            class="form-label small fw-bold">Nama di KIP</label><input name="nama_kip"
+                                            class="form-control"></div>
+                                    <div class="col-md-4 d-none" data-kip-field><label
+                                            class="form-label small fw-bold">Nomor KKS</label><input name="no_kks"
+                                            class="form-control"></div>
                                     <div class="col-md-4"><label class="form-label small fw-bold">Penerima KPS</label>
-                                        <select name="penerima_kps" class="form-select" onchange="toggleBantuanFields(this.form)"><option value="Tidak">Tidak</option><option value="Ya">Ya</option></select></div>
-                                    <div class="col-md-4" data-kps-field><label class="form-label small fw-bold">Nomor KPS</label><input name="no_kps" class="form-control"></div>
-                                    <div class="col-12"><hr><h6 class="text-primary fw-bold">Data Bank</h6></div>
-                                    <div class="col-md-4"><label class="form-label small fw-bold">Nama Bank</label><input name="nama_bank" class="form-control"></div>
-                                    <div class="col-md-4"><label class="form-label small fw-bold">Nomor Rekening Bank</label><input name="no_rekening_bank" class="form-control"></div>
-                                    <div class="col-md-4"><label class="form-label small fw-bold">Rekening Atas Nama</label><input name="rekening_atas_nama" class="form-control"></div>
+                                        <select name="penerima_kps" class="form-select"
+                                            onchange="toggleBantuanFields(this.form)">
+                                            <option value="Tidak">Tidak</option>
+                                            <option value="Ya">Ya</option>
+                                        </select>
+                                    </div>
+                                    <div class="col-md-4" data-kps-field><label class="form-label small fw-bold">Nomor
+                                            KPS</label><input name="no_kps" class="form-control"></div>
+                                    <div class="col-12">
+                                        <hr>
+                                        <h6 class="text-primary fw-bold">Data Bank</h6>
+                                    </div>
+                                    <div class="col-md-4"><label class="form-label small fw-bold">Nama
+                                            Bank</label><input name="nama_bank" class="form-control"></div>
+                                    <div class="col-md-4"><label class="form-label small fw-bold">Nomor Rekening
+                                            Bank</label><input name="no_rekening_bank" class="form-control"></div>
+                                    <div class="col-md-4"><label class="form-label small fw-bold">Rekening Atas
+                                            Nama</label><input name="rekening_atas_nama" class="form-control"></div>
                                 </div>
                             </div>
 
@@ -1717,19 +1814,25 @@
     </div>
 
     <!-- Modal Preview PDF -->
-    <div class="modal fade" id="mdlPdfPreview" tabindex="-1" aria-hidden="true" data-bs-backdrop="static" style="z-index: 2000;">
+    <div class="modal fade" id="mdlPdfPreview" tabindex="-1" aria-hidden="true" data-bs-backdrop="static"
+        style="z-index: 2000;">
         <div class="modal-dialog modal-xl modal-dialog-centered">
-            <div class="modal-content shadow-lg border-0" style="background: rgba(255,255,255,0.95); backdrop-filter: blur(10px);">
+            <div class="modal-content shadow-lg border-0"
+                style="background: rgba(255,255,255,0.95); backdrop-filter: blur(10px);">
                 <div class="modal-header border-0 bg-primary text-white py-3">
-                    <h5 class="modal-title fw-bold"><i class="bi bi-file-earmark-pdf-fill me-2"></i> Pratinjau Cetak PDF</h5>
-                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                    <h5 class="modal-title fw-bold"><i class="bi bi-file-earmark-pdf-fill me-2"></i> Pratinjau Cetak PDF
+                    </h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"
+                        aria-label="Close"></button>
                 </div>
                 <div class="modal-body p-0" style="height: 75vh; overflow: hidden; background: #525659;">
                     <iframe id="pdfPreviewFrame" style="width: 100%; height: 100%; border: none;"></iframe>
                 </div>
                 <div class="modal-footer border-0 py-3">
-                    <button type="button" class="btn btn-secondary px-4 fw-bold" data-bs-dismiss="modal"><i class="bi bi-x-circle me-1"></i> Batal</button>
-                    <button type="button" class="btn btn-success px-5 fw-bold shadow-sm" id="btnDownloadPdf"><i class="bi bi-download me-2"></i> Unduh PDF Sekarang</button>
+                    <button type="button" class="btn btn-secondary px-4 fw-bold" data-bs-dismiss="modal"><i
+                            class="bi bi-x-circle me-1"></i> Batal</button>
+                    <button type="button" class="btn btn-success px-5 fw-bold shadow-sm" id="btnDownloadPdf"><i
+                            class="bi bi-download me-2"></i> Unduh PDF Sekarang</button>
                 </div>
             </div>
         </div>
@@ -1754,18 +1857,19 @@
     <script src="./js/main/core.js"></script>
     <script src="./js/main/init.js"></script>
     <script src="./js/main/helpers.js"></script>
-    
+
     <!-- desktop-compat.js berisi fungsi khusus Desktop: status online, sinkronisasi -->
     <script src="./desktop-compat.js"></script>
-    
+
     <!-- siswa.js modularized -->
     <script src="./js/siswa/crud.js"></script>
     <script src="./js/siswa/biodata.js"></script>
     <script src="./js/siswa/cetak.js"></script>
     <script src="./js/siswa/laporan.js"></script>
     <script src="./js/siswa/siswa.js"></script>
-    
+
     <!-- nilai.js -->
     <script src="./js/nilai.js"></script>
 </body>
+
 </html>
