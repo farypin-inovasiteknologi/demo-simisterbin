@@ -4,7 +4,10 @@ document.addEventListener("DOMContentLoaded", async () => {
     
     // Tampilkan loader selagi HTML dimuat
     const loader = document.getElementById('loader');
-    if (loader) loader.style.display = 'flex';
+    if (loader) {
+        loader.classList.remove('hidden');
+        loader.style.display = '';
+    }
 
     // Memuat semua komponen HTML secara paralel
     const loadPromises = Array.from(includes).map(async (el) => {
@@ -36,5 +39,8 @@ document.addEventListener("DOMContentLoaded", async () => {
     document.dispatchEvent(new Event('HtmlIncludesLoaded'));
     
     // Sembunyikan loader
-    if (loader) loader.style.display = 'none';
+    if (loader) {
+        loader.classList.add('hidden');
+        loader.style.display = '';
+    }
 });
