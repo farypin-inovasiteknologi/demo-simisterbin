@@ -34,12 +34,17 @@ function enkripsiLokal(teks) {
 }
 
 function dekripsiLokal(b64) {
-    let teks = atob(b64);
-    let result = "";
-    for (let i = 0; i < teks.length; i++) {
-        result += String.fromCharCode(teks.charCodeAt(i) ^ KUNCI_RAHASIA.charCodeAt(i % KUNCI_RAHASIA.length));
+    if (!b64) return "";
+    try {
+        let teks = atob(b64);
+        let result = "";
+        for (let i = 0; i < teks.length; i++) {
+            result += String.fromCharCode(teks.charCodeAt(i) ^ KUNCI_RAHASIA.charCodeAt(i % KUNCI_RAHASIA.length));
+        }
+        return result;
+    } catch(e) {
+        return b64;
     }
-    return result;
 }
 
 // 2. Baca ID dari URL (contoh: https://namamu.github.io/simisterbin/?id=demo)
