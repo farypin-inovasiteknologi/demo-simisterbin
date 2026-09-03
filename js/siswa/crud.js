@@ -58,13 +58,15 @@ function loadSiswa() {
         // Inisialisasi tab Alumni dan Keluar di Buku Induk
         if (typeof inisialisasiDropdownAlumni === 'function') inisialisasiDropdownAlumni();
 
+        // SEMBUNYIKAN LAYAR HITAM LOADING SETELAH SEMUA SIAP
+        $('#loader').addClass('hidden');
+
         // DEFINISI HAK AKSES
         const isAdmin = ($('#uRole').text() == 'ADMINISTRATOR' || $('#uRole').text() == 'ADMIN');
         const isWaka = ($('#uRole').text() == 'WAKAKURIKULUM');
         const canInputNilai = (isAdmin || isWaka); // Admin dan Waka bisa input nilai
 
         let htmlInduk = "", htmlSiswa = "", htmlLegerSiswa = "", htmlAlumni = "", htmlLegerAlumni = "", htmlIndukKeluar = "";
-
         let listKelasSet = new Set(); // Penampung unik untuk nama-nama kelas
 
         listSiswa.forEach(r => {
