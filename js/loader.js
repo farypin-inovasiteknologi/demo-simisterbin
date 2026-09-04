@@ -38,9 +38,5 @@ document.addEventListener("DOMContentLoaded", async () => {
     // Panggil event custom untuk menandakan DOM sudah siap secara keseluruhan
     document.dispatchEvent(new Event('HtmlIncludesLoaded'));
     
-    // Sembunyikan loader
-    if (loader) {
-        loader.classList.add('hidden');
-        loader.style.display = '';
-    }
+    // init.js hides the loader after the startup data is ready.
 });
