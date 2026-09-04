@@ -49,8 +49,9 @@ if (IS_DESKTOP) {
   // FUNGSI SINKRONISASI DATA KE GOOGLE SHEETS
   // ==========================================
   async function doSinkronisasi() {
-    const apiUrlRow = await callAPI('getApiUrl');
-    const apiUrl = apiUrlRow || '';
+    const configuredUrl = await callAPI('getApiUrl');
+    const tenantUrl = typeof tenantConfig !== 'undefined' && tenantId ? tenantConfig[tenantId] : '';
+    const apiUrl = tenantUrl || configuredUrl || '';
 
     Swal.fire({
       title: 'URL Sinkronisasi',
@@ -110,7 +111,17 @@ if (IS_DESKTOP) {
     setTimeout(() => updateStep(5, '🔄', 'Download data terbaru...'), 4000);
 
     try {
-      const result = await window.electronAPI.syncToServer(apiUrl);
+      const sessionRaw = localStorage.getItem('simisterbin_session');
+      let sessionData = null;
+      try { sessionData = sessionRaw ? JSON.parse(dekripsiLokal(sessionRaw)) : null; } catch (_) {}
+      if (!sessionData || !sessionData.username || !sessionData.password) {
+        Swal.fire('Login Ulang Diperlukan', 'Sesi login lama belum menyimpan kredensial. Silakan logout lalu login kembali.', 'warning');
+        return;
+      }
+      const result = await window.electronAPI.syncToServer(apiUrl, {
+        username: sessionData.username,
+        password: sessionData.password
+      });
       if (result.status === 'success' || result.status === 'partial') {
         Swal.fire({
           icon: result.status === 'success' ? 'success' : 'warning',
@@ -125,7 +136,36 @@ if (IS_DESKTOP) {
         updateSyncBadge();
         if (typeof loadSiswa === 'function') loadSiswa();
       } else {
-        Swal.fire('Gagal Sinkronisasi', result.message, 'error');
+        if (String(result.message || '').toLowerCase().includes('login server ditolak')) {
+          const retry = await Swal.fire({
+            title: 'Login Server Ditolak',
+            html: '<p class="small text-muted text-start">Password login offline berbeda dengan password akun login Online, silakan masukkan username dan password login akun Online Anda.</p><input id="retry-sync-user" class="swal2-input" style="width:min(420px,85%);" value="admin" placeholder="Username akun Online"><div style="position:relative;width:min(420px,85%);margin:0 auto;"><input id="retry-sync-pass" type="password" class="swal2-input" style="width:100%;margin:0;padding-right:48px;" placeholder="Password akun Online"><button type="button" id="toggle-retry-sync-pass" aria-label="Tampilkan password" style="position:absolute;right:10px;top:9px;border:0;background:transparent;color:#6c757d;font-size:18px;cursor:pointer;"><i class="bi bi-eye"></i></button></div>',
+            showCancelButton: true,
+            confirmButtonText: 'Coba Lagi',
+            cancelButtonText: 'Batal',
+            didOpen: () => {
+              const button = document.getElementById('toggle-retry-sync-pass');
+              const input = document.getElementById('retry-sync-pass');
+              if (button && input) button.addEventListener('click', () => {
+                const visible = input.type === 'text';
+                input.type = visible ? 'password' : 'text';
+                button.innerHTML = `<i class="bi bi-eye${visible ? '' : '-slash'}"></i>`;
+              });
+            },
+            preConfirm: () => ({ username: document.getElementById('retry-sync-user').value.trim(), password: document.getElementById('retry-sync-pass').value })
+          });
+          if (retry.isConfirmed && retry.value.username && retry.value.password) {
+            Swal.fire({ title: 'Mencoba Sinkronisasi...', allowOutsideClick: false, didOpen: () => Swal.showLoading() });
+            const retryResult = await window.electronAPI.syncToServer(apiUrl, retry.value);
+            if (retryResult.status === 'success' || retryResult.status === 'partial') {
+              Swal.fire(retryResult.status === 'partial' ? 'Sinkronisasi Sebagian' : 'Sinkronisasi Berhasil', retryResult.message || 'Sinkronisasi selesai.', retryResult.status === 'partial' ? 'warning' : 'success');
+            } else {
+              Swal.fire('Login Server Gagal', retryResult.message, 'error');
+            }
+          }
+        } else {
+          Swal.fire('Gagal Sinkronisasi', `${result.message}<br><br><small>Endpoint: ${apiUrl}</small>`, 'error');
+        }
       }
     } catch (e) {
       Swal.fire('Error', 'Sinkronisasi error: ' + e.message, 'error');
