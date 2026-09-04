@@ -200,7 +200,7 @@ if (IS_DESKTOP) {
         if (Swal.isVisible()) Swal.update({ text: msg });
       });
       
-      const result = await window.electronAPI.forcePushOnline(apiUrl, credentials.value);
+      const result = await window.electronAPI.forcePushOnline(apiUrl, credentials);
       
       if (result.status === 'success' || result.status === 'partial') {
         const detail = result.errors && result.errors.length ? `<br><br><b>Catatan:</b><br>${result.errors.join('<br>')}` : '';
