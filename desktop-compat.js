@@ -136,10 +136,17 @@ if (IS_DESKTOP) {
         updateSyncBadge();
         if (typeof loadSiswa === 'function') loadSiswa();
       } else {
-        if (String(result.message || '').toLowerCase().includes('login server ditolak')) {
+        if (String(result.message || '').toLowerCase().includes('login') || String(result.message || '').toLowerCase().includes('username') || String(result.message || '').toLowerCase().includes('password')) {
           const retry = await Swal.fire({
-            title: 'Login Server Ditolak',
-            html: '<p class="small text-muted text-start">Password login offline berbeda dengan password akun login Online, silakan masukkan username dan password login akun Online Anda.</p><input id="retry-sync-user" class="swal2-input" style="width:min(420px,85%);" value="admin" placeholder="Username akun Online"><div style="position:relative;width:min(420px,85%);margin:0 auto;"><input id="retry-sync-pass" type="password" class="swal2-input" style="width:100%;margin:0;padding-right:48px;" placeholder="Password akun Online"><button type="button" id="toggle-retry-sync-pass" aria-label="Tampilkan password" style="position:absolute;right:10px;top:9px;border:0;background:transparent;color:#6c757d;font-size:18px;cursor:pointer;"><i class="bi bi-eye"></i></button></div>',
+            title: 'Kredensial Online Berbeda',
+            html: `
+              <div class="mb-3 text-start text-danger small"><b>Pesan Server:</b> ${result.message}</div>
+              <p class="small text-muted text-start">Password login offline berbeda dengan password akun login Online, silakan masukkan username dan password login akun Online Anda.</p>
+              <input id="retry-sync-user" class="swal2-input" style="width:min(420px,85%);" value="admin" placeholder="Username akun Online">
+              <div style="position:relative;width:min(420px,85%);margin:0 auto;">
+                <input id="retry-sync-pass" type="password" class="swal2-input" style="width:100%;margin:0;padding-right:48px;" placeholder="Password akun Online">
+                <button type="button" id="toggle-retry-sync-pass" aria-label="Tampilkan password" style="position:absolute;right:10px;top:9px;border:0;background:transparent;color:#6c757d;font-size:18px;cursor:pointer;"><i class="bi bi-eye"></i></button>
+              </div>`,
             showCancelButton: true,
             confirmButtonText: 'Coba Lagi',
             cancelButtonText: 'Batal',
@@ -158,6 +165,8 @@ if (IS_DESKTOP) {
             Swal.fire({ title: 'Mencoba Sinkronisasi...', allowOutsideClick: false, didOpen: () => Swal.showLoading() });
             const retryResult = await window.electronAPI.syncToServer(apiUrl, retry.value);
             if (retryResult.status === 'success' || retryResult.status === 'partial') {
+              const updatedSession = { ...(sessionData || {}), username: retry.value.username, password: retry.value.password };
+              localStorage.setItem('simisterbin_session', enkripsiLokal(JSON.stringify(updatedSession)));
               Swal.fire(retryResult.status === 'partial' ? 'Sinkronisasi Sebagian' : 'Sinkronisasi Berhasil', retryResult.message || 'Sinkronisasi selesai.', retryResult.status === 'partial' ? 'warning' : 'success');
             } else {
               Swal.fire('Login Server Gagal', retryResult.message, 'error');
@@ -269,13 +278,15 @@ if (IS_DESKTOP) {
             Swal.fire({ title: 'Mencoba Login Server...', allowOutsideClick: false, didOpen: () => Swal.showLoading() });
             const retryResult = await window.electronAPI.forcePushOnline(apiUrl, retry.value);
             if (retryResult.status === 'success' || retryResult.status === 'partial') {
+              const updatedSession = { ...(sessionData || {}), username: retry.value.username, password: retry.value.password };
+              localStorage.setItem('simisterbin_session', enkripsiLokal(JSON.stringify(updatedSession)));
               Swal.fire(retryResult.status === 'partial' ? 'Sebagian Berhasil' : 'Berhasil!', retryResult.message, retryResult.status === 'partial' ? 'warning' : 'success');
             } else {
               Swal.fire('Login Server Gagal', retryResult.message, 'error');
             }
           }
         } else {
-          Swal.fire('Gagal Upload', result.message, 'error');
+            Swal.fire('Gagal Sinkronisasi', result.message, 'error');
         }
       }
     } catch (e) {
