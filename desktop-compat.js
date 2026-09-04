@@ -209,10 +209,20 @@ if (IS_DESKTOP) {
         if (String(result.message || '').toLowerCase().includes('login server ditolak')) {
           const retry = await Swal.fire({
             title: 'Login Server Ditolak',
-            html: '<p class="small text-muted">Password login offline berbeda dengan password akun server Google Sheets.</p><input id="retry-server-user" class="swal2-input" value="admin" placeholder="Username server"><input id="retry-server-pass" type="password" class="swal2-input" placeholder="Password server">',
+            html: '<p class="small text-muted text-start">Password login offline berbeda dengan password akun login Online, silakan masukkan username dan password login akun Online Anda.</p><input id="retry-server-user" class="swal2-input" style="width: min(420px, 85%);" value="admin" placeholder="Username akun Online"><div style="position:relative;width:min(420px,85%);margin:0 auto;"><input id="retry-server-pass" type="password" class="swal2-input" style="width:100%;margin:0;padding-right:48px;" placeholder="Password akun Online"><button type="button" id="toggle-retry-server-pass" aria-label="Tampilkan password" style="position:absolute;right:10px;top:9px;border:0;background:transparent;color:#6c757d;font-size:18px;cursor:pointer;"><i class="bi bi-eye"></i></button></div>',
             showCancelButton: true,
             confirmButtonText: 'Coba Lagi',
             cancelButtonText: 'Batal',
+            didOpen: () => {
+              const button = document.getElementById('toggle-retry-server-pass');
+              const input = document.getElementById('retry-server-pass');
+              if (button && input) button.addEventListener('click', () => {
+                const visible = input.type === 'text';
+                input.type = visible ? 'password' : 'text';
+                button.innerHTML = `<i class="bi bi-eye${visible ? '' : '-slash'}"></i>`;
+                button.setAttribute('aria-label', visible ? 'Tampilkan password' : 'Sembunyikan password');
+              });
+            },
             preConfirm: () => ({ username: document.getElementById('retry-server-user').value.trim(), password: document.getElementById('retry-server-pass').value })
           });
           if (retry.isConfirmed && retry.value.username && retry.value.password) {
