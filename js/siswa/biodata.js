@@ -165,6 +165,9 @@ function showHapusSemuaData() {
             callAPI('hapusSemuaSiswa').then(res => {
                 $('#loader').addClass('hidden');
                 if (res.status === 'success') {
+                    globalSiswa = [];
+                    if (typeof globalAlumniData !== 'undefined') window.globalAlumniData = [];
+                    if (typeof invalidateUnifiedCaches === 'function') invalidateUnifiedCaches();
                     showCoolAlert('Berhasil', 'Semua data siswa berhasil dihapus.', 'success');
                     refreshPage();
                 } else {
