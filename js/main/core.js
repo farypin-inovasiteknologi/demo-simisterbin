@@ -4,7 +4,7 @@
 
 // 1. Buat "Buku Alamat" untuk masing-masing sekolah
 const tenantConfig = {
-    "demo": "https://script.google.com/macros/s/AKfycbyhZo9mF9OGGOBAw7YkvWigpAqVcQ7hD0inWiJrnOtXlMk0fmjcuuAGXF8NkMRy9q82/exec",
+    "demo": "https://script.google.com/macros/s/AKfycbw5JTbbySof9nBzsPlquM_Y-LZeEbIEJb5HfeLGr4eSuUDAaPpjIThOqMLeZ2-HoD0G/exec",
     "sma1": "https://script.google.com/macros/s/ID_API_SEKOLAH_2/exec",
     "smk2": "https://script.google.com/macros/s/ID_API_SEKOLAH_3/exec"
     // Tambahkan sekolah lain di sini sesuai kebutuhan
@@ -42,7 +42,7 @@ function dekripsiLokal(b64) {
             result += String.fromCharCode(teks.charCodeAt(i) ^ KUNCI_RAHASIA.charCodeAt(i % KUNCI_RAHASIA.length));
         }
         return result;
-    } catch(e) {
+    } catch (e) {
         return b64;
     }
 }
@@ -174,7 +174,17 @@ async function callAPI(actionName, payloadData = {}) {
             headers: { 'Content-Type': 'text/plain' },
             body: JSON.stringify({ action: actionName, token: tokenAman, username: userAktif, data: payloadKirim })
         });
-        let resData = await response.json();
+
+        // Tangkap response text dulu, lalu parse
+        const resText = await response.text();
+        let resData;
+        try {
+            resData = JSON.parse(resText);
+        } catch (_) {
+            // Server mengembalikan bukan JSON (mungkin timeout/error GAS)
+            const preview = resText ? resText.substring(0, 150) : '(kosong)';
+            return { status: "error", message: `Server tidak merespons dengan benar. Preview: ${preview}` };
+        }
 
         // --- DEKRIPSI OTOMATIS DATA SENSITIF ONLINE ---
         if (resData && resData.status === 'success') {
