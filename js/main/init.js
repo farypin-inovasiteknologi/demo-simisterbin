@@ -1,21 +1,22 @@
 // ==========================================
 // PUSAT INISIALISASI APLIKASI SAAT PERTAMA DIBUKA
 // ==========================================
-document.addEventListener('HtmlIncludesLoaded', function () {
+document.addEventListener('HtmlIncludesLoaded', async function () {
     // 1. JALANKAN SETUP DATABASE DULU (WAJIB AGAR LOADING BISA BERHENTI)
-    callAPI('setupDatabase').then(res => {
+    try {
+        const res = await callAPI('setupDatabase');
         if (res.status == 'error') {
             $('#loader').addClass('hidden'); // MATIKAN LOADING
             Swal.fire('Error DB', res.message, 'error');
         } else {
-            loadSettings();
+            await loadSettings();
 
             // CEK SESI LOGIN
             let session = localStorage.getItem('simisterbin_session');
             if (session) {
                 try {
                     let decodedData = JSON.parse(dekripsiLokal(session));
-                    restoreSession(decodedData);
+                    await restoreSession(decodedData);
                 } catch (e) {
                     localStorage.removeItem('simisterbin_session');
                     $('#boxLinkExec').removeClass('hidden');
@@ -30,13 +31,11 @@ document.addEventListener('HtmlIncludesLoaded', function () {
                 $('#loader').addClass('hidden'); // MATIKAN LOADING
             }
         }
-    }).catch(e => {
-
+    } catch (e) {
         $('#loader').addClass('hidden'); // Paksa mati loading jika error jaringan
         console.error(e);
         Swal.fire('Error', 'Gagal terhubung ke database. Cek API URL Anda.', 'error');
-    });
-
+    }
     // ==========================================
     // 2. JALANKAN SENSOR VALIDASI DAFTAR ULANG
     // ==========================================
@@ -59,11 +58,15 @@ document.addEventListener('HtmlIncludesLoaded', function () {
         }
     });
 
+    $('#frmSiswa').on('shown.bs.tab', 'a[data-bs-toggle="tab"]', function () {
+        validateStudentIdentity(true);
+    });
+
     // B. PENGUNCI PINDAH TAB (Telah dinonaktifkan)
 });
 
 // FUNGSI UNTUK MENGEMBALIKAN SESI (RELOAD / LOGIN SUKSES)
-function restoreSession(res) {
+async function restoreSession(res) {
     $('#loginPage').addClass('hidden');
     $('#appPage').removeClass('hidden');
 
@@ -172,7 +175,6 @@ function restoreSession(res) {
 
         // Perintahkan sistem mengambil daftar tahun alumni ke server
         inisialisasiDropdownAlumni();
-        if(typeof inisialisasiDropdownKeluar === 'function') inisialisasiDropdownKeluar();
     }
 }
 
@@ -287,16 +289,41 @@ function refreshPage() {
     });
 }
 
+function updateActiveNavigation(page) {
+    const menuNeedles = {
+        dash: "nav('dash'",
+        siswa: "nav('siswa'",
+        'data-siswa': "openUnifiedMenu('data-siswa'",
+        'leger-siswa': "openUnifiedMenu('leger-siswa'",
+        'klaper-siswa': "openUnifiedMenu('klaper-siswa'",
+        daftarulang: "nav('daftarulang'",
+        settings: "nav('settings'"
+    };
+    const needle = menuNeedles[page];
+    $('#mainSidebar a, #mobileBottomBar a').removeClass('active');
+    if (!needle) return;
+    $('#mainSidebar a, #mobileBottomBar a').filter(function () {
+        return String($(this).attr('onclick') || '').includes(needle);
+    }).addClass('active');
+}
+
+function activateNomorIndukTab() {
+    const target = document.querySelector('[data-bs-target="#tabIndukNomor"]');
+    const panes = $('#pills-tab-induk').next('.tab-content').children('.tab-pane');
+    panes.removeClass('show active');
+    $('#tabIndukNomor').addClass('show active');
+    $('#pills-tab-induk .nav-link').removeClass('active');
+    $(target).addClass('active');
+    if (target && typeof bootstrap !== 'undefined') bootstrap.Tab.getOrCreateInstance(target).show();
+}
+
 function nav(page, el, param) {
     curPage = page;
 
     // Ubah status aktif di menu laptop/PC
-    if (el) { $('.sidebar a').removeClass('active'); $(el).addClass('active'); }
+    updateActiveNavigation(page);
 
     // Ubah status aktif di menu HP
-    $('.m-nav-item').removeClass('active');
-    $(`.m-nav-item[data-target='${page}']`).addClass('active');
-
     if ($(window).width() < 768) { $('#mainSidebar').removeClass('show'); $('.sidebar-overlay').removeClass('show'); }
     $('[id^=view-]').addClass('hidden'); $('#view-' + page).removeClass('hidden');
 
@@ -308,6 +335,12 @@ function nav(page, el, param) {
             // Jika data sudah ada, langsung tampilkan tanpa loading!
             renderDaftarUlangTable();
         }
+    }
+
+    if (page == 'siswa') {
+        if (typeof inisialisasiDropdownAlumni === 'function') inisialisasiDropdownAlumni();
+        if (typeof inisialisasiDropdownKeluar === 'function') inisialisasiDropdownKeluar();
+        activateNomorIndukTab();
     }
 
     if (page == 'mapel') {
@@ -349,7 +382,77 @@ function downloadPDFBase64(base64, filename) {
     document.body.removeChild(link);
 }
 
-function downloadTemplate(type) { let csv = (type == 'siswa') ? "NIS,NISN,Nama,NIK,NoKK,TempatLahir,TglLahir,JK,Agama,AnakKe,JmlSdr,Bahasa,Alamat,NoHP,Jarak,Transport,Tinggi,Berat,Goldar,Penyakit,NamaAyah,TglLahirAyah,KerjaAyah,NamaIbu,TglLahirIbu,KerjaIbu,PindahanDari,LulusanDari,NoIjazahSLTP,KlsMasuk,TglMasuk,StatusAkhir,TglKeluar,LanjutKe,NoIjazahSMA\n123,0001,SiswaA,350..,350..,Sby,2010-01-01,L,Islam,1,2,Indo,Jl.A,081,1,Mtr,160,50,O,-,Ayah,1980-01-01,Krj,Ibu,1982-02-02,Krj,-,SMPN,-,7,2022-07-01,Aktif,,," : "Semester,ID_MAPEL,P,K,S\n1,PAI,80,85,B\n2,PAI,85,85,A"; const blob = new Blob([csv], { type: 'text/csv' }); const link = document.createElement('a'); link.href = window.URL.createObjectURL(blob); link.download = `Template_${type}.csv`; link.click(); }
+function downloadTemplate(type, nis) {
+    if (type === 'nilai') {
+        const mapels = Array.isArray(globalMapel) ? globalMapel : [];
+        const workbook = new ExcelJS.Workbook();
+        const sheet = workbook.addWorksheet('Nilai Siswa');
+        const totalColumns = 50;
+        sheet.mergeCells(1, 1, 1, totalColumns);
+        sheet.getCell(1, 1).value = 'TEMPLATE INPUT NILAI SISWA';
+        sheet.mergeCells(2, 1, 2, totalColumns);
+        sheet.getCell(2, 1).value = 'Isi kolom P, K, S, dan Deskripsi. Nilai sikap pilih A, B, C, D, atau E.';
+        sheet.mergeCells(4, 1, 5, 1);
+        sheet.mergeCells(4, 2, 5, 2);
+        sheet.getCell(4, 1).value = 'ID MAPEL';
+        sheet.getCell(4, 2).value = 'NAMA MAPEL';
+        for (let semester = 1; semester <= 12; semester++) {
+            const startColumn = 3 + (semester - 1) * 4;
+            sheet.mergeCells(4, startColumn, 4, startColumn + 3);
+            sheet.getCell(4, startColumn).value = `SEMESTER ${semester}`;
+            ['P', 'K', 'S', 'DESKRIPSI'].forEach((label, index) => { sheet.getCell(5, startColumn + index).value = label; });
+        }
+        mapels.forEach(mapel => sheet.addRow([mapel[0], mapel[1], ...Array(48).fill('')]));
+        [1, 2].forEach(rowNumber => {
+            const row = sheet.getRow(rowNumber);
+            row.font = { bold: rowNumber === 1, color: { argb: 'FF000000' } };
+            row.alignment = { horizontal: 'left', vertical: 'middle' };
+        });
+        [4, 5].forEach(rowNumber => {
+            const row = sheet.getRow(rowNumber);
+            row.font = { bold: true, color: { argb: 'FFFFFFFF' } };
+            row.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: rowNumber === 4 ? 'FF198754' : 'FF4E73DF' } };
+            row.alignment = { horizontal: 'center', vertical: 'middle', wrapText: true };
+        });
+        sheet.getRow(1).height = 25;
+        sheet.getRow(2).height = 22;
+        sheet.getRow(4).height = 24;
+        sheet.getRow(5).height = 25;
+        sheet.columns.forEach((column, index) => {
+            if (index === 0) column.width = 14;
+            else if (index === 1) column.width = 28;
+            else {
+                const position = (index - 2) % 4;
+                column.width = position === 0 || position === 1 ? 8 : position === 2 ? 7 : 18;
+            }
+        });
+        for (let semester = 1; semester <= 12; semester++) {
+            const startColumn = 3 + (semester - 1) * 4;
+            for (let rowNumber = 6; rowNumber <= mapels.length + 5; rowNumber++) {
+                sheet.getCell(rowNumber, startColumn).numFmt = '0.00';
+                sheet.getCell(rowNumber, startColumn + 1).numFmt = '0.00';
+                sheet.getCell(rowNumber, startColumn).dataValidation = { type: 'decimal', operator: 'between', allowBlank: true, formulae: [0, 100], showErrorMessage: true, errorTitle: 'Nilai tidak valid', error: 'Nilai P harus 0 sampai 100.' };
+                sheet.getCell(rowNumber, startColumn + 1).dataValidation = { type: 'decimal', operator: 'between', allowBlank: true, formulae: [0, 100], showErrorMessage: true, errorTitle: 'Nilai tidak valid', error: 'Nilai K harus 0 sampai 100.' };
+                sheet.getCell(rowNumber, startColumn + 2).dataValidation = { type: 'list', allowBlank: true, formulae: ['"A,B,C,D,E"'] };
+            }
+            for (let rowNumber = 4; rowNumber <= mapels.length + 5; rowNumber++) {
+                for (let column = startColumn; column <= startColumn + 3; column++) sheet.getCell(rowNumber, column).border = { left: { style: 'medium', color: { argb: 'FF000000' } } };
+            }
+        }
+        sheet.getRow(5).eachCell(cell => { cell.border = { top: { style: 'thin', color: { argb: 'FF000000' } }, bottom: { style: 'thin', color: { argb: 'FF000000' } } }; });
+        sheet.views = [{ state: 'frozen', ySplit: 5, xSplit: 2 }];
+        workbook.xlsx.writeBuffer().then(buffer => {
+            saveAs(new Blob([buffer], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' }), 'Template_Nilai.xlsx');
+        });
+        return;
+    }
+    const csv = "NIS,NISN,Nama,NIK,NoKK,TempatLahir,TglLahir,JK,Agama,AnakKe,JmlSdr,Bahasa,Alamat,NoHP,Jarak,Transport,Tinggi,Berat,Goldar,Penyakit,NamaAyah,TglLahirAyah,KerjaAyah,NamaIbu,TglLahirIbu,KerjaIbu,PindahanDari,LulusanDari,NoIjazahSLTP,KlsMasuk,TglMasuk,StatusAkhir,TglKeluar,LanjutKe,NoIjazahSMA\r\n123,0001,SiswaA,350..,350..,Sby,2010-01-01,L,Islam,1,2,Indo,Jl.A,081,1,Mtr,160,50,O,-,Ayah,1980-01-01,Krj,Ibu,1982-02-02,Krj,-,SMPN,-,7,2022-07-01,Aktif,,";
+    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8' });
+    const link = document.createElement('a');
+    link.href = window.URL.createObjectURL(blob);
+    link.download = `Template_${type}.csv`;
+    link.click();
+}
 
 function updateAccount(e, role) {
     e.preventDefault();
@@ -365,7 +468,7 @@ function updateAccount(e, role) {
 }
 
 function loadSettings() {
-    callAPI('getSettings').then(s => {
+    return callAPI('getSettings').then(s => {
         globalConf = s;
 
         if (s.theme_color_1) document.documentElement.style.setProperty('--theme-color-1', s.theme_color_1);
