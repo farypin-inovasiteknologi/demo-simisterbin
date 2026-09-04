@@ -1,0 +1,87 @@
+
+                        <h3 class="mb-4 text-secondary fw-bold">Dashboard</h3>
+
+                        <!-- NEW IDENTITAS SEKOLAH BANNER -->
+                        <div class="card p-4 mb-4 shadow-sm border-0 rounded-4">
+                            <div class="row align-items-center">
+                                <div class="col-md-2 text-center mb-3 mb-md-0">
+                                    <img id="dashLogoInstansi" src="assets/img/tutwuri.png"
+                                        style="max-height: 70px; object-fit: contain;">
+                                    <img id="dashLogoSekolah" src="assets/img/logo-sek.png" class="ms-2"
+                                        style="max-height: 70px; object-fit: contain;">
+                                </div>
+                                <div class="col-md-6 mb-3 mb-md-0 border-end border-2">
+                                    <div id="dashInstansi2" class="small fw-bold text-secondary text-uppercase"></div>
+                                    <div id="dashOpd" class="small fw-bold text-secondary text-uppercase"></div>
+                                    <div id="dashName2" class="h4 text-primary fw-bold my-1 text-uppercase"></div>
+                                </div>
+                                <div class="col-md-4 small text-muted">
+                                    <div class="mb-1"><i class="bi bi-geo-alt-fill me-2 text-danger"></i> <span
+                                            id="dashAddr2"></span></div>
+                                    <div class="mb-1"><i class="bi bi-globe me-2 text-primary"></i> <span
+                                            id="dashWeb"></span></div>
+                                    <div class="mb-1"><i class="bi bi-envelope-fill me-2 text-warning"></i> <span
+                                            id="dashEmail"></span></div>
+                                    <div><i class="bi bi-telephone-fill me-2 text-success"></i> <span
+                                            id="dashTelp"></span></div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row g-3 mb-4">
+                            <div class="col-6 col-md-3">
+                                <div class="card p-3 border-start border-5 border-primary h-100">
+                                    <div class="text-muted small fw-bold">TOTAL SISWA</div>
+                                    <h2 class="text-primary fw-bold mb-0" id="totalSiswa">0</h2>
+                                </div>
+                            </div>
+                            <div class="col-6 col-md-3">
+                                <div class="card p-3 border-start border-5 border-success h-100">
+                                    <div class="text-muted small fw-bold">ROMBEL</div>
+                                    <h2 class="text-success fw-bold mb-0" id="totalRombel">0</h2>
+                                </div>
+                            </div>
+                            <div class="col-6 col-md-3">
+                                <div class="card p-3 border-start border-5 border-warning h-100">
+                                    <div class="text-muted small fw-bold">MAPEL</div>
+                                    <h2 class="text-warning fw-bold mb-0" id="totalMapel">0</h2>
+                                </div>
+                            </div>
+                            <div class="col-6 col-md-3">
+                                <div class="card p-3 border-start border-5 border-info h-100">
+                                    <div class="text-muted small fw-bold">PENGGUNA</div>
+                                    <h2 class="text-info fw-bold mb-0" id="totalUser">0</h2>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row g-4">
+                            <div class="col-md-4">
+                                <div class="card h-100 shadow-sm border-0">
+                                    <div class="card-header bg-white fw-bold border-0 pt-3">Statistik Gender</div>
+                                    <div class="card-body text-center">
+                                        <div id="chartGender"></div>
+                                        <div id="genderCounts" class="mt-2 small fw-bold text-secondary"></div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="card h-100 shadow-sm border-0">
+                                    <div class="card-header bg-white fw-bold border-0 pt-3">Status Siswa</div>
+                                    <div class="card-body text-center">
+                                        <div id="chartStatus"></div>
+                                        <div id="statusCounts" class="mt-2 small fw-bold text-secondary"></div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="card h-100 shadow-sm border-0">
+                                    <div class="card-header bg-white fw-bold border-0 pt-3">Grafik Lulusan (Alumni)
+                                    </div>
+                                    <div class="card-body">
+                                        <div id="chartAlumni"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    

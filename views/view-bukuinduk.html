@@ -1,0 +1,144 @@
+<div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
+                            <h3 class="m-0 text-secondary fw-bold">Master Buku Induk</h3>
+                            <div class="d-flex gap-2">
+                                <button class="btn btn-sm btn-outline-secondary shadow-sm fw-bold" onclick="refreshPage()"><i class="bi bi-arrow-clockwise"></i> Segarkan Data</button>
+                            </div>
+                        </div>
+
+                        <ul class="nav nav-pills mb-3 border-bottom pb-2" id="pills-tab-induk" role="tablist">
+                            <li class="nav-item" role="presentation">
+                                <button class="nav-link active fw-bold px-4 text-white" style="background-color:#6f42c1;" data-bs-toggle="pill"
+                                    data-bs-target="#tabIndukNomor" type="button"><i
+                                        class="bi bi-sort-numeric-down me-1"></i> Nomor Induk</button>
+                            </li>
+                            <li class="nav-item" role="presentation">
+                                <button class="nav-link fw-bold px-4 text-white" style="background-color:#198754;" data-bs-toggle="pill"
+                                    data-bs-target="#tabIndukAktif" type="button"><i
+                                        class="bi bi-person-check-fill me-1"></i> Siswa Aktif</button>
+                            </li>
+                            <li class="nav-item" role="presentation">
+                                <button class="nav-link fw-bold px-4 text-white" style="background-color:#0d6efd;" data-bs-toggle="pill" 
+                                    data-bs-target="#tabIndukAlumni" type="button"><i
+                                        class="bi bi-mortarboard-fill me-1"></i> Alumni</button>
+                            </li>
+                            <li class="nav-item" role="presentation">
+                                <button class="nav-link fw-bold px-4 text-white" style="background-color:#dc3545;" data-bs-toggle="pill"
+                                    data-bs-target="#tabIndukKeluar" type="button"><i
+                                        class="bi bi-box-arrow-right me-1"></i> Siswa Keluar</button>
+                            </li>
+                        </ul>
+
+                        <div class="tab-content">
+                            <div class="tab-pane fade show active" id="tabIndukNomor" role="tabpanel">
+                                <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
+                                    <div class="d-flex align-items-center gap-2 flex-wrap">
+                                        <select id="nomorIndukLength" class="form-select form-select-sm border-primary" style="width:120px" title="Jumlah data per halaman">
+                                            <option value="10">10 data</option><option value="25" selected>25 data</option><option value="50">50 data</option><option value="100">100 data</option><option value="200">200 data</option><option value="500">500 data</option><option value="1000">1000 data</option>
+                                        </select>
+                                        <label class="small fw-bold text-muted mb-0">Urutan NIS:</label>
+                                        <select id="lapOrderBerdasarkan" class="form-select form-select-sm border-primary" style="width:190px">
+                                            <option value="NIS_ASC">NIS kecil ke besar</option>
+                                            <option value="NIS_DESC" selected>NIS besar ke kecil</option>
+                                        </select>
+                                        <input id="nomorIndukCari" class="form-control form-control-sm border-primary" style="width:220px" placeholder="Cari NIS atau nama...">
+                                        <input id="nomorIndukCariNisn" class="form-control form-control-sm border-primary" style="width:180px" placeholder="Cari NISN...">
+                                    </div>
+                                    <div class="d-flex gap-2"><button id="btnTampilkanNomorInduk" class="btn btn-sm btn-primary fw-bold" onclick="muatDataLaporan()"><i class="bi bi-cloud-download"></i> Tampilkan Semua Data</button><button class="btn btn-sm btn-success fw-bold" onclick="unduhLaporanExcel()"><i class="bi bi-file-earmark-excel"></i> Unduh Excel</button></div>
+                                </div>
+                                <select id="lapTipeSiswa" class="d-none"><option value="Semua Siswa" selected>Semua Siswa</option></select>
+                                <select id="lapFilterKedua" class="d-none"><option value=""></option></select>
+                                <div class="table-responsive bg-white rounded shadow-sm border">
+                                    <table class="table table-hover table-striped mb-0" id="tblLapPreviewSiswa" style="width:100%; white-space:nowrap;">
+                                        <thead class="table-light text-secondary"><tr><th>No</th><th>NIS</th><th>NISN</th><th>Nama Lengkap</th><th>L/P</th><th>Tempat Lahir</th><th>Tanggal Lahir</th><th>Nama Ayah</th><th>Nama Ibu</th><th>Kelas / Status</th><th>Aksi</th></tr></thead>
+                                        <tbody id="tbodyLapPreviewSiswa"><tr><td colspan="11" class="text-center text-muted py-5">Tekan "Tampilkan Semua Data" untuk memuat Nomor Induk.</td></tr></tbody>
+                                    </table>
+                                </div>
+                                <div id="lapPagination" class="mt-3 d-flex justify-content-between align-items-center"></div>
+                            </div>
+                            <div class="tab-pane fade show active" id="tabIndukAktif" role="tabpanel">
+                                <div class="d-flex justify-content-between align-items-center mb-3"><select id="filterIndukAktifKelas" class="form-select form-select-sm border-primary" style="max-width:220px" onchange="filterIndukTable('tblSiswa', 4, this.value)"><option value="">Semua Kelas Saat Ini</option></select><button class="btn btn-sm btn-success fw-bold" onclick="unduhTabelExcel('tblSiswa', 'Buku Induk Siswa Aktif')"><i class="bi bi-file-earmark-excel"></i> Unduh Excel</button></div>
+                                <div class="card p-4 bg-white shadow-sm border-0">
+                                    <div class="table-responsive">
+                                        <table id="tblSiswa" class="table table-hover w-100">
+                                            <thead class="table-light">
+                                                <tr>
+                                                    <th>NIS</th>
+                                                    <th>Nama Lengkap</th>
+                                                    <th>Tgl Lahir</th>
+                                                    <th>L/P</th>
+                                                    <th>Kelas Saat Ini</th>
+                                                    <th>Aksi</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody id="tbodySiswa"></tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="tab-pane fade" id="tabIndukAlumni" role="tabpanel">
+                                <div class="d-flex justify-content-between align-items-center mb-3 gap-2">
+                                    <div class="d-flex align-items-center gap-2">
+                                    <label class="small fw-bold text-muted mb-0">Tahun Kelulusan:</label>
+                                    <select id="filterTahunIndukAlumni"
+                                        class="form-select form-select-sm fw-bold border-primary shadow-sm"
+                                        style="width: 150px;" onchange="loadIndukAlumniByTahun()">
+                                        <option value="">-- Semua Tahun --</option>
+                                    </select>
+                                    </div>
+                                    <button class="btn btn-sm btn-success fw-bold" onclick="unduhTabelExcel('tblIndukAlumni', 'Buku Induk Alumni')"><i class="bi bi-file-earmark-excel"></i> Unduh Excel</button>
+                                </div>
+                                <div class="alert alert-light border small text-muted"><i
+                                        class="bi bi-info-circle-fill text-primary"></i> Data di bawah ini khusus untuk
+                                    mencetak Lembar Buku Induk PDF siswa yang sudah lulus. Untuk edit data/nilai,
+                                    silakan gunakan menu <b>Data Alumni</b> di samping.</div>
+
+                                <div class="card p-4 bg-white shadow-sm border-0">
+                                    <div class="table-responsive">
+                                        <table id="tblIndukAlumni" class="table table-hover w-100">
+                                            <thead class="table-light">
+                                                <tr>
+                                                    <th>NIS / NISN</th>
+                                                    <th>Nama Lengkap</th>
+                                                    <th>Tgl Lahir</th>
+                                                    <th>L/P</th>
+                                                    <th>Thn Lulus</th>
+                                                    <th>Aksi</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody id="tbodyIndukAlumni"></tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- TAB SISWA KELUAR -->
+                            <div class="tab-pane fade" id="tabIndukKeluar" role="tabpanel">
+                                <div class="d-flex justify-content-between align-items-center mb-3"><select id="filterIndukKeluarTahun" class="form-select form-select-sm border-primary" style="max-width:220px" onchange="filterIndukTable('tblIndukKeluar', 4, this.value)"><option value="">Semua Tahun Keluar</option></select><button class="btn btn-sm btn-success fw-bold" onclick="unduhTabelExcel('tblIndukKeluar', 'Buku Induk Siswa Keluar')"><i class="bi bi-file-earmark-excel"></i> Unduh Excel</button></div>
+                                <div class="alert alert-light border small text-muted"><i
+                                        class="bi bi-info-circle-fill text-danger"></i> Data siswa yang telah keluar
+                                    atau pindah dari sekolah. Anda tetap bisa melihat detail dan mencetak Buku Induknya.
+                                </div>
+                                <div class="card p-4 bg-white shadow-sm border-0">
+                                    <div class="table-responsive">
+                                        <table id="tblIndukKeluar" class="table table-hover w-100">
+                                            <thead class="table-light">
+                                                <tr>
+                                                    <th>NIS / NISN</th>
+                                                    <th>Nama Lengkap</th>
+                                                    <th>Tgl Lahir</th>
+                                                    <th>L/P</th>
+                                                    <th>Tgl Keluar</th>
+                                                    <th>Alasan Keluar</th>
+                                                    <th>Aksi</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody id="tbodyIndukKeluar"></tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+                            <!-- AKHIR TAB SISWA KELUAR -->
+
+                        </div>
+                    
