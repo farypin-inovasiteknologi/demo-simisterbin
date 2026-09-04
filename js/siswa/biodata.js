@@ -235,7 +235,7 @@ function importSiswa(file, mode) {
                 $('#loader').addClass('hidden');
                 if (res.status == 'success') {
                     showCoolAlert('Berhasil', res.message, 'success');
-                    loadSiswa();
+                    refreshAfterStudentImport();
                 } else {
                     showCoolAlert('Gagal', res.message, 'error');
                 }
@@ -600,7 +600,7 @@ function importSiswa(file, mode) {
                     $('#loader').addClass('hidden');
                     if (res.status == 'success') {
                         showCoolAlert('Berhasil', res.message, 'success');
-                        loadSiswa();
+                        refreshAfterStudentImport();
                     } else {
                         showCoolAlert('Gagal', res.message, 'error');
                     }
@@ -613,6 +613,22 @@ function importSiswa(file, mode) {
             }
         };
         reader.readAsArrayBuffer(file);
+    }
+}
+
+async function refreshAfterStudentImport() {
+    if (typeof invalidateUnifiedCaches === 'function') invalidateUnifiedCaches();
+    globalSiswa = [];
+    await loadSiswa();
+    if (curPage === 'data-siswa' && typeof loadUnifiedSiswa === 'function') {
+        await loadUnifiedSiswa();
+        renderUnifiedDataMenu();
+    } else if (curPage === 'leger-siswa' && typeof loadUnifiedSiswa === 'function') {
+        await loadUnifiedSiswa();
+        renderUnifiedLegerMenu();
+    } else if (curPage === 'klaper-siswa' && typeof loadUnifiedSiswa === 'function') {
+        await loadUnifiedSiswa();
+        renderKlaperTable();
     }
 }
 
