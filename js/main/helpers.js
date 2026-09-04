@@ -131,31 +131,53 @@ function formatAndValidateNIS(input) {
 }
 
 function formatAndValidateNISN(input) {
-    let val = input.value.trim();
-    if (val === "") return; // Abaikan jika kosong
-
-    // Cek apakah ada huruf (Hanya boleh angka)
-    if (!/^\d+$/.test(val)) {
+    const val = input.value.trim();
+    if (val !== '' && !/^\d+$/.test(val)) {
+        input.value = val.replace(/\D/g, '');
         Swal.fire('Format Salah', 'NISN hanya boleh berisi angka!', 'error');
-        input.value = val.replace(/\D/g, ''); // Bersihkan otomatis hurufnya
-        return;
+        return false;
     }
+    if (val !== '' && val.length !== 10) {
+        Swal.fire('Peringatan', 'NISN wajib tepat 10 digit angka.', 'warning');
+        return false;
+    }
+    return true;
+}
 
-    // Jika jumlah angka kurang dari 10
-    if (val.length < 10) {
-        // Tambahkan angka 0 di depan sampai pas 10 digit (Otomatis)
-        input.value = val.padStart(10, '0');
+function showStudentNumberOwner(input, type) {
+    const value = String(input.value || '').replace(/\D/g, '');
+    if (input.value !== value) input.value = value;
+    const target = document.getElementById(type === 'nis' ? 'nisOwner' : 'nisnOwner');
+    if (!target) return;
+    const currentNis = String(document.querySelector('#frmSiswa [name="nis"]')?.value || '').replace(/\D/g, '');
+    const currentNisn = String(document.querySelector('#frmSiswa [name="nisn"]')?.value || '').replace(/\D/g, '');
+    const match = (typeof globalSiswa !== 'undefined' ? globalSiswa : []).find(row => {
+        const candidate = String(row[type === 'nis' ? 0 : 1] || '').replace(/\D/g, '');
+        return candidate === value && value !== '' && !(String(row[0]) === currentNis && String(row[1]) === currentNisn);
+    });
+    target.className = 'small mt-1 ' + (match ? 'text-danger fw-bold' : 'text-muted');
+    target.textContent = match ? `Sudah digunakan oleh: ${match[2] || 'Siswa lain'}` : (value ? 'Nomor belum digunakan.' : '');
+}
 
-        Swal.fire({
-            title: 'Info Sistem',
-            text: 'Peringatan, NISN wajib 10 digit, data anda otomatis dilengkapi oleh sistem dengan menambah angka 0 di depan. Mohon periksa kembali jika ada kekeliruan.',
-            icon: 'info'
-        });
+function validateStudentIdentity(showAlert = true) {
+    const form = document.getElementById('frmSiswa');
+    if (!form) return true;
+    const nis = form.elements.nis;
+    const nisn = form.elements.nisn;
+    const nisValue = String(nis.value || '').trim();
+    const nisnValue = String(nisn.value || '').trim();
+    const nisnValid = /^\d{10}$/.test(nisnValue);
+    const duplicate = (typeof globalSiswa !== 'undefined' ? globalSiswa : []).find(row => {
+        const sameNis = String(row[0] || '').replace(/\D/g, '') === nisValue.replace(/\D/g, '');
+        const sameNisn = String(row[1] || '').replace(/\D/g, '') === nisnValue;
+        const sameRecord = String(row[0]) === String(nis.value) && String(row[1]) === String(nisn.value);
+        return !sameRecord && ((nisValue && sameNis) || (nisnValue && sameNisn));
+    });
+    if (duplicate || !nisValue || !nisnValid) {
+        if (showAlert) Swal.fire('Data Belum Valid', duplicate ? `NIS/NISN sudah digunakan oleh ${duplicate[2] || 'siswa lain'}.` : 'NIS wajib diisi dan NISN harus tepat 10 digit angka.', 'warning');
+        return false;
     }
-    // Jika jumlah angka lebih dari 10
-    else if (val.length > 10) {
-        Swal.fire('Peringatan', 'NISN tidak boleh lebih dari 10 digit! Mohon periksa kembali.', 'warning');
-    }
+    return true;
 }
 
 function formatAndValidateNIK_KK(input, namaKolom) {
