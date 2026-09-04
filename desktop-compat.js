@@ -172,23 +172,16 @@ if (IS_DESKTOP) {
     
     if (!confirm.isConfirmed) return;
 
-    const credentials = await Swal.fire({
-      title: 'Login Server untuk Upload',
-      html: '<input id="force-push-user" class="swal2-input" value="admin" placeholder="Username server"><input id="force-push-pass" type="password" class="swal2-input" placeholder="Password server">',
-      showCancelButton: true,
-      confirmButtonText: 'Lanjut',
-      cancelButtonText: 'Batal',
-      preConfirm: () => {
-        const username = document.getElementById('force-push-user').value.trim();
-        const password = document.getElementById('force-push-pass').value;
-        if (!username || !password) {
-          Swal.showValidationMessage('Username dan password server wajib diisi.');
-          return false;
-        }
-        return { username, password };
-      }
-    });
-    if (!credentials.isConfirmed) return;
+    const sessionRaw = localStorage.getItem('simisterbin_session');
+    let sessionData = null;
+    try { sessionData = sessionRaw ? JSON.parse(dekripsiLokal(sessionRaw)) : null; } catch (_) {}
+    const credentials = sessionData && sessionData.username && sessionData.password
+      ? { username: sessionData.username, password: sessionData.password }
+      : null;
+    if (!credentials) {
+      Swal.fire('Login Ulang Diperlukan', 'Sesi login lama belum menyimpan kredensial untuk Force Push. Silakan logout lalu login kembali.', 'warning');
+      return;
+    }
     
     Swal.fire({
       title: 'Mempersiapkan Upload...',
