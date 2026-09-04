@@ -1287,3 +1287,13 @@ textarea {
         padding-top: 2px !important;
     }
 }
+
+/* Batas baris tipis agar tabel tetap mudah dipindai tanpa terlihat berat. */
+.table > :not(caption) > * > * {
+    border-bottom: 1px solid rgba(100, 116, 139, 0.16);
+}
+
+.table > tbody > tr:last-child > td,
+.table > tbody > tr:last-child > th {
+    border-bottom-color: transparent;
+}
