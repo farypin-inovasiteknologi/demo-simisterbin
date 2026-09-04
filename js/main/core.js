@@ -4,7 +4,7 @@
 
 // 1. Buat "Buku Alamat" untuk masing-masing sekolah
 const tenantConfig = {
-    "demo": "https://script.google.com/macros/s/AKfycbyF2ncTosIuDVMLYQFZuV19QgrNdfkcO59JfHB7QKHxDoC2bM0u3OzwMox7avGlu7Y/exec",
+    "demo": "https://script.google.com/macros/s/AKfycbyhZo9mF9OGGOBAw7YkvWigpAqVcQ7hD0inWiJrnOtXlMk0fmjcuuAGXF8NkMRy9q82/exec",
     "sma1": "https://script.google.com/macros/s/ID_API_SEKOLAH_2/exec",
     "smk2": "https://script.google.com/macros/s/ID_API_SEKOLAH_3/exec"
     // Tambahkan sekolah lain di sini sesuai kebutuhan
@@ -45,6 +45,12 @@ function dekripsiLokal(b64) {
     } catch(e) {
         return b64;
     }
+}
+
+function dekripsiJikaTerenkripsi(value) {
+    if (!value) return value;
+    const decrypted = dekripsiLokal(value);
+    return enkripsiLokal(decrypted) === value ? decrypted : value;
 }
 
 // 2. Baca ID dari URL (contoh: https://namamu.github.io/simisterbin/?id=demo)
@@ -175,15 +181,23 @@ async function callAPI(actionName, payloadData = {}) {
             const arrActions = ['getStudents', 'getAlumniByTahun', 'getSiswaKeluarByTahun'];
             if (arrActions.includes(actionName) && Array.isArray(resData.data)) {
                 resData.data = resData.data.map(r => {
-                    if (r[3]) r[3] = dekripsiLokal(r[3]);
-                    if (r[4]) r[4] = dekripsiLokal(r[4]);
-                    if (r[23]) r[23] = dekripsiLokal(r[23]);
+                    if (r[3]) r[3] = dekripsiJikaTerenkripsi(r[3]);
+                    if (r[4]) r[4] = dekripsiJikaTerenkripsi(r[4]);
+                    if (r[23]) r[23] = dekripsiJikaTerenkripsi(r[23]);
                     return r;
                 });
             } else if (actionName === 'cariDataAlumniPublic' && resData.data) {
-                if (resData.data[3]) resData.data[3] = dekripsiLokal(resData.data[3]);
-                if (resData.data[4]) resData.data[4] = dekripsiLokal(resData.data[4]);
-                if (resData.data[23]) resData.data[23] = dekripsiLokal(resData.data[23]);
+                if (resData.data[3]) resData.data[3] = dekripsiJikaTerenkripsi(resData.data[3]);
+                if (resData.data[4]) resData.data[4] = dekripsiJikaTerenkripsi(resData.data[4]);
+                if (resData.data[23]) resData.data[23] = dekripsiJikaTerenkripsi(resData.data[23]);
+            } else if (actionName === 'getTranskripData' && resData.siswa) {
+                [3, 4, 23].forEach(index => {
+                    if (resData.siswa[index]) resData.siswa[index] = dekripsiJikaTerenkripsi(resData.siswa[index]);
+                });
+            } else if (actionName === 'login' && resData.data) {
+                if (resData.data.nik) resData.data.nik = dekripsiJikaTerenkripsi(resData.data.nik);
+                if (resData.data.nokk) resData.data.nokk = dekripsiJikaTerenkripsi(resData.data.nokk);
+                if (resData.data.ibu) resData.data.ibu = dekripsiJikaTerenkripsi(resData.data.ibu);
             }
         }
         return resData;
