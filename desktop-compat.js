@@ -83,7 +83,10 @@ if (IS_DESKTOP) {
         <div id="sync-step-3" class="mb-1 text-muted">○ Upload data lokal...</div>
         <div id="sync-step-4" class="mb-1 text-muted">○ Upload foto...</div>
         <div id="sync-step-5" class="mb-1 text-muted">○ Download data terbaru...</div>
-      </div>`,
+      </div>
+      <hr class="my-2">
+      <div id="sync-real-progress" class="text-primary fw-bold text-center small mt-2">Memulai sinkronisasi...</div>
+      `,
       allowOutsideClick: false, showConfirmButton: false,
       didOpen: () => Swal.showLoading()
     });
@@ -92,6 +95,13 @@ if (IS_DESKTOP) {
       const el = document.getElementById(`sync-step-${step}`);
       if (el) el.innerHTML = `<span>${icon}</span> ${text}`;
     };
+
+    if (window.electronAPI && window.electronAPI.onSyncProgress) {
+        window.electronAPI.onSyncProgress((msg) => {
+             const el = document.getElementById('sync-real-progress');
+             if (el) el.innerText = msg;
+        });
+    }
 
     setTimeout(() => updateStep(1, '✅', 'Koneksi OK'), 500);
     setTimeout(() => updateStep(2, '🔄', 'Login ke server...'), 1000);
@@ -133,3 +143,63 @@ if (IS_DESKTOP) {
   window.updateSyncBadge = updateSyncBadge;
   window.updateOnlineStatus = updateOnlineStatus;
 }
+
+  async function doForcePush() {
+    if (!window.electronAPI) {
+      Swal.fire('Fitur Desktop', 'Fitur ini hanya tersedia di Aplikasi Desktop SIMISTERBIN.', 'info');
+      return;
+    }
+    if (!navigator.onLine) {
+      Swal.fire('Offline', 'Bapak harus terhubung ke internet untuk melakukan ini.', 'error');
+      return;
+    }
+    
+    let apiUrl = null;
+    if (typeof tenantConfig !== 'undefined' && tenantId) apiUrl = tenantConfig[tenantId];
+    if (!apiUrl) {
+      Swal.fire('Error', 'Link API Sekolah belum dikonfigurasi!', 'error');
+      return;
+    }
+    
+    const confirm = await Swal.fire({
+      title: 'Upload Semua Data Offline?',
+      text: 'Fitur ini akan MENGHAPUS isi Spreadsheet lama dan menimpanya dengan seluruh data yang ada di aplikasi Desktop. Proses ini bisa memakan waktu.',
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonText: 'Ya, Upload Semua',
+      cancelButtonText: 'Batal'
+    });
+    
+    if (!confirm.isConfirmed) return;
+    
+    Swal.fire({
+      title: 'Mempersiapkan Upload...',
+      text: 'Menghitung data...',
+      allowOutsideClick: false,
+      didOpen: () => Swal.showLoading()
+    });
+    
+    try {
+      if (!window.electronAPI) {
+          Swal.fire('Fitur Khusus Desktop', 'Sinkronisasi (Upload Massal) hanya bisa dilakukan melalui Aplikasi Desktop SIMISTERBIN.', 'warning');
+          return;
+      }
+
+      window.electronAPI.onSyncProgress((msg) => {
+        if (Swal.isVisible()) Swal.update({ text: msg });
+      });
+      
+      const result = await window.electronAPI.forcePushOnline(apiUrl);
+      
+      if (result.status === 'success') {
+        Swal.fire('Berhasil!', result.message, 'success');
+      } else {
+        Swal.fire('Gagal Upload', result.message, 'error');
+      }
+    } catch (e) {
+      Swal.fire('Error', e.message, 'error');
+    }
+  }
+  
+  window.doForcePush = doForcePush;
+
