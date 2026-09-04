@@ -219,6 +219,7 @@ function doLogin(e) {
                 nama: res.nama,
                 token: res.token,
                 username: res.username,
+                password: $('#p').val(),
                 data: res.data || null
             });
             localStorage.setItem('simisterbin_session', enkripsiLokal(rawData));
