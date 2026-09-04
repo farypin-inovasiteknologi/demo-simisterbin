@@ -250,6 +250,14 @@ function refreshPage() {
         loadSiswa();
         loadDaftarUlang();
     }
+    else if (curPage === 'data-siswa' || curPage === 'leger-siswa' || curPage === 'klaper-siswa') {
+        if (typeof invalidateUnifiedCaches === 'function') invalidateUnifiedCaches();
+        loadSiswa().then(() => {
+            if (curPage === 'data-siswa' && typeof loadUnifiedSiswa === 'function') loadUnifiedSiswa().then(renderUnifiedDataMenu);
+            if (curPage === 'leger-siswa' && typeof loadUnifiedSiswa === 'function') loadUnifiedSiswa().then(renderUnifiedLegerMenu);
+            if (curPage === 'klaper-siswa' && typeof loadUnifiedSiswa === 'function') loadUnifiedSiswa().then(renderKlaperTable);
+        });
+    }
     else if (curPage === 'mapel') {
         loadMapel();
     }
