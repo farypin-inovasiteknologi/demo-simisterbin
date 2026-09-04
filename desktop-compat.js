@@ -1,205 +1,232 @@
 // ==========================================
-// SIMISTERBIN DESKTOP — COMPAT LAYER
-// Berisi fungsi yang HANYA dibutuhkan di versi Desktop (Electron)
-// Dimuat setelah main.js di offline index.html
+// KONFIGURASI MULTI-TENANT (BANYAK SEKOLAH)
 // ==========================================
 
-if (IS_DESKTOP) {
-  // ==========================================
-  // SISTEM MONITOR ONLINE/OFFLINE
-  // ==========================================
-  function updateOnlineStatus() {
-    const isOnline = navigator.onLine;
-    const banner = document.getElementById('offline-banner');
-    if (banner) {
-      if (isOnline) {
-        banner.classList.add('online');
-        banner.innerHTML = `<i class="bi bi-wifi"></i> Online`;
-      } else {
-        banner.classList.remove('online');
-        banner.innerHTML = `<i class="bi bi-wifi-off"></i> Offline — Data tersimpan lokal`;
-      }
-    }
-    updateSyncBadge();
-  }
+// 1. Buat "Buku Alamat" untuk masing-masing sekolah
+const tenantConfig = {
+    "demo": "https://script.google.com/macros/s/AKfycbyhZo9mF9OGGOBAw7YkvWigpAqVcQ7hD0inWiJrnOtXlMk0fmjcuuAGXF8NkMRy9q82/exec",
+    "sma1": "https://script.google.com/macros/s/ID_API_SEKOLAH_2/exec",
+    "smk2": "https://script.google.com/macros/s/ID_API_SEKOLAH_3/exec"
+    // Tambahkan sekolah lain di sini sesuai kebutuhan
+};
 
-  async function updateSyncBadge() {
-    try {
-      const status = await callAPI('getSyncStatus');
-      const badge = document.getElementById('sync-pending-badge');
-      if (badge && status) {
-        if (status.pending > 0) {
-          badge.textContent = status.pending;
-          badge.style.display = 'inline-block';
-        } else {
-          badge.style.display = 'none';
-        }
-        const lastSyncEl = document.getElementById('last-sync-time');
-        if (lastSyncEl && status.lastSync) {
-          lastSyncEl.textContent = status.lastSync;
-        }
-      }
-    } catch (e) {}
-  }
+// ==========================================
+// FUNGSI PENGACAK KEAMANAN (XOR CIPHER)
+// ==========================================
 
-  window.addEventListener('online', updateOnlineStatus);
-  window.addEventListener('offline', updateOnlineStatus);
-
-  // ==========================================
-  // FUNGSI SINKRONISASI DATA KE GOOGLE SHEETS
-  // ==========================================
-  async function doSinkronisasi() {
-    const apiUrlRow = await callAPI('getApiUrl');
-    const apiUrl = apiUrlRow || '';
-
-    Swal.fire({
-      title: 'URL Sinkronisasi',
-      html: `<p>Periksa atau perbarui URL Google Apps Script Anda:</p>
-             <input id="swal-api-url" class="swal2-input" value="${apiUrl}" placeholder="https://script.google.com/macros/s/...">
-             <p class="text-muted small mt-2">URL ini dari menu Deploy di Apps Script Anda</p>`,
-      showCancelButton: true, confirmButtonText: 'Simpan & Sinkron', cancelButtonText: 'Batal',
-      preConfirm: () => {
-        const url = document.getElementById('swal-api-url').value.trim();
-        if (!url || !url.startsWith('https://script.google.com')) {
-          Swal.showValidationMessage('URL tidak valid!');
-          return false;
-        }
-        return url;
-      }
-    }).then(async (result) => {
-      if (result.isConfirmed) {
-        await callAPI('saveApiUrl', { url: result.value });
-        await mulaiSinkron(result.value);
-      }
+// HELPER: Mencegah injeksi script jahat (XSS) pada tampilan HTML
+function escapeHTML(str) {
+    if (!str) return '';
+    return String(str).replace(/[&<>"']/g, function (m) {
+        return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#039;' }[m];
     });
-  }
-
-  async function mulaiSinkron(apiUrl) {
-    Swal.fire({
-      title: '🔄 Menyinkronkan Data...',
-      html: `<div class="text-start small">
-        <div id="sync-step-1" class="mb-1"><span class="text-muted">⏳</span> Memeriksa koneksi...</div>
-        <div id="sync-step-2" class="mb-1 text-muted">○ Login ke server...</div>
-        <div id="sync-step-3" class="mb-1 text-muted">○ Upload data lokal...</div>
-        <div id="sync-step-4" class="mb-1 text-muted">○ Upload foto...</div>
-        <div id="sync-step-5" class="mb-1 text-muted">○ Download data terbaru...</div>
-      </div>
-      <hr class="my-2">
-      <div id="sync-real-progress" class="text-primary fw-bold text-center small mt-2">Memulai sinkronisasi...</div>
-      `,
-      allowOutsideClick: false, showConfirmButton: false,
-      didOpen: () => Swal.showLoading()
-    });
-
-    const updateStep = (step, icon, text) => {
-      const el = document.getElementById(`sync-step-${step}`);
-      if (el) el.innerHTML = `<span>${icon}</span> ${text}`;
-    };
-
-    if (window.electronAPI && window.electronAPI.onSyncProgress) {
-        window.electronAPI.onSyncProgress((msg) => {
-             const el = document.getElementById('sync-real-progress');
-             if (el) el.innerText = msg;
-        });
-    }
-
-    setTimeout(() => updateStep(1, '✅', 'Koneksi OK'), 500);
-    setTimeout(() => updateStep(2, '🔄', 'Login ke server...'), 1000);
-    setTimeout(() => updateStep(3, '🔄', 'Upload data lokal...'), 2000);
-    setTimeout(() => updateStep(4, '🔄', 'Upload foto...'), 3000);
-    setTimeout(() => updateStep(5, '🔄', 'Download data terbaru...'), 4000);
-
-    try {
-      const result = await window.electronAPI.syncToServer(apiUrl);
-      if (result.status === 'success' || result.status === 'partial') {
-        Swal.fire({
-          icon: result.status === 'success' ? 'success' : 'warning',
-          title: result.status === 'success' ? '✅ Sinkronisasi Berhasil!' : '⚠️ Sinkronisasi Sebagian',
-          html: `<div class="text-start small">
-                   <b>Upload:</b> ${result.uploaded} data<br>
-                   <b>Download:</b> ${result.downloaded} data<br>
-                   ${result.errors && result.errors.length ? '<br><b class="text-danger">Error:</b><br>' + result.errors.join('<br>') : ''}
-                 </div>`,
-          confirmButtonColor: '#4e73df'
-        });
-        updateSyncBadge();
-        if (typeof loadSiswa === 'function') loadSiswa();
-      } else {
-        Swal.fire('Gagal Sinkronisasi', result.message, 'error');
-      }
-    } catch (e) {
-      Swal.fire('Error', 'Sinkronisasi error: ' + e.message, 'error');
-    }
-  }
-
-  // Inisialisasi saat DOM siap
-  document.addEventListener('DOMContentLoaded', function () {
-    console.log('✅ SIMISTERBIN Desktop Mode aktif - Database lokal siap');
-    if (typeof updateOnlineStatus === 'function') updateOnlineStatus();
-  });
-
-  // Ekspor ke window
-  window.doSinkronisasi = doSinkronisasi;
-  window.updateSyncBadge = updateSyncBadge;
-  window.updateOnlineStatus = updateOnlineStatus;
 }
 
-  async function doForcePush() {
-    if (!window.electronAPI) {
-      Swal.fire('Fitur Desktop', 'Fitur ini hanya tersedia di Aplikasi Desktop SIMISTERBIN.', 'info');
-      return;
-    }
-    if (!navigator.onLine) {
-      Swal.fire('Offline', 'Bapak harus terhubung ke internet untuk melakukan ini.', 'error');
-      return;
-    }
-    
-    let apiUrl = null;
-    if (typeof tenantConfig !== 'undefined' && tenantId) apiUrl = tenantConfig[tenantId];
-    if (!apiUrl) {
-      Swal.fire('Error', 'Link API Sekolah belum dikonfigurasi!', 'error');
-      return;
-    }
-    
-    const confirm = await Swal.fire({
-      title: 'Upload Semua Data Offline?',
-      text: 'Fitur ini akan MENGHAPUS isi Spreadsheet lama dan menimpanya dengan seluruh data yang ada di aplikasi Desktop. Proses ini bisa memakan waktu.',
-      icon: 'warning',
-      showCancelButton: true,
-      confirmButtonText: 'Ya, Upload Semua',
-      cancelButtonText: 'Batal'
-    });
-    
-    if (!confirm.isConfirmed) return;
-    
-    Swal.fire({
-      title: 'Mempersiapkan Upload...',
-      text: 'Menghitung data...',
-      allowOutsideClick: false,
-      didOpen: () => Swal.showLoading()
-    });
-    
-    try {
-      if (!window.electronAPI) {
-          Swal.fire('Fitur Khusus Desktop', 'Sinkronisasi (Upload Massal) hanya bisa dilakukan melalui Aplikasi Desktop SIMISTERBIN.', 'warning');
-          return;
-      }
 
-      window.electronAPI.onSyncProgress((msg) => {
-        if (Swal.isVisible()) Swal.update({ text: msg });
-      });
-      
-      const result = await window.electronAPI.forcePushOnline(apiUrl);
-      
-      if (result.status === 'success') {
-        Swal.fire('Berhasil!', result.message, 'success');
-      } else {
-        Swal.fire('Gagal Upload', result.message, 'error');
-      }
-    } catch (e) {
-      Swal.fire('Error', e.message, 'error');
+const KUNCI_RAHASIA = "S1M1ST3RB1N_S3CUR3_2026"; // Jangan beritahu siapapun
+
+function enkripsiLokal(teks) {
+    let result = "";
+    for (let i = 0; i < teks.length; i++) {
+        result += String.fromCharCode(teks.charCodeAt(i) ^ KUNCI_RAHASIA.charCodeAt(i % KUNCI_RAHASIA.length));
     }
-  }
-  
-  window.doForcePush = doForcePush;
+    return btoa(result);
+}
+
+function dekripsiLokal(b64) {
+    if (!b64) return "";
+    try {
+        let teks = atob(b64);
+        let result = "";
+        for (let i = 0; i < teks.length; i++) {
+            result += String.fromCharCode(teks.charCodeAt(i) ^ KUNCI_RAHASIA.charCodeAt(i % KUNCI_RAHASIA.length));
+        }
+        return result;
+    } catch(e) {
+        return b64;
+    }
+}
+
+function dekripsiJikaTerenkripsi(value) {
+    if (!value) return value;
+    const decrypted = dekripsiLokal(value);
+    return enkripsiLokal(decrypted) === value ? decrypted : value;
+}
+
+// 2. Baca ID dari URL (contoh: https://namamu.github.io/simisterbin/?id=demo)
+const urlParams = new URLSearchParams(window.location.search);
+let tenantId = urlParams.get('id');
+
+// PERBAIKAN: Jika tidak ada id di link, otomatis pakai 'demo' agar aplikasi tetap bisa jalan
+if (!tenantId) {
+    tenantId = 'demo';
+}
+
+let API_URL = "";
+
+// 3. Validasi: Pastikan ID ada dan terdaftar di tenantConfig
+if (tenantId && tenantConfig[tenantId]) {
+    API_URL = tenantConfig[tenantId];
+} else {
+    // Jika ID salah atau tidak ada, hancurkan halaman dan tampilkan error
+    document.addEventListener("DOMContentLoaded", function () {
+        document.body.innerHTML = `
+            <div style="display:flex; justify-content:center; align-items:center; height:100vh; background:#f0f2f5; font-family:sans-serif;">
+                <div style="text-align:center; padding:30px; background:white; border-radius:10px; box-shadow:0 4px 10px rgba(0,0,0,0.1);">
+                    <h2 style="color:#e74a3b;">Akses Ditolak!</h2>
+                    <p style="color:#858796;">Link sekolah tidak valid atau tidak ditemukan.</p>
+                </div>
+            </div>`;
+    });
+    // Hentikan eksekusi script selanjutnya
+    throw new Error("Tenant ID tidak valid atau tidak ditemukan di URL.");
+}
+
+// ==========================================
+// VARIABEL GLOBAL APLIKASI
+// ==========================================
+let globalConf = {}; // Menampung pengaturan sekolah
+let globalSiswa = [], curSmt = 1, cropper, cropTarget, curPage = 'dash';
+let globalMapel = [];
+let chartGender, chartStatus, chartAlumni;
+let globalDaftarUlang = [];
+let scanner = null;
+
+// ==========================================
+// DETEKSI LINGKUNGAN: DESKTOP (OFFLINE) vs BROWSER (ONLINE)
+// Flag ini digunakan di seluruh aplikasi untuk menyesuaikan perilaku
+// ==========================================
+const IS_DESKTOP = (typeof window !== 'undefined' && typeof window.electronAPI !== 'undefined');
+
+// ==========================================
+// FUNGSI PUSAT PENGHUBUNG FRONTEND KE BACKEND
+// Otomatis menggunakan jalur yang benar sesuai lingkungan
+// ==========================================
+async function callAPI(actionName, payloadData = {}) {
+
+    // ===== MODE DESKTOP (Offline — Electron + SQLite) =====
+    if (IS_DESKTOP) {
+        // Intercept: ambil gambar dari storage lokal
+        if (actionName === 'getImage') {
+            if (!payloadData.id) return null;
+            if (String(payloadData.id).startsWith('data:')) return payloadData.id;
+            try { return await window.electronAPI.getFoto(payloadData.id); } catch (e) { return null; }
+        }
+        // Intercept: simpan gambar ke folder lokal
+        if (actionName === 'uploadBase64') {
+            const { base64, filename, folderType, nis } = payloadData;
+            const nisKey = nis || (filename ? filename.split('_')[1] : null) || 'unknown';
+            const tipe = folderType || 'foto';
+            try {
+                const result = await window.electronAPI.saveFoto(base64, nisKey, tipe);
+                return result.status === 'success' ? { status: 'success', id: result.path } : { status: 'error' };
+            } catch (e) { return { status: 'error' }; }
+        }
+        // Intercept: kartu pelajar — ambil beberapa gambar sekaligus
+        if (actionName === 'getSemuaGambarKartu') {
+            const { fotoId, bgDepan, bgBelakang, logoInstansi, logoSekolah } = payloadData;
+            const getImg = async (p) => {
+                if (!p) return '';
+                if (String(p).startsWith('data:')) return p;
+                try { return await window.electronAPI.getFoto(p) || ''; } catch (e) { return ''; }
+            };
+            return {
+                foto: await getImg(fotoId), bg1: await getImg(bgDepan), bg2: await getImg(bgBelakang),
+                logo1: await getImg(logoInstansi), logo2: await getImg(logoSekolah)
+            };
+        }
+        // Semua action lain → SQLite via Electron IPC
+        try {
+            return await window.electronAPI.dbAction(actionName, payloadData);
+        } catch (error) {
+            console.error('[DESKTOP] callAPI error:', actionName, error);
+            return { status: 'error', message: error.message || 'Terjadi kesalahan pada database lokal.' };
+        }
+    }
+
+    // ===== MODE ONLINE (Browser — Google Apps Script) =====
+    try {
+        if (actionName === 'getImage' && payloadData && payloadData.id) {
+            if (String(payloadData.id).startsWith('data:')) return payloadData.id;
+            return `https://lh3.googleusercontent.com/d/${payloadData.id}`;
+        }
+        let session = localStorage.getItem('simisterbin_session');
+        let tokenAman = "";
+        let userAktif = "";
+
+        if (session) {
+            let parsed = JSON.parse(dekripsiLokal(session));
+            tokenAman = parsed.token || "";
+            userAktif = parsed.username || "";
+        }
+
+        // --- ENKRIPSI OTOMATIS DATA SENSITIF SEBELUM DISIMPAN ONLINE ---
+        let payloadKirim = payloadData;
+        if (actionName === 'saveStudent' && payloadKirim) {
+            payloadKirim = JSON.parse(JSON.stringify(payloadData)); // clone
+            if (payloadKirim.nik) payloadKirim.nik = enkripsiLokal(payloadKirim.nik);
+            if (payloadKirim.nokk) payloadKirim.nokk = enkripsiLokal(payloadKirim.nokk);
+            if (payloadKirim.nama_ibu) payloadKirim.nama_ibu = enkripsiLokal(payloadKirim.nama_ibu);
+        }
+
+        const response = await fetch(API_URL, {
+            method: 'POST',
+            headers: { 'Content-Type': 'text/plain' },
+            body: JSON.stringify({ action: actionName, token: tokenAman, username: userAktif, data: payloadKirim })
+        });
+        let resData = await response.json();
+
+        // --- DEKRIPSI OTOMATIS DATA SENSITIF ONLINE ---
+        if (resData && resData.status === 'success') {
+            const arrActions = ['getStudents', 'getAlumniByTahun', 'getSiswaKeluarByTahun'];
+            if (arrActions.includes(actionName) && Array.isArray(resData.data)) {
+                resData.data = resData.data.map(r => {
+                    if (r[3]) r[3] = dekripsiJikaTerenkripsi(r[3]);
+                    if (r[4]) r[4] = dekripsiJikaTerenkripsi(r[4]);
+                    if (r[23]) r[23] = dekripsiJikaTerenkripsi(r[23]);
+                    return r;
+                });
+            } else if (actionName === 'cariDataAlumniPublic' && resData.data) {
+                if (resData.data[3]) resData.data[3] = dekripsiJikaTerenkripsi(resData.data[3]);
+                if (resData.data[4]) resData.data[4] = dekripsiJikaTerenkripsi(resData.data[4]);
+                if (resData.data[23]) resData.data[23] = dekripsiJikaTerenkripsi(resData.data[23]);
+            } else if (actionName === 'getTranskripData' && resData.siswa) {
+                [3, 4, 23].forEach(index => {
+                    if (resData.siswa[index]) resData.siswa[index] = dekripsiJikaTerenkripsi(resData.siswa[index]);
+                });
+            } else if (actionName === 'login' && resData.data) {
+                if (resData.data.nik) resData.data.nik = dekripsiJikaTerenkripsi(resData.data.nik);
+                if (resData.data.nokk) resData.data.nokk = dekripsiJikaTerenkripsi(resData.data.nokk);
+                if (resData.data.ibu) resData.data.ibu = dekripsiJikaTerenkripsi(resData.data.ibu);
+            }
+        }
+        return resData;
+    } catch (error) {
+        return { status: "error", message: "Gagal terhubung ke server database." };
+    }
+}
+
+function doLogin(e) {
+    e.preventDefault();
+    $('#loader').removeClass('hidden');
+
+    callAPI('login', { u: $('#u').val(), p: $('#p').val() }).then(res => {
+        $('#loader').addClass('hidden');
+        if (res.status === 'success') {
+            // Simpan TOKEN dan USERNAME ke Local Storage
+            let rawData = JSON.stringify({
+                role: res.role,
+                nama: res.nama,
+                token: res.token,
+                username: res.username,
+                data: res.data || null
+            });
+            localStorage.setItem('simisterbin_session', enkripsiLokal(rawData));
+
+            restoreSession(res);
+        } else {
+            showCoolAlert('Gagal Masuk', res.message, 'error');
+        }
+    });
+}
 
