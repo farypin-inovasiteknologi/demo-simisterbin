@@ -206,7 +206,27 @@ if (IS_DESKTOP) {
         const detail = result.errors && result.errors.length ? `<br><br><b>Catatan:</b><br>${result.errors.join('<br>')}` : '';
         Swal.fire(result.status === 'partial' ? 'Sebagian Berhasil' : 'Berhasil!', result.message + detail, result.status === 'partial' ? 'warning' : 'success');
       } else {
-        Swal.fire('Gagal Upload', result.message, 'error');
+        if (String(result.message || '').toLowerCase().includes('login server ditolak')) {
+          const retry = await Swal.fire({
+            title: 'Login Server Ditolak',
+            html: '<p class="small text-muted">Password login offline berbeda dengan password akun server Google Sheets.</p><input id="retry-server-user" class="swal2-input" value="admin" placeholder="Username server"><input id="retry-server-pass" type="password" class="swal2-input" placeholder="Password server">',
+            showCancelButton: true,
+            confirmButtonText: 'Coba Lagi',
+            cancelButtonText: 'Batal',
+            preConfirm: () => ({ username: document.getElementById('retry-server-user').value.trim(), password: document.getElementById('retry-server-pass').value })
+          });
+          if (retry.isConfirmed && retry.value.username && retry.value.password) {
+            Swal.fire({ title: 'Mencoba Login Server...', allowOutsideClick: false, didOpen: () => Swal.showLoading() });
+            const retryResult = await window.electronAPI.forcePushOnline(apiUrl, retry.value);
+            if (retryResult.status === 'success' || retryResult.status === 'partial') {
+              Swal.fire(retryResult.status === 'partial' ? 'Sebagian Berhasil' : 'Berhasil!', retryResult.message, retryResult.status === 'partial' ? 'warning' : 'success');
+            } else {
+              Swal.fire('Login Server Gagal', retryResult.message, 'error');
+            }
+          }
+        } else {
+          Swal.fire('Gagal Upload', result.message, 'error');
+        }
       }
     } catch (e) {
       Swal.fire('Error', e.message, 'error');
