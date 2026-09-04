@@ -6,14 +6,33 @@ function pilihanSikap(selected) {
     return `<option value="">- Pilih -</option><option value="A" ${selected === 'A' ? 'selected' : ''}>A (Sangat Baik)</option><option value="B" ${selected === 'B' ? 'selected' : ''}>B (Baik)</option><option value="C" ${selected === 'C' ? 'selected' : ''}>C (Cukup)</option><option value="D" ${selected === 'D' ? 'selected' : ''}>D (Kurang)</option><option value="E" ${selected === 'E' ? 'selected' : ''}>E (Sangat Kurang)</option>`;
 }
 
+function formatNilaiTampil(value) {
+    if (value === null || value === undefined || value === '') return '-';
+    const number = Number(String(value).replace(',', '.'));
+    if (!Number.isFinite(number)) return String(value);
+    return number.toFixed(2).replace('.', ',');
+}
+
+function formatSikapTampil(value) {
+    const labels = { A: 'A (Sangat Baik)', B: 'B (Baik)', C: 'C (Cukup)', D: 'D (Kurang)', E: 'E (Sangat Kurang)' };
+    const code = String(value || '').trim().toUpperCase().charAt(0);
+    return labels[code] || (value || '-');
+}
+
+function parseNilaiInput(value) {
+    const number = parseFloat(String(value || '').replace(',', '.'));
+    return Number.isFinite(number) ? number : 0;
+}
+
 function validateInput(el) {
-    let val = parseFloat(el.value);
+    el.value = el.value.replace(/[^0-9,.]/g, '').replace('.', ',');
+    let val = parseNilaiInput(el.value);
     if (val > 100) { showCoolAlert('Nilai Invalid', 'Maksimal 100!', 'warning'); el.value = ''; return false; }
     if (val < 0) { showCoolAlert('Nilai Invalid', 'Minimal 0!', 'warning'); el.value = ''; return false; }
-    if (el.value.includes('.')) {
-        if (el.value.split('.')[1].length > 2) {
+    if (el.value.includes(',')) {
+        if (el.value.split(',')[1].length > 2) {
             showCoolAlert('Format Salah', 'Maks 2 desimal', 'warning');
-            el.value = parseFloat(val).toFixed(2);
+            el.value = val.toFixed(2).replace('.', ',');
             return false;
         }
     }
@@ -24,10 +43,10 @@ function calc() {
     let sumP = 0, sumK = 0, count = 0;
     $('#tbodyNilai tr').each(function () {
         let elP = $(this).find('.np'); let elK = $(this).find('.nk');
-        sumP += parseFloat(elP.val()) || 0; sumK += parseFloat(elK.val()) || 0; count++;
+        sumP += parseNilaiInput(elP.val()); sumK += parseNilaiInput(elK.val()); count++;
     });
-    $('#footP').text(sumP.toFixed(2)); $('#footK').text(sumK.toFixed(2));
-    $('#avgP').text(count > 0 ? (sumP / count).toFixed(2) : 0); $('#avgK').text(count > 0 ? (sumK / count).toFixed(2) : 0);
+    $('#footP').text(formatNilaiTampil(sumP)); $('#footK').text(formatNilaiTampil(sumK));
+    $('#avgP').text(formatNilaiTampil(count > 0 ? sumP / count : 0)); $('#avgK').text(formatNilaiTampil(count > 0 ? sumK / count : 0));
 }
 
 $('#selSiswa').change(function () {
@@ -40,15 +59,15 @@ $('#selSiswa').change(function () {
         const tb = $('#tbodyNilai').empty();
         globalMapel.forEach(m => {
             const ex = nilais.find(n => String(n[1]) == String(m[0])) || [];
-            const p = ex[2] || 0;
-            const k = ex[3] || 0;
+            const p = formatNilaiTampil(ex[2] || 0);
+            const k = formatNilaiTampil(ex[3] || 0);
             const s = ex[4] || '';
             const d = ex[5] || '';
 
             tb.append(`<tr>
                 <td>${m[1]} <input type="hidden" class="mid" value="${m[0]}"></td>
-                <td><input type="number" step="0.01" class="form-control text-center np" value="${p}" onkeyup="validateInput(this)" onchange="calc()"></td>
-                <td><input type="number" step="0.01" class="form-control text-center nk" value="${k}" onkeyup="validateInput(this)" onchange="calc()"></td>
+                <td><input type="text" inputmode="decimal" class="form-control text-center np" value="${p}" oninput="validateInput(this)" onchange="calc()"></td>
+                <td><input type="text" inputmode="decimal" class="form-control text-center nk" value="${k}" oninput="validateInput(this)" onchange="calc()"></td>
                 <td><select class="form-control text-center ns">${pilihanSikap(s)}</select></td>
                 <td><input class="form-control nd" value="${d}" placeholder="Opsional"></td>
             </tr>`);
@@ -119,7 +138,7 @@ function generateTableTranskripHTML(data, startSmt, endSmt) {
     data.transkrip.forEach(r => {
         html += `<tr><td class="text-start">${r.nama}</td>`;
         for (let i = startSmt; i <= endSmt; i++) {
-            html += `<td>${r.detail[i].p}</td><td>${r.detail[i].k}</td><td>${r.detail[i].s}</td>`;
+            html += `<td>${formatNilaiTampil(r.detail[i].p)}</td><td>${formatNilaiTampil(r.detail[i].k)}</td><td>${formatSikapTampil(r.detail[i].s)}</td>`;
         }
         html += `</tr>`;
     });
@@ -127,13 +146,13 @@ function generateTableTranskripHTML(data, startSmt, endSmt) {
     const sums = data.summary;
     html += `</tbody><tfoot class="table-light fw-bold text-primary"><tr><td class="text-end fw-bold">TOTAL</td>`;
     for (let i = startSmt; i <= endSmt; i++) {
-        html += `<td>${sums[i].p.toFixed(2)}</td><td>${sums[i].k.toFixed(2)}</td><td>-</td>`;
+        html += `<td>${formatNilaiTampil(sums[i].p.toFixed(2))}</td><td>${formatNilaiTampil(sums[i].k.toFixed(2))}</td><td>-</td>`;
     }
     html += `</tr><tr><td class="text-end fw-bold">RATA2</td>`;
     for (let i = startSmt; i <= endSmt; i++) {
         let ap = sums[i].c > 0 ? (sums[i].p / sums[i].c).toFixed(2) : 0;
         let ak = sums[i].c > 0 ? (sums[i].k / sums[i].c).toFixed(2) : 0;
-        html += `<td>${ap}</td><td>${ak}</td><td>-</td>`;
+        html += `<td>${formatNilaiTampil(ap)}</td><td>${formatNilaiTampil(ak)}</td><td>-</td>`;
     }
     html += `</tr></tfoot></table>`;
     return html;
@@ -347,10 +366,10 @@ function calcModal() {
     let sumP = 0, sumK = 0, count = 0;
     $('#tbodyNilaiModal tr').each(function () {
         let elP = $(this).find('.np'); let elK = $(this).find('.nk');
-        sumP += parseFloat(elP.val()) || 0; sumK += parseFloat(elK.val()) || 0; count++;
+        sumP += parseNilaiInput(elP.val()); sumK += parseNilaiInput(elK.val()); count++;
     });
-    $('#footPModal').text(sumP.toFixed(2)); $('#footKModal').text(sumK.toFixed(2));
-    $('#avgPModal').text(count > 0 ? (sumP / count).toFixed(2) : 0); $('#avgKModal').text(count > 0 ? (sumK / count).toFixed(2) : 0);
+    $('#footPModal').text(formatNilaiTampil(sumP)); $('#footKModal').text(formatNilaiTampil(sumK));
+    $('#avgPModal').text(formatNilaiTampil(count > 0 ? sumP / count : 0)); $('#avgKModal').text(formatNilaiTampil(count > 0 ? sumK / count : 0));
 }
 
 function loadNilaiSiswaModal() {
@@ -363,12 +382,12 @@ function loadNilaiSiswaModal() {
         const tb = $('#tbodyNilaiModal').empty();
         globalMapel.forEach(m => {
             const ex = nilais.find(n => String(n[1]) == String(m[0])) || [];
-            const p = ex[2] || 0; const k = ex[3] || 0; const s = ex[4] || ''; const d = ex[5] || '';
+            const p = formatNilaiTampil(ex[2] || 0); const k = formatNilaiTampil(ex[3] || 0); const s = ex[4] || ''; const d = ex[5] || '';
 
             tb.append(`<tr>
                 <td class="text-start fw-bold">${m[1]} <input type="hidden" class="mid" value="${m[0]}"></td>
-                <td><input type="number" step="0.01" class="form-control text-center np" value="${p}" onkeyup="validateInput(this)" onchange="calcModal()"></td>
-                <td><input type="number" step="0.01" class="form-control text-center nk" value="${k}" onkeyup="validateInput(this)" onchange="calcModal()"></td>
+                <td><input type="text" inputmode="decimal" class="form-control text-center np" value="${p}" oninput="validateInput(this)" onchange="calcModal()"></td>
+                <td><input type="text" inputmode="decimal" class="form-control text-center nk" value="${k}" oninput="validateInput(this)" onchange="calcModal()"></td>
                 <td><select class="form-control text-center ns">${pilihanSikap(s)}</select></td>
                 <td><input class="form-control nd" value="${d}" placeholder="Opsional"></td>
             </tr>`);
@@ -405,8 +424,8 @@ function showImportNilaiPopup(nis) {
                     <i class="bi bi-download"></i> Unduh Template CSV
                 </button>
                 <label class="form-label small fw-bold text-muted">Langkah 2:</label>
-                <input type="file" id="swalImportNilaiFile" class="form-control form-control-sm" accept=".csv">
-                <small class="text-muted mt-2 d-block">Isi data pada file CSV yang telah diunduh, lalu pilih file tersebut di sini.</small>
+                <input type="file" id="swalImportNilaiFile" class="form-control form-control-sm" accept=".csv,.xlsx,.xls">
+                <small class="text-muted mt-2 d-block">Isi data pada template Excel yang telah diunduh, lalu pilih file tersebut di sini.</small>
             </div>
         `,
         showCancelButton: true,
@@ -433,7 +452,12 @@ function importNilaiPopupHandler(nis, file) {
     $('#loader').removeClass('hidden');
     let reader = new FileReader();
     reader.onload = function (e) {
-        callAPI('importNilaiSiswa', { nis: nis, csvData: e.target.result }).then(res => {
+        let csvData = e.target.result;
+        if (file.name.toLowerCase().endsWith('.xlsx') || file.name.toLowerCase().endsWith('.xls')) {
+            const workbook = XLSX.read(new Uint8Array(e.target.result), { type: 'array' });
+            csvData = XLSX.utils.sheet_to_csv(workbook.Sheets[workbook.SheetNames[0]]);
+        }
+        callAPI('importNilaiSiswa', { nis: nis, csvData: csvData }).then(res => {
             $('#loader').addClass('hidden');
             if (res.status == 'success') {
                 showCoolAlert('Berhasil', res.message, 'success');
@@ -443,5 +467,6 @@ function importNilaiPopupHandler(nis, file) {
             }
         });
     };
-    reader.readAsText(file);
+    if (file.name.toLowerCase().endsWith('.xlsx') || file.name.toLowerCase().endsWith('.xls')) reader.readAsArrayBuffer(file);
+    else reader.readAsText(file);
 }
