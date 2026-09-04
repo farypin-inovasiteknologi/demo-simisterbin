@@ -183,11 +183,9 @@ function inisialisasiDropdownAlumni() {
             selInduk.append(`<option value="${t}">${t}</option>`);
         });
 
-        // Pilih tahun terbaru secara otomatis jika ada
-        if (tahunArr.length > 0) {
-            sel.val(tahunArr[0]);
-            selInduk.val(tahunArr[0]);
-        }
+        // Default ke "Semua Tahun"
+        sel.val("");
+        selInduk.val("");
 
         loadAlumniByTahun(); // Panggil Data Alumni
         loadIndukAlumniByTahun(); // Panggil Buku Induk Alumni
