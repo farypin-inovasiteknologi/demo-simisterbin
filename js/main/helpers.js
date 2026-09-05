@@ -159,6 +159,20 @@ function showStudentNumberOwner(input, type) {
     target.textContent = match ? `Sudah digunakan oleh: ${match[2] || 'Siswa lain'}` : (value ? 'Nomor belum digunakan.' : '');
 }
 
+function hapusFotoSiswa(inputTipe, hiddenId, imgPreviewId) {
+    const fileInput = document.querySelector(`input[onchange*="${inputTipe}"]`);
+    if (fileInput) fileInput.value = '';
+    
+    const hiddenInput = document.getElementById(hiddenId);
+    if (hiddenInput) hiddenInput.value = 'hapus';
+    
+    const imgPreview = document.getElementById(imgPreviewId);
+    if (imgPreview) {
+        imgPreview.src = '';
+        imgPreview.classList.add('hidden');
+    }
+}
+
 function validateStudentIdentity(showAlert = true) {
     const form = document.getElementById('frmSiswa');
     if (!form) return true;
