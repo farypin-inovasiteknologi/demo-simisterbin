@@ -812,9 +812,15 @@
                             <div class="tab-pane fade" id="t5">
                                 <div class="row g-3">
                                     <div class="col-md-6"><label class="small fw-bold mb-2">Foto Masuk
-                                            (3:4)</label><input type="file" class="form-control mb-2" accept=".jpg,.jpeg,.png"
-                                            onchange="cropImage(this, 'masuk')"><input type="hidden"
-                                            name="id_foto_masuk" id="id_foto_masuk">
+                                            (3:4)</label>
+                                        <div class="input-group input-group-sm mb-2 shadow-sm">
+                                            <input type="file" class="form-control" accept=".jpg,.jpeg,.png"
+                                                onchange="cropImage(this, 'masuk')">
+                                            <button type="button" class="btn btn-outline-danger"
+                                                onclick="hapusFotoSiswa('masuk', 'id_foto_masuk', 'prev_masuk')"
+                                                title="Hapus Foto"><i class="bi bi-trash"></i></button>
+                                        </div>
+                                        <input type="hidden" name="id_foto_masuk" id="id_foto_masuk">
 
                                         <div class="d-flex justify-content-center"><img id="prev_masuk"
                                                 class="student-photo hidden"
@@ -822,9 +828,15 @@
                                         </div>
                                     </div>
                                     <div class="col-md-6"><label class="small fw-bold mb-2">Foto Keluar
-                                            (3:4)</label><input type="file" class="form-control mb-2" accept=".jpg,.jpeg,.png"
-                                            onchange="cropImage(this, 'keluar')"><input type="hidden"
-                                            name="id_foto_keluar" id="id_foto_keluar">
+                                            (3:4)</label>
+                                        <div class="input-group input-group-sm mb-2 shadow-sm">
+                                            <input type="file" class="form-control" accept=".jpg,.jpeg,.png"
+                                                onchange="cropImage(this, 'keluar')">
+                                            <button type="button" class="btn btn-outline-danger"
+                                                onclick="hapusFotoSiswa('keluar', 'id_foto_keluar', 'prev_keluar')"
+                                                title="Hapus Foto"><i class="bi bi-trash"></i></button>
+                                        </div>
+                                        <input type="hidden" name="id_foto_keluar" id="id_foto_keluar">
                                         <div class="d-flex justify-content-center"><img id="prev_keluar"
                                                 class="student-photo hidden"
                                                 style="width: 80px !important; height: 106px !important; border-radius: 6px;">
