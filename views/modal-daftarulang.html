@@ -370,8 +370,13 @@
                                     <div class="row g-3">
                                         <div class="col-md-3">
                                             <label class="small fw-bold mb-2">Foto Masuk (3:4)</label>
-                                            <input type="file" class="form-control mb-2" id="du_file_foto_masuk" accept=".jpg,.jpeg,.png"
-                                                onchange="cropImage(this, 'du_masuk')">
+                                            <div class="input-group input-group-sm mb-2 shadow-sm">
+                                                <input type="file" class="form-control" id="du_file_foto_masuk" accept=".jpg,.jpeg,.png"
+                                                    onchange="cropImage(this, 'du_masuk')">
+                                                <button type="button" class="btn btn-outline-danger"
+                                                    onclick="hapusFotoSiswa('du_masuk', 'du_id_foto_masuk', 'du_prev_masuk')"
+                                                    title="Hapus Foto"><i class="bi bi-trash"></i></button>
+                                            </div>
                                             <input type="hidden" name="id_foto_masuk" id="du_id_foto_masuk">
                                             <div class="d-flex justify-content-center">
                                                 <img id="du_prev_masuk" class="student-photo hidden"
