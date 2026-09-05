@@ -182,7 +182,9 @@ async function callAPI(actionName, payloadData = {}) {
             resData = JSON.parse(resText);
         } catch (_) {
             // Server mengembalikan bukan JSON (mungkin timeout/error GAS)
-            const preview = resText ? resText.substring(0, 150) : '(kosong)';
+            console.error('[DESKTOP] API Error: Response bukan JSON:', resText);
+            const cleanText = resText ? resText.trim() : '';
+            const preview = cleanText ? cleanText.substring(0, 150) : '(kosong)';
             return { status: "error", message: `Server tidak merespons dengan benar. Preview: ${preview}` };
         }
 
