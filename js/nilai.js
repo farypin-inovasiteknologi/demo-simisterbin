@@ -378,7 +378,9 @@ function loadNilaiSiswaModal() {
 
     $('#tbodyNilaiModal').html('<tr><td colspan="4" class="text-center py-4"><div class="spinner-border text-success"></div></td></tr>');
 
-    callAPI('getNilaiSiswa', { nis: nis, smt: smt }).then(nilais => {
+    callAPI('getNilaiSiswa', { nis: nis, smt: smt }).then(res => {
+        // Pastikan nilais selalu array, apapun yang dikembalikan server
+        const nilais = Array.isArray(res) ? res : [];
         const tb = $('#tbodyNilaiModal').empty();
         globalMapel.forEach(m => {
             const ex = nilais.find(n => String(n[1]) == String(m[0])) || [];
