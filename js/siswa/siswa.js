@@ -251,7 +251,7 @@ function loadAlumniByTahun() {
                     btnLegerAlumni = `<button class="btn btn-sm btn-primary me-1 shadow-sm fw-bold" onclick="bukaModalNilai('${nis}', '${nama}')" title="Input Nilai"><i class="bi bi-journal-plus"></i></button> ` + btnLegerAlumni;
                 }
 
-                let rowAlumniStr = `<tr><td>${nisGabung}</td><td>${nama}</td><td>${jk}</td><td><span class="badge bg-primary">${status || 'Lulus'}</span></td><td>${thnKeluar}</td>`;
+                let rowAlumniStr = `<tr><td>${nisGabung}</td><td><div class="name-clamp">${nama}</div></td><td>${jk}</td><td><span class="badge bg-primary">${status || 'Lulus'}</span></td><td>${thnKeluar}</td>`;
 
                 htmlAlumni += rowAlumniStr + `<td>${btnDataAlumni}</td></tr>`;
                 htmlLegerAlumni += rowAlumniStr + `<td>${btnLegerAlumni}</td></tr>`;
@@ -897,7 +897,7 @@ function renderDaftarUlangTable() {
         const noSpmb = r[0], nisn = r[1], nama = r[2], tglDaftar = r[32] ? String(r[32]).substring(0, 10) : '-';
         let btnAksi = `<button class="btn btn-sm btn-secondary me-1 shadow-sm" onclick="reviewDaftarUlang('${noSpmb}')" title="Lihat Data"><i class="bi bi-eye"></i></button>`;
         btnAksi += `<button class="btn btn-sm btn-success shadow-sm fw-bold" onclick="promptSetujuiSiswa('${noSpmb}', '${nama}')"><i class="bi bi-check-circle"></i> Setujui</button>`;
-        html += `<tr><td><span class="badge bg-warning text-dark">${noSpmb}</span></td><td>${nisn}</td><td>${nama}</td><td>${tglDaftar}</td><td>${btnAksi}</td></tr>`;
+        html += `<tr><td><span class="badge bg-warning text-dark">${noSpmb}</span></td><td>${nisn}</td><td><div class="name-clamp">${nama}</div></td><td>${tglDaftar}</td><td>${btnAksi}</td></tr>`;
     });
     $('#tbodyDaftarUlang').html(html);
     $('#tblDaftarUlang').DataTable({ language: { search: 'Cari:', lengthMenu: '_MENU_ data', info: '_START_-_END_ dari _TOTAL_' } });
@@ -1001,7 +1001,7 @@ function loadSiswaKeluarByTahun() {
 
                 let rowKeluarStr = `
                     <td>${nisGabung}</td>
-                    <td>${nama}</td>
+                    <td><div class="name-clamp">${nama}</div></td>
                     <td>${jk}</td>
                     <td class="text-center"><span class="badge bg-danger">${status}</span></td>
                     <td class="text-center">${thnKeluar}</td>
