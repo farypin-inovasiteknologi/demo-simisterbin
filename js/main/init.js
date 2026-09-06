@@ -179,11 +179,23 @@ async function restoreSession(res) {
 }
 
 function logout() {
-    localStorage.removeItem('simisterbin_session'); // HAPUS SESI SAAT LOGOUT
-    $('#appPage').addClass('hidden');
-    $('#loginPage').removeClass('hidden').addClass('animate__animated animate__fadeIn');
-    $('#u').val(''); $('#p').val('');
-    globalSiswa = [];
+    Swal.fire({
+        title: 'Yakin ingin keluar sistem?',
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#dc3545',
+        cancelButtonColor: '#6c757d',
+        confirmButtonText: 'Ya, Keluar!',
+        cancelButtonText: 'Batal'
+    }).then((result) => {
+        if (result.isConfirmed) {
+            localStorage.removeItem('simisterbin_session'); // HAPUS SESI SAAT LOGOUT
+            $('#appPage').addClass('hidden');
+            $('#loginPage').removeClass('hidden').addClass('animate__animated animate__fadeIn');
+            $('#u').val(''); $('#p').val('');
+            globalSiswa = [];
+        }
+    });
 }
 
 let bgLandingUrl = '';
