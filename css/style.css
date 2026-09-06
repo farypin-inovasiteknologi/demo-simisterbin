@@ -1298,3 +1298,23 @@ textarea {
 .table > tbody > tr:last-child > th {
     border-bottom-color: transparent;
 }
+.custom-logout-btn:hover, .custom-logout-btn:active, .custom-logout-btn:focus { background-color: #dc3545 !important; color: white !important; }
+
+/* SPMB Mobile Adjustments */
+@media (max-width: 767.98px) {
+    .spmb-nav-tabs .nav-item {
+        flex: 0 0 33.33%;
+        max-width: 33.33%;
+    }
+    .spmb-nav-tabs .nav-link {
+        font-size: 0.75rem !important;
+        padding: 0.5rem 0.25rem !important;
+    }
+    .spmb-header-title {
+        font-size: 1rem !important;
+    }
+    .spmb-footer-btn {
+        font-size: 0.75rem !important;
+        padding: 0.375rem 0.25rem !important;
+    }
+}
