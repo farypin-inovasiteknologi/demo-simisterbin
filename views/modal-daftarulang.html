@@ -2,28 +2,23 @@
     <div class="modal-dialog modal-xl modal-dialog-scrollable">
         <div class="modal-content border-0 shadow-lg">
             <form id="frmDaftarUlang" onsubmit="submitDaftarUlang(event)" novalidate>
-                <div class="modal-header text-white" style="background: linear-gradient(135deg, #f6c23e, #f4a200);">
-                    <h5 class="modal-title fw-bold">Formulir Daftar Ulang Siswa Baru</h5>
+                <div class="modal-header text-white p-3" style="background: linear-gradient(135deg, #f6c23e, #f4a200);">
+                    <h6 class="modal-title fw-bold text-truncate m-0" style="font-size: 1rem;">Formulir Daftar Ulang Siswa Baru</h6>
                     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
                 </div>
                 <div class="modal-body bg-light p-4">
-                    <div class="alert alert-warning small border-warning"><i
-                            class="bi bi-exclamation-triangle-fill"></i> Harap isi data sesuai dengan berkas
-                        aslinya. Data ini akan divalidasi oleh sekolah.</div>
+                    <div class="alert alert-warning alert-dismissible fade show border-warning d-flex align-items-center p-2 mb-2" role="alert" style="font-size: 0.75rem;">
+                        <button type="button" class="btn-close position-static p-1 m-0 me-2" data-bs-dismiss="alert" aria-label="Close" style="width: 0.5em; height: 0.5em;"></button>
+                        <div><i class="bi bi-exclamation-triangle-fill me-1"></i>Isi data sesuai berkas asli. Data akan divalidasi.</div>
+                    </div>
 
-                    <ul class="nav nav-tabs nav-fill bg-white pt-2 px-3 sticky-top" style="top:0; z-index:10;">
-                        <li class="nav-item"><a class="nav-link active fw-bold" data-bs-toggle="tab"
-                                href="#du_t1">Pribadi</a></li>
-                        <li class="nav-item"><a class="nav-link fw-bold" data-bs-toggle="tab" href="#du_t2">Fisik &
-                                Alamat</a></li>
-                        <li class="nav-item"><a class="nav-link fw-bold" data-bs-toggle="tab" href="#du_t3">Orang
-                                Tua/Wali</a></li>
-                        <li class="nav-item"><a class="nav-link fw-bold" data-bs-toggle="tab" href="#du_t6">KIP &
-                                Bank</a></li>
-                        <li class="nav-item"><a class="nav-link fw-bold" data-bs-toggle="tab" href="#du_t4">Akademik</a>
-                        </li>
-                        <li class="nav-item"><a class="nav-link fw-bold text-success" data-bs-toggle="tab"
-                                href="#du_t5">Upload Foto & Berkas</a></li>
+                    <ul class="nav nav-tabs bg-white pt-2 px-1 sticky-top border-bottom-0" style="top:0; z-index:10; font-size: 0.75rem;">
+                        <li class="nav-item text-center px-0" style="width: 33.33%;"><a class="nav-link active fw-bold px-1 py-2" data-bs-toggle="tab" href="#du_t1">Pribadi</a></li>
+                        <li class="nav-item text-center px-0" style="width: 33.33%;"><a class="nav-link fw-bold px-1 py-2" data-bs-toggle="tab" href="#du_t2">Fisik & Alamat</a></li>
+                        <li class="nav-item text-center px-0" style="width: 33.33%;"><a class="nav-link fw-bold px-1 py-2" data-bs-toggle="tab" href="#du_t3">Ortu/Wali</a></li>
+                        <li class="nav-item text-center px-0" style="width: 33.33%;"><a class="nav-link fw-bold px-1 py-2" data-bs-toggle="tab" href="#du_t6">KIP & Bank</a></li>
+                        <li class="nav-item text-center px-0" style="width: 33.33%;"><a class="nav-link fw-bold px-1 py-2" data-bs-toggle="tab" href="#du_t4">Akademik</a></li>
+                        <li class="nav-item text-center px-0" style="width: 33.33%;"><a class="nav-link fw-bold text-success px-1 py-2" data-bs-toggle="tab" href="#du_t5">Foto/Berkas</a></li>
                     </ul>
 
                     <div class="tab-content p-4 bg-white rounded-bottom">
@@ -475,19 +470,22 @@
                     </div>
 
                 </div>
-                <div class="modal-footer bg-white">
-                    <button type="button" class="btn btn-danger fw-bold shadow-sm hidden me-auto"
-                        id="btnTolakDaftarUlang"><i class="bi bi-trash"></i> TOLAK & HAPUS</button>
-                    <button type="button" class="btn btn-light border fw-bold" data-bs-dismiss="modal">Tutup</button>
-                    <button type="button" id="btnEditDaftarUlang" class="btn btn-primary fw-bold shadow-sm hidden">
+                <div class="modal-footer bg-white d-flex flex-nowrap gap-2 p-2 justify-content-between">
+                    <button type="button" class="btn btn-sm btn-danger fw-bold shadow-sm hidden flex-fill text-truncate px-1" id="btnTolakDaftarUlang">
+                        <i class="bi bi-trash"></i> TOLAK & HAPUS
+                    </button>
+                    <button type="button" class="btn btn-sm btn-light border fw-bold flex-fill text-truncate px-1" data-bs-dismiss="modal">
+                        Tutup
+                    </button>
+                    <button type="button" id="btnEditDaftarUlang" class="btn btn-sm btn-primary fw-bold shadow-sm hidden flex-fill text-truncate px-1">
                         <i class="bi bi-pencil"></i> Edit
                     </button>
-                    <button type="button" id="btnSetujuiDaftarUlang"
-                        class="btn btn-success px-4 fw-bold shadow-sm hidden">
+                    <button type="button" id="btnSetujuiDaftarUlang" class="btn btn-sm btn-success fw-bold shadow-sm hidden flex-fill text-truncate px-1">
                         <i class="bi bi-check-circle"></i> Setujui
                     </button>
-                    <button type="submit" id="btnSubmitDaftarUlang"
-                        class="btn btn-warning px-5 fw-bold shadow-sm text-dark">KIRIM PENDAFTARAN</button>
+                    <button type="submit" id="btnSubmitDaftarUlang" class="btn btn-sm btn-warning fw-bold shadow-sm text-dark flex-fill text-truncate px-1">
+                        KIRIM PENDAFTARAN
+                    </button>
                 </div>
             </form>
         </div>
