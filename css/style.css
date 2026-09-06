@@ -1323,27 +1323,27 @@ textarea {
 @media (max-width: 768px) {
     /* 1. Tabs Siswa Aktif, Alumni, Siswa Keluar */
     #pills-data-siswa {
-        display: flex;
-        flex-wrap: nowrap;
-        gap: 5px;
-        overflow-x: auto;
+        display: flex !important;
+        flex-wrap: nowrap !important;
+        gap: 5px !important;
+        overflow-x: auto !important;
     }
     #pills-data-siswa .nav-item {
-        flex: 1 1 33.33%;
+        flex: 1 1 calc(33.33% - 5px) !important;
     }
     #pills-data-siswa .nav-link {
         font-size: 0.65rem !important;
         padding: 0.5rem 0.1rem !important;
         white-space: nowrap;
         text-align: center;
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        justify-content: center;
+        display: flex !important;
+        flex-direction: row !important;
+        align-items: center !important;
+        justify-content: center !important;
     }
     #pills-data-siswa .nav-link i {
-        margin-right: 0 !important;
-        margin-bottom: 2px;
+        margin-right: 4px !important;
+        margin-bottom: 0 !important;
         font-size: 1rem;
     }
 
@@ -1369,28 +1369,28 @@ textarea {
 
 /* Mobile Adjustments for Buku Induk */
 @media (max-width: 768px) {
-    /* 1. Buku Induk Tabs (2x2 Grid) */
-    #pills-tab-induk {
-        display: flex;
-        flex-wrap: wrap;
-        gap: 5px;
+    /* 1. Buku Induk & Leger Tabs (2x2 Grid) */
+    #pills-tab-induk, #pills-leger-siswa {
+        display: flex !important;
+        flex-wrap: wrap !important;
+        gap: 5px !important;
     }
-    #pills-tab-induk .nav-item {
+    #pills-tab-induk .nav-item, #pills-leger-siswa .nav-item {
         flex: 1 1 calc(50% - 5px) !important;
     }
-    #pills-tab-induk .nav-link {
+    #pills-tab-induk .nav-link, #pills-leger-siswa .nav-link {
         font-size: 0.65rem !important;
         padding: 0.4rem 0.2rem !important;
         white-space: nowrap;
         text-align: center;
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        justify-content: center;
+        display: flex !important;
+        flex-direction: row !important;
+        align-items: center !important;
+        justify-content: center !important;
     }
-    #pills-tab-induk .nav-link i {
-        margin-right: 0 !important;
-        margin-bottom: 2px;
+    #pills-tab-induk .nav-link i, #pills-leger-siswa .nav-link i {
+        margin-right: 4px !important;
+        margin-bottom: 0 !important;
         font-size: 1rem;
     }
 
@@ -1424,4 +1424,24 @@ textarea {
     #btnTampilkanNomorInduk i, #tabIndukNomor .d-flex.gap-2 > button.btn-success i {
         font-size: 0.75rem;
     }
+}
+
+/* Tab Active State Styling (Global for all devices) */
+.nav-pills .nav-link {
+    opacity: 0.5 !important;
+    transform: scale(0.98);
+    transition: all 0.3s ease;
+    border: 2px solid transparent !important;
+}
+
+.nav-pills .nav-link:hover {
+    opacity: 0.8 !important;
+}
+
+.nav-pills .nav-link.active {
+    opacity: 1 !important;
+    transform: scale(1);
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3) !important;
+    border: 2px solid #fff !important;
+    outline: 2px solid rgba(0, 0, 0, 0.1);
 }
