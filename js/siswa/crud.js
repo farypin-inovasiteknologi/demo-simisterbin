@@ -91,14 +91,17 @@ function loadSiswa() {
             // =====================================
             // 1. TOMBOL BUKU INDUK (AKTIF & KELUAR)
             // =====================================
-            let btnInduk = `<button class="btn btn-sm btn-info text-white me-1 shadow-sm" onclick="cetakPDF('${nis}')" title="Cetak Buku Induk"><i class="bi bi-file-pdf"></i></button>
-                            <button class="btn btn-sm btn-secondary me-1 shadow-sm" onclick="reviewSiswa('${nis}')" title="Detail"><i class="bi bi-eye"></i></button>`;
+            let btnInduk = `<div class="d-flex flex-nowrap"><button class="btn btn-sm btn-info text-white me-1 shadow-sm" onclick="cetakPDF('${nis}')" title="Cetak Buku Induk"><i class="bi bi-file-pdf"></i></button>
+                            <button class="btn btn-sm btn-secondary shadow-sm" onclick="reviewSiswa('${nis}')" title="Detail"><i class="bi bi-eye"></i></button></div>`;
 
             // PISAHKAN DATA TAB BUKU INDUK BERDASARKAN STATUS
+            const namaClamp = `<div class="name-clamp">${nama}</div>`;
+            const tglClamp = `<div class="name-clamp">${tgllahir}</div>`;
+            
             if (statusKey === 'aktif') {
-                htmlInduk += `<tr><td>${nis}</td><td>${nama}</td><td>${tgllahir}</td><td>${jk}</td><td>${klsSaatIni}</td><td>${btnInduk}</td></tr>`;
+                htmlInduk += `<tr><td>${nis}</td><td>${namaClamp}</td><td>${tglClamp}</td><td>${jk}</td><td>${klsSaatIni}</td><td>${btnInduk}</td></tr>`;
             } else if (statusKey !== 'aktif' && statusKey !== 'lulus' && statusKey !== '') {
-                htmlIndukKeluar += `<tr><td>${nisGabung}</td><td>${nama}</td><td>${tgllahir}</td><td>${jk}</td><td>${tglKeluarLengkap}</td><td>${escapeHTML(r[54] || '-')}</td><td>${btnInduk}</td></tr>`;
+                htmlIndukKeluar += `<tr><td>${nisGabung}</td><td>${namaClamp}</td><td>${tglClamp}</td><td>${jk}</td><td>${tglKeluarLengkap}</td><td>${escapeHTML(r[54] || '-')}</td><td>${btnInduk}</td></tr>`;
             }
 
             // =====================================
