@@ -1549,3 +1549,111 @@ textarea {
         font-size: 0.75rem;
     }
 }
+/* ==================================================== */
+/* PERBAIKAN TAMPILAN TAB UNTUK PERANGKAT MOBILE (HP)   */
+/* ==================================================== */
+@media (max-width: 767.98px) {
+    /* 1. Tab Menu (Data Siswa, Buku Induk, Leger, Pengaturan) Dibuat Sejajar (Flex) */
+    .nav-pills {
+        display: flex !important;
+        flex-wrap: nowrap !important;
+        width: 100% !important;
+        overflow-x: auto; /* Bisa discroll ke samping jika kurang muat */
+        gap: 4px;
+        padding-bottom: 4px;
+    }
+    .nav-pills .nav-item {
+        flex: 1 1 auto;
+        min-width: 0; /* Agar flex item bisa mengecil proporsional */
+    }
+    .nav-pills .nav-link {
+        width: 100%;
+        padding: 6px 2px !important; /* Kurangi padding agar pas */
+        font-size: 9px !important;   /* Kecilkan tulisan agar muat */
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        height: 100%;
+        white-space: nowrap;
+    }
+    /* Ikon di atas teks pada mobile */
+    .nav-pills .nav-link i {
+        margin-right: 0 !important;
+        margin-bottom: 3px;
+        font-size: 14px;
+    }
+    /* Sembunyikan teks tertentu di mobile, ganti dengan versi pendek */
+    .d-md-inline { display: none !important; }
+    .d-md-none { display: inline !important; }
+
+    /* 2. Perbaikan Tabel: Lebarkan kolom Nama dan Tanggal Lahir (Maksimal 2 tingkat) */
+    table.dataTable th, table.dataTable td {
+        white-space: normal !important;
+        word-wrap: break-word;
+    }
+    /* Atur kolom nama (asumsi nth-child tertentu atau bisa dengan kelas) agar tidak terlalu panjang */
+    .name-clamp {
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    /* 3. Sejajarkan tombol Unduh Excel dan Filter di Buku Induk */
+    .d-flex.justify-content-between.align-items-center.mb-3 {
+        flex-direction: row !important;
+        flex-wrap: nowrap !important;
+        gap: 5px;
+    }
+    .d-flex.justify-content-between.align-items-center.mb-3 select {
+        flex: 1;
+        font-size: 11px;
+    }
+    .d-flex.justify-content-between.align-items-center.mb-3 .btn {
+        flex: 0 0 auto;
+        font-size: 10px;
+        padding: 4px 6px;
+        white-space: nowrap;
+    }
+
+    /* 4. Kolom Aksi Sejajar */
+    td .btn, td button {
+        display: inline-block;
+        margin: 2px !important;
+    }
+}
+/* ==================================================== */
+/* PERBAIKAN KOLOM TABEL GLOBAL                         */
+/* ==================================================== */
+/* Memaksa kolom aksi agar tombolnya sejajar dan tidak turun ke bawah */
+table.dataTable td:last-child {
+    white-space: nowrap !important;
+    text-align: center;
+}
+table.dataTable td:last-child .btn {
+    display: inline-block !important;
+    margin: 2px !important;
+}
+/* Lebarkan kolom Nama dan TTL agar muat 2 tingkat */
+table.dataTable th:nth-child(3), table.dataTable td:nth-child(3) {
+    min-width: 150px;
+}
+table.dataTable th:nth-child(6), table.dataTable td:nth-child(6) {
+    min-width: 130px;
+}
+/* Perbaikan klik di mobile (menghindari double tap zoom & delay) */
+.m-nav-item {
+    cursor: pointer !important;
+    touch-action: manipulation !important;
+    -webkit-tap-highlight-color: transparent;
+}
+/* Tambahan Ellipsis untuk kolom Nama */
+table.dataTable td:nth-child(3) {
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
