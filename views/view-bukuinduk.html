@@ -88,10 +88,6 @@
                                     </div>
                                     <button class="btn btn-sm btn-success fw-bold" onclick="unduhTabelExcel('tblIndukAlumni', 'Buku Induk Alumni')"><i class="bi bi-file-earmark-excel"></i> Unduh Excel</button>
                                 </div>
-                                <div class="alert alert-light border small text-muted"><i
-                                        class="bi bi-info-circle-fill text-primary"></i> Data di bawah ini khusus untuk
-                                    mencetak Lembar Buku Induk PDF siswa yang sudah lulus. Untuk edit data/nilai,
-                                    silakan gunakan menu <b>Data Alumni</b> di samping.</div>
 
                                 <div class="card p-4 bg-white shadow-sm border-0">
                                     <div class="table-responsive">
@@ -115,10 +111,7 @@
                             <!-- TAB SISWA KELUAR -->
                             <div class="tab-pane fade" id="tabIndukKeluar" role="tabpanel">
                                 <div class="d-flex justify-content-between align-items-center mb-3"><select id="filterIndukKeluarTahun" class="form-select form-select-sm border-primary" style="max-width:220px" onchange="filterIndukTable('tblIndukKeluar', 4, this.value)"><option value="">Semua Tahun Keluar</option></select><button class="btn btn-sm btn-success fw-bold" onclick="unduhTabelExcel('tblIndukKeluar', 'Buku Induk Siswa Keluar')"><i class="bi bi-file-earmark-excel"></i> Unduh Excel</button></div>
-                                <div class="alert alert-light border small text-muted"><i
-                                        class="bi bi-info-circle-fill text-danger"></i> Data siswa yang telah keluar
-                                    atau pindah dari sekolah. Anda tetap bisa melihat detail dan mencetak Buku Induknya.
-                                </div>
+
                                 <div class="card p-4 bg-white shadow-sm border-0">
                                     <div class="table-responsive">
                                         <table id="tblIndukKeluar" class="table table-hover w-100">
