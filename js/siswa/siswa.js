@@ -295,10 +295,13 @@ function loadIndukAlumniByTahun() {
                 const nis = r[0], nisn = r[1], nama = r[2], jk = r[7], status = r[31], thnKeluar = r[32] ? String(r[32]).substring(0, 4) : "-";
                 const nisGabung = nisn ? `${nis} / ${nisn}` : nis;
 
-                let btnInduk = `<button class="btn btn-sm btn-info text-white me-1 shadow-sm" onclick="cetakPDF('${nis}')" title="Cetak Buku Induk"><i class="bi bi-file-pdf"></i></button>
-                                <button class="btn btn-sm btn-secondary me-1 shadow-sm" onclick="reviewSiswa('${nis}')" title="Detail"><i class="bi bi-eye"></i></button>`;
+                let btnInduk = `<div class="d-flex flex-nowrap"><button class="btn btn-sm btn-info text-white me-1 shadow-sm" onclick="cetakPDF('${nis}')" title="Cetak Buku Induk"><i class="bi bi-file-pdf"></i></button>
+                                <button class="btn btn-sm btn-secondary shadow-sm" onclick="reviewSiswa('${nis}')" title="Detail"><i class="bi bi-eye"></i></button></div>`;
 
-                htmlIndukAlumni += `<tr><td>${nisGabung}</td><td>${nama}</td><td>${formatTglIndoJS(r[6])}</td><td>${jk}</td><td>${thnKeluar}</td><td class="text-center">${btnInduk}</td></tr>`;
+                const namaClamp = `<div class="name-clamp">${nama}</div>`;
+                const tglClamp = `<div class="name-clamp">${formatTglIndoJS(r[6])}</div>`;
+
+                htmlIndukAlumni += `<tr><td>${nisGabung}</td><td>${namaClamp}</td><td>${tglClamp}</td><td>${jk}</td><td>${thnKeluar}</td><td class="text-center">${btnInduk}</td></tr>`;
 
                 if (!globalSiswa.find(x => x[0] == nis)) {
                     globalSiswa.push(r);
@@ -500,12 +503,14 @@ function reviewDaftarUlang(noSpmb) {
 
     // Tampilkan pas foto jika ada
     if (s[31]) {
+        $('#du_id_foto_masuk').val(s[31]); // Set input hidden agar ID tidak hilang saat disimpan
         $('#loader').removeClass('hidden');
         callAPI('getImage', { id: s[31] }).then(b => {
             $('#loader').addClass('hidden');
             if (b) $('#du_prev_masuk').attr('src', b).removeClass('hidden');
         });
     } else {
+        $('#du_id_foto_masuk').val(''); // Kosongkan input hidden
         $('#du_prev_masuk').addClass('hidden');
     }
 
@@ -1046,13 +1051,16 @@ function loadIndukKeluarByTahun() {
                 const nis = r[0], nisn = r[1], nama = r[2], tglLahir = r[6] || "-", jk = r[7] || "-", status = r[31], tglKeluar = r[32] || "-";
                 const nisGabung = nisn ? `${nis} / ${nisn}` : nis;
 
-                let btnDataKeluar = `<button class="btn btn-sm btn-info text-white me-1 shadow-sm" onclick="cetakPDF('${nis}')" title="Cetak Buku Induk"><i class="bi bi-file-pdf"></i></button>
-                                     <button class="btn btn-sm btn-secondary me-1 shadow-sm" onclick="reviewSiswa('${nis}')" title="Detail"><i class="bi bi-eye"></i></button>`;
+                let btnDataKeluar = `<div class="d-flex flex-nowrap"><button class="btn btn-sm btn-info text-white me-1 shadow-sm" onclick="cetakPDF('${nis}')" title="Cetak Buku Induk"><i class="bi bi-file-pdf"></i></button>
+                                     <button class="btn btn-sm btn-secondary shadow-sm" onclick="reviewSiswa('${nis}')" title="Detail"><i class="bi bi-eye"></i></button></div>`;
+
+                const namaClamp = `<div class="name-clamp">${nama} <span class="badge bg-danger ms-1">${status}</span></div>`;
+                const tglClamp = `<div class="name-clamp">${tglLahir}</div>`;
 
                 htmlIndukKeluar += `<tr>
                     <td>${nisGabung}</td>
-                    <td>${nama} <span class="badge bg-danger ms-1">${status}</span></td>
-                    <td>${tglLahir}</td>
+                    <td>${namaClamp}</td>
+                    <td>${tglClamp}</td>
                     <td>${jk}</td>
                     <td>${tglKeluar}</td>
                     <td>${escapeHTML(r[54] || '-')}</td>
