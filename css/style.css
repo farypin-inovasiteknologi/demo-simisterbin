@@ -1636,24 +1636,11 @@ table.dataTable td:last-child .btn {
     display: inline-block !important;
     margin: 2px !important;
 }
-/* Lebarkan kolom Nama dan TTL agar muat 2 tingkat */
-table.dataTable th:nth-child(3), table.dataTable td:nth-child(3) {
-    min-width: 150px;
-}
-table.dataTable th:nth-child(6), table.dataTable td:nth-child(6) {
-    min-width: 130px;
-}
+/* Removed forced widths on nth-child as it breaks other tables like Klaper */
 /* Perbaikan klik di mobile (menghindari double tap zoom & delay) */
 .m-nav-item {
     cursor: pointer !important;
     touch-action: manipulation !important;
     -webkit-tap-highlight-color: transparent;
 }
-/* Tambahan Ellipsis untuk kolom Nama */
-table.dataTable td:nth-child(3) {
-    display: -webkit-box;
-    -webkit-line-clamp: 2;
-    -webkit-box-orient: vertical;
-    overflow: hidden;
-    text-overflow: ellipsis;
-}
+/* Ellipsis dihapus dari td langsung agar tabel tidak rusak */
