@@ -112,7 +112,7 @@
                 style="height: 65px; z-index: 1030;">
 
                 <div id="botAdmin" class="d-none justify-content-around align-items-center h-100 w-100">
-                        <a href="javascript:void(0)" onclick="openUnifiedMenu('data-siswa')"
+                    <a href="javascript:void(0)" onclick="openUnifiedMenu('data-siswa')"
                         class="m-nav-item text-center text-decoration-none"><i
                             class="bi bi-people-fill fs-5 d-block mb-1" style="line-height: 1;"></i><span
                             style="font-size: 10px; font-weight: bold;">Data</span></a>
@@ -120,7 +120,7 @@
                         class="m-nav-item text-center text-decoration-none"><i
                             class="bi bi-journal-bookmark-fill fs-5 d-block mb-1" style="line-height: 1;"></i><span
                             style="font-size: 10px; font-weight: bold;">Induk</span></a>
-                        <a href="javascript:void(0)" onclick="openUnifiedMenu('leger-siswa')"
+                    <a href="javascript:void(0)" onclick="openUnifiedMenu('leger-siswa')"
                         class="m-nav-item text-center text-decoration-none"><i
                             class="bi bi-journal-text fs-5 d-block mb-1" style="line-height: 1;"></i><span
                             style="font-size: 10px; font-weight: bold;">Leger</span></a>
@@ -134,15 +134,17 @@
                     </a>
 
                     <a href="javascript:void(0)" onclick="openUnifiedMenu('klaper-siswa')"
-                        class="m-nav-item text-center text-decoration-none"><i
-                            class="bi bi-card-list fs-5 d-block mb-1" style="line-height: 1;"></i><span
+                        class="m-nav-item text-center text-decoration-none"><i class="bi bi-card-list fs-5 d-block mb-1"
+                            style="line-height: 1;"></i><span
                             style="font-size: 10px; font-weight: bold;">Klaper</span></a>
-                    
+
                     <a href="javascript:void(0)" onclick="nav('daftarulang', this)"
                         class="m-nav-item text-center text-decoration-none position-relative"><i
                             class="bi bi-person-lines-fill fs-5 d-block mb-1" style="line-height: 1;"></i><span
                             style="font-size: 10px; font-weight: bold;">SPMB</span>
-                        <span id="badgeSPMBMobile" class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger hidden" style="font-size: 8px;">0</span>
+                        <span id="badgeSPMBMobile"
+                            class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger hidden"
+                            style="font-size: 8px;">0</span>
                     </a>
 
                 </div>
@@ -166,8 +168,7 @@
 
                     <a href="javascript:void(0)" onclick="openUnifiedMenu('leger-siswa')"
                         class="m-nav-item text-center text-decoration-none"><i
-                            class="bi bi-journal-text fs-4 d-block mb-1"
-                            style="line-height: 1;"></i><span
+                            class="bi bi-journal-text fs-4 d-block mb-1" style="line-height: 1;"></i><span
                             style="font-size: 10px; font-weight: bold;">Leger</span></a>
 
                     <a href="javascript:void(0)" onclick="logout()"
@@ -207,26 +208,36 @@
                 <div class="brand d-flex justify-content-between align-items-center">
                     <span class="d-flex align-items-center">
                         <img src="./icon.png" style="height: 25px; margin-right: 10px; object-fit: contain;">
-                        simisterbin
+                        SiMISTerBIn Hybrid
                     </span>
                     <i class="bi bi-x-lg d-md-none" style="cursor:pointer" onclick="toggleSidebar()"></i>
                 </div>
-                <div class="p-4 text-center">
-                    <div class="bg-white text-primary rounded-circle d-inline-flex align-items-center justify-content-center fw-bold shadow-sm"
-                        style="width:50px;height:50px;font-size:1.2rem;" id="uInit">U</div>
-                    <div id="uName" class="mt-2 fw-bold small text-white-50">User</div>
-                    <div id="uRole" class="badge bg-warning text-dark mt-1">Role</div>
+                <div class="p-4 d-flex align-items-center pb-2">
+                    <div class="bg-white text-primary rounded-circle d-flex align-items-center justify-content-center fw-bold shadow-sm flex-shrink-0"
+                        style="width:40px;height:40px;font-size:1.1rem;" id="uInit">U</div>
+                    <div class="ms-3 text-start flex-grow-1">
+                        <div id="uName" class="fw-bold small text-white">User</div>
+                        <div id="uRole" class="badge bg-warning text-dark mt-1" style="font-size: 0.7rem;">Role</div>
+                    </div>
+                </div>
+                <div class="px-4 pb-3 text-center border-bottom border-secondary border-opacity-25">
+                    <button onclick="logout()" class="btn btn-sm px-4 fw-bold rounded-pill shadow-sm custom-logout-btn"
+                        style="background-color: #6c757d; color: #fff; transition: 0.3s; border: none; font-size: 0.8rem;"><i
+                            class="bi bi-box-arrow-left me-1"></i> Logout</button>
                 </div>
                 <a href="javascript:void(0)" onclick="nav('dash', this)" class="active"><i
                         class="bi bi-speedometer2 me-2"></i> Dashboard</a>
 
-                <a href="javascript:void(0)" onclick="openUnifiedMenu('data-siswa')"><i class="bi bi-people-fill me-2"></i>
+                <a href="javascript:void(0)" onclick="openUnifiedMenu('data-siswa')"><i
+                        class="bi bi-people-fill me-2"></i>
                     Data Siswa</a>
                 <a href="javascript:void(0)" onclick="nav('siswa', this)"><i
-                    class="bi bi-journal-bookmark-fill me-2"></i> Buku Induk</a>
-                <a href="javascript:void(0)" onclick="openUnifiedMenu('leger-siswa')"><i class="bi bi-journal-text me-2"></i>
+                        class="bi bi-journal-bookmark-fill me-2"></i> Buku Induk</a>
+                <a href="javascript:void(0)" onclick="openUnifiedMenu('leger-siswa')"><i
+                        class="bi bi-journal-text me-2"></i>
                     Leger Siswa</a>
-                <a href="javascript:void(0)" onclick="openUnifiedMenu('klaper-siswa')"><i class="bi bi-card-list me-2"></i>
+                <a href="javascript:void(0)" onclick="openUnifiedMenu('klaper-siswa')"><i
+                        class="bi bi-card-list me-2"></i>
                     Klaper Siswa</a>
                 <a href="javascript:void(0)" onclick="nav('daftarulang', this)" class="admin-only"><i
                         class="bi bi-person-lines-fill me-2"></i> Daftar Ulang SPMB <span id="badgeSPMB"
@@ -238,10 +249,7 @@
                         Pengaturan</a>
                 </div>
 
-                <div class="mt-auto p-3">
-                    <button onclick="logout()" class="btn btn-danger w-100 fw-bold rounded-pill shadow-sm"><i
-                            class="bi bi-box-arrow-left me-2"></i> Logout</button>
-                </div>
+
                 <br> <br> <br>
             </div>
 
@@ -299,7 +307,8 @@
                 </div>
                 <div class="modal-body p-4 text-secondary" style="text-align: justify;">
                     <h6 class="fw-bold text-dark">Pendahuluan</h6>
-                    <p>Selamat datang di <b>SiMISTerBIn (Sistem Manajemen Informasi Siswa Terpadu & Buku Induk)</b> Hybrid.
+                    <p>Selamat datang di <b>SiMISTerBIn (Sistem Manajemen Informasi Siswa Terpadu & Buku Induk)</b>
+                        Hybrid.
                         Kebijakan Privasi ini menjelaskan bagaimana kami mengumpulkan, menggunakan, memproses,
                         melindungi, dan mengelola data pribadi siswa, alumni, serta pihak terkait di lingkungan sekolah.
                     </p>
@@ -366,8 +375,8 @@
         </div>
     </div>
 
-                    <div id="modal-daftarulang" data-include="views/modal-daftarulang.html"></div>
-                    <div id="modal-nilai" data-include="views/modal-nilai.html"></div>
+    <div id="modal-daftarulang" data-include="views/modal-daftarulang.html"></div>
+    <div id="modal-nilai" data-include="views/modal-nilai.html"></div>
 
 
     <div class="modal fade" id="mdlCrop" data-bs-backdrop="static" tabindex="-1">
@@ -419,7 +428,9 @@
                                     <div class="col-md-2">
                                         <label class="form-label small fw-bold">*NIS</label>
                                         <input name="nis" class="form-control bg-light" required placeholder="NIS auto"
-                                            inputmode="numeric" pattern="[0-9]*" oninput="showStudentNumberOwner(this, 'nis')" onblur="formatAndValidateNIS(this); showStudentNumberOwner(this, 'nis')">
+                                            inputmode="numeric" pattern="[0-9]*"
+                                            oninput="showStudentNumberOwner(this, 'nis')"
+                                            onblur="formatAndValidateNIS(this); showStudentNumberOwner(this, 'nis')">
                                         <div id="nisOwner" class="small mt-1"></div>
                                     </div>
 
@@ -427,7 +438,9 @@
                                         <label class="form-label small fw-bold" style="line-height: 1.1;">*NISN (Isi NIS
                                             jika tidak punya)</label>
                                         <input name="nisn" class="form-control" placeholder="NISN auto 10 digit"
-                                            inputmode="numeric" pattern="[0-9]{10}" maxlength="10" oninput="showStudentNumberOwner(this, 'nisn')" onblur="formatAndValidateNISN(this); showStudentNumberOwner(this, 'nisn')">
+                                            inputmode="numeric" pattern="[0-9]{10}" maxlength="10"
+                                            oninput="showStudentNumberOwner(this, 'nisn')"
+                                            onblur="formatAndValidateNISN(this); showStudentNumberOwner(this, 'nisn')">
                                         <div id="nisnOwner" class="small mt-1"></div>
                                     </div>
 
@@ -852,8 +865,8 @@
                             Transkrip/Leger</button>
                         <button type="button" class="btn btn-warning fw-bold hidden" id="btnResetPasswordEdit"
                             onclick="resetPasswordDariModal()"><i class="bi bi-key-fill"></i> Reset ke 123456</button>
-                        <button type="button" class="btn btn-light border fw-bold"
-                            data-bs-dismiss="modal" onclick="$('#mdlSiswa').modal('hide')">Tutup</button>
+                        <button type="button" class="btn btn-light border fw-bold" data-bs-dismiss="modal"
+                            onclick="$('#mdlSiswa').modal('hide')">Tutup</button>
                         <button type="submit" id="btnSimpanSiswa"
                             class="btn btn-primary px-5 fw-bold shadow-sm bg-theme">SIMPAN DATA</button>
                     </div>
