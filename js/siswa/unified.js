@@ -71,10 +71,10 @@ function unifiedActions(row, leger) {
         buttons += `<button class="btn btn-sm btn-warning" onclick="openTranskrip('${nis}')" title="Lihat Leger"><i class="bi bi-table"></i></button>`;
     } else {
         buttons += `<button class="btn btn-sm btn-success me-1" onclick="cetakKartuAdmin('${nis}')" title="Kartu Siswa"><i class="bi bi-card-heading"></i></button>`;
-        if ($('#uRole').text() !== 'ADMINISTRATOR' && $('#uRole').text() !== 'ADMIN') return buttons;
+        if ($('#uRole').text() !== 'ADMINISTRATOR' && $('#uRole').text() !== 'ADMIN') return `<div class="d-flex flex-nowrap">${buttons}</div>`;
         buttons += `<button class="btn btn-sm btn-warning me-1" onclick="editSiswa('${nis}')" title="Edit"><i class="bi bi-pencil"></i></button><button class="btn btn-sm btn-danger" onclick="delSiswa('${nis}')" title="Hapus"><i class="bi bi-trash"></i></button>`;
     }
-    return buttons;
+    return `<div class="d-flex flex-nowrap">${buttons}</div>`;
 }
 
 function renderUnifiedTable(tableId, rows, leger) {
