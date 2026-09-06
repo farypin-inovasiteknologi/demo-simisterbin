@@ -12,7 +12,7 @@
 
         <img src="./icon.png" style="height: 80px;" class="mb-2">
         <h4 class="fw-bold text-primary mb-1">SiMISTerBIn</h4>
-        <span class="text-muted small d-block mb-3">Sistem Buku Induk Siswa Digital</span>
+        <span class="text-muted small d-block mb-3">Sistem Manajemen Informasi Siswa Terpadu & Buku Induk</span>
         <div class="mb-4">
             <span
                 class="badge bg-danger bg-opacity-10 text-danger border border-danger rounded-pill px-3 py-2 shadow-sm"
@@ -25,11 +25,15 @@
             MASUK SISTEM <i class="bi bi-arrow-right-circle ms-1"></i>
         </button>
     </div>
-      <div class="text-center mt-4 mb-2 small text-secondary" style="width: 100%;">
-          &copy; <span id="yearAppLanding"></span> SiMISTerBIn <span id="footSchoolLanding" class="fw-bold"></span>. Hak Cipta Dilindungi.<br>
-          <a href="javascript:void(0)" onclick="$('#mdlPrivacy').modal('show')" class="text-decoration-none text-primary fw-bold" style="font-size: 11px;">Kebijakan Privasi</a> &bull; Powered by: <a href='https://www.farypin-inovasiteknologi.com' rel='dofollow' style='color:blue; font-size: 11px;'>PT Farypin Inovasi Teknologi</a><br>
-          <span class="text-muted fw-bold" style="font-size: 10px;">App Version : 3.26.09</span>
-      </div>
+    <div class="text-center mt-4 mb-2 small text-secondary" style="width: 100%;">
+        &copy; <span id="yearAppLanding"></span> SiMISTerBIn <span id="footSchoolLanding" class="fw-bold"></span>. Hak
+        Cipta Dilindungi.<br>
+        <a href="javascript:void(0)" onclick="$('#mdlPrivacy').modal('show')"
+            class="text-decoration-none text-primary fw-bold" style="font-size: 11px;">Kebijakan Privasi</a> &bull;
+        Powered by: <a href='https://www.farypin-inovasiteknologi.com' rel='dofollow'
+            style='color:blue; font-size: 11px;'>PT Farypin Inovasi Teknologi</a><br>
+        <span class="text-muted fw-bold" style="font-size: 10px;">App Version : 3.26.09</span>
+    </div>
 </div>
 
 <div class="login-card hidden" id="viewLogin">
@@ -67,19 +71,20 @@
 
         <div class="divider-text">LAYANAN PUBLIK</div>
 
-        <button type="button" class="btn w-100 rounded-pill py-2 fw-bold shadow-sm mb-3"
-            style="background: linear-gradient(135deg, #f6c23e, #f4a200); color: #fff; border: none;"
+        <button type="button" class="btn w-100 rounded-pill py-2 fw-bold shadow-sm mb-3 text-truncate px-2"
+            style="background: linear-gradient(135deg, #f6c23e, #f4a200); color: #fff; border: none; font-size: 0.85rem;"
             onclick="bukaModalDaftarUlang()">
             <i class="bi bi-person-plus-fill"></i> DAFTAR ULANG MURID BARU
         </button>
 
         <div class="d-flex gap-2">
-            <button type="button" class="btn btn-success w-50 rounded-pill py-2 fw-bold shadow-sm"
-                onclick="openScannerPublic()">
+            <button type="button" class="btn btn-success w-50 rounded-pill py-2 fw-bold shadow-sm text-truncate px-1"
+                style="font-size: 0.75rem;" onclick="openScannerPublic()">
                 <i class="bi bi-qr-code-scan"></i> SCAN KARTU
             </button>
-            <button type="button" class="btn btn-outline-primary w-50 rounded-pill py-2 fw-bold shadow-sm bg-white"
-                onclick="cariDataAlumni()">
+            <button type="button"
+                class="btn btn-outline-primary w-50 rounded-pill py-2 fw-bold shadow-sm bg-white text-truncate px-1"
+                style="font-size: 0.75rem;" onclick="cariDataAlumni()">
                 <i class="bi bi-search"></i> CEK ALUMNI
             </button>
         </div>
