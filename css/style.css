@@ -1321,30 +1321,33 @@ textarea {
 
 /* Mobile Adjustments for Data Siswa (Tabs & Cetak Kartu) */
 @media (max-width: 768px) {
-    /* 1. Tabs Siswa Aktif, Alumni, Siswa Keluar */
+    /* 1. Tabs Siswa Aktif, Alumni, Siswa Keluar — 3 kolom 1 baris */
     #pills-data-siswa {
         display: flex !important;
         flex-wrap: nowrap !important;
-        gap: 5px !important;
-        overflow-x: auto !important;
+        gap: 4px !important;
+        width: 100%;
     }
     #pills-data-siswa .nav-item {
-        flex: 1 1 calc(33.33% - 5px) !important;
+        flex: 1 1 calc(33.33% - 4px) !important;
+        min-width: 0;
     }
     #pills-data-siswa .nav-link {
-        font-size: 0.65rem !important;
-        padding: 0.5rem 0.1rem !important;
+        font-size: 0.62rem !important;
+        padding: 0.25rem 0.1rem !important;
         white-space: nowrap;
         text-align: center;
         display: flex !important;
         flex-direction: row !important;
         align-items: center !important;
         justify-content: center !important;
+        width: 100%;
     }
     #pills-data-siswa .nav-link i {
-        margin-right: 4px !important;
+        margin-right: 3px !important;
         margin-bottom: 0 !important;
-        font-size: 1rem;
+        font-size: 0.85rem;
+        flex-shrink: 0;
     }
 
     /* 2. Cetak Kartu & Filter Row */
@@ -1369,29 +1372,33 @@ textarea {
 
 /* Mobile Adjustments for Buku Induk */
 @media (max-width: 768px) {
-    /* 1. Buku Induk & Leger Tabs (2x2 Grid) */
+    /* 1. Buku Induk & Leger Tabs — 4 kolom 1 baris, 25% rata */
     #pills-tab-induk, #pills-leger-siswa {
         display: flex !important;
-        flex-wrap: wrap !important;
-        gap: 5px !important;
+        flex-wrap: nowrap !important;
+        gap: 4px !important;
+        width: 100%;
     }
     #pills-tab-induk .nav-item, #pills-leger-siswa .nav-item {
-        flex: 1 1 calc(50% - 5px) !important;
+        flex: 1 1 calc(25% - 4px) !important;
+        min-width: 0;
     }
     #pills-tab-induk .nav-link, #pills-leger-siswa .nav-link {
-        font-size: 0.65rem !important;
-        padding: 0.4rem 0.2rem !important;
+        font-size: 0.6rem !important;
+        padding: 0.25rem 0.05rem !important;
         white-space: nowrap;
         text-align: center;
         display: flex !important;
         flex-direction: row !important;
         align-items: center !important;
         justify-content: center !important;
+        width: 100%;
     }
     #pills-tab-induk .nav-link i, #pills-leger-siswa .nav-link i {
-        margin-right: 4px !important;
+        margin-right: 3px !important;
         margin-bottom: 0 !important;
-        font-size: 1rem;
+        font-size: 0.85rem;
+        flex-shrink: 0;
     }
 
     /* 2. Filter Inputs (2x2 Grid) */
