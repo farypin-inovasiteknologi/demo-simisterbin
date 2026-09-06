@@ -23,12 +23,12 @@ function escapeHTML(str) {
 }
 
 
-const KUNCI_RAHASIA = "S1M1ST3RB1N_S3CUR3_2026"; // Jangan beritahu siapapun
+const KUNCI_SESI = "S1M1ST3RB1N_S3CUR3_2026"; // Jangan beritahu siapapun
 
 function enkripsiLokal(teks) {
     let result = "";
     for (let i = 0; i < teks.length; i++) {
-        result += String.fromCharCode(teks.charCodeAt(i) ^ KUNCI_RAHASIA.charCodeAt(i % KUNCI_RAHASIA.length));
+        result += String.fromCharCode(teks.charCodeAt(i) ^ KUNCI_SESI.charCodeAt(i % KUNCI_SESI.length));
     }
     return btoa(result);
 }
@@ -39,7 +39,7 @@ function dekripsiLokal(b64) {
         let teks = atob(b64);
         let result = "";
         for (let i = 0; i < teks.length; i++) {
-            result += String.fromCharCode(teks.charCodeAt(i) ^ KUNCI_RAHASIA.charCodeAt(i % KUNCI_RAHASIA.length));
+            result += String.fromCharCode(teks.charCodeAt(i) ^ KUNCI_SESI.charCodeAt(i % KUNCI_SESI.length));
         }
         return result;
     } catch (e) {
@@ -47,11 +47,6 @@ function dekripsiLokal(b64) {
     }
 }
 
-function dekripsiJikaTerenkripsi(value) {
-    if (!value) return value;
-    const decrypted = dekripsiLokal(value);
-    return enkripsiLokal(decrypted) === value ? decrypted : value;
-}
 
 // 2. Baca ID dari URL (contoh: https://namamu.github.io/simisterbin/?id=demo)
 const urlParams = new URLSearchParams(window.location.search);
@@ -110,7 +105,11 @@ async function callAPI(actionName, payloadData = {}) {
         if (actionName === 'getImage') {
             if (!payloadData.id) return null;
             if (String(payloadData.id).startsWith('data:')) return payloadData.id;
-            try { return await window.electronAPI.getFoto(payloadData.id); } catch (e) { return null; }
+            try { 
+                const localFoto = await window.electronAPI.getFoto(payloadData.id); 
+                if (localFoto) return localFoto;
+                // Jika tidak ada di lokal (kemungkinan ID Drive), biarkan fall-through ke MODE ONLINE di bawah
+            } catch (e) { }
         }
         // Intercept: simpan gambar ke folder lokal
         if (actionName === 'uploadBase64') {
@@ -128,7 +127,11 @@ async function callAPI(actionName, payloadData = {}) {
             const getImg = async (p) => {
                 if (!p) return '';
                 if (String(p).startsWith('data:')) return p;
-                try { return await window.electronAPI.getFoto(p) || ''; } catch (e) { return ''; }
+                try { 
+                    const lf = await window.electronAPI.getFoto(p);
+                    if (lf) return lf;
+                    return `https://lh3.googleusercontent.com/d/${p}`;
+                } catch (e) { return `https://lh3.googleusercontent.com/d/${p}`; }
             };
             return {
                 foto: await getImg(fotoId), bg1: await getImg(bgDepan), bg2: await getImg(bgBelakang),
@@ -136,15 +139,17 @@ async function callAPI(actionName, payloadData = {}) {
             };
         }
         // Semua action lain → SQLite via Electron IPC
-        try {
-            return await window.electronAPI.dbAction(actionName, payloadData);
-        } catch (error) {
-            console.error('[DESKTOP] callAPI error:', actionName, error);
-            return { status: 'error', message: error.message || 'Terjadi kesalahan pada database lokal.' };
+        if (actionName !== 'getImage') {
+            try {
+                return await window.electronAPI.dbAction(actionName, payloadData);
+            } catch (error) {
+                console.error('[DESKTOP] callAPI error:', actionName, error);
+                return { status: 'error', message: error.message || 'Terjadi kesalahan pada database lokal.' };
+            }
         }
     }
 
-    // ===== MODE ONLINE (Browser — Google Apps Script) =====
+    // ===== MODE ONLINE (Browser — Google Apps Script) ATAU FALLBACK DESKTOP =====
     try {
         if (actionName === 'getImage' && payloadData && payloadData.id) {
             if (String(payloadData.id).startsWith('data:')) return payloadData.id;
@@ -160,13 +165,10 @@ async function callAPI(actionName, payloadData = {}) {
             userAktif = parsed.username || "";
         }
 
-        // --- ENKRIPSI OTOMATIS DATA SENSITIF SEBELUM DISIMPAN ONLINE ---
+        // --- DATA DIKIRIM LANGSUNG, BACKEND YANG AKAN MENGENKRIPSI ---
         let payloadKirim = payloadData;
-        if (actionName === 'saveStudent' && payloadKirim) {
-            payloadKirim = JSON.parse(JSON.stringify(payloadData)); // clone
-            if (payloadKirim.nik) payloadKirim.nik = enkripsiLokal(payloadKirim.nik);
-            if (payloadKirim.nokk) payloadKirim.nokk = enkripsiLokal(payloadKirim.nokk);
-            if (payloadKirim.nama_ibu) payloadKirim.nama_ibu = enkripsiLokal(payloadKirim.nama_ibu);
+        if (['saveStudent', 'saveDaftarUlang', 'editDaftarUlang'].includes(actionName)) {
+            // Data langsung dikirim apa adanya, backend yang akan mengenkripsi
         }
 
         const response = await fetch(API_URL, {
@@ -188,30 +190,7 @@ async function callAPI(actionName, payloadData = {}) {
             return { status: "error", message: `Server tidak merespons dengan benar. Preview: ${preview}` };
         }
 
-        // --- DEKRIPSI OTOMATIS DATA SENSITIF ONLINE ---
-        if (resData && resData.status === 'success') {
-            const arrActions = ['getStudents', 'getAlumniByTahun', 'getSiswaKeluarByTahun'];
-            if (arrActions.includes(actionName) && Array.isArray(resData.data)) {
-                resData.data = resData.data.map(r => {
-                    if (r[3]) r[3] = dekripsiJikaTerenkripsi(r[3]);
-                    if (r[4]) r[4] = dekripsiJikaTerenkripsi(r[4]);
-                    if (r[23]) r[23] = dekripsiJikaTerenkripsi(r[23]);
-                    return r;
-                });
-            } else if (actionName === 'cariDataAlumniPublic' && resData.data) {
-                if (resData.data[3]) resData.data[3] = dekripsiJikaTerenkripsi(resData.data[3]);
-                if (resData.data[4]) resData.data[4] = dekripsiJikaTerenkripsi(resData.data[4]);
-                if (resData.data[23]) resData.data[23] = dekripsiJikaTerenkripsi(resData.data[23]);
-            } else if (actionName === 'getTranskripData' && resData.siswa) {
-                [3, 4, 23].forEach(index => {
-                    if (resData.siswa[index]) resData.siswa[index] = dekripsiJikaTerenkripsi(resData.siswa[index]);
-                });
-            } else if (actionName === 'login' && resData.data) {
-                if (resData.data.nik) resData.data.nik = dekripsiJikaTerenkripsi(resData.data.nik);
-                if (resData.data.nokk) resData.data.nokk = dekripsiJikaTerenkripsi(resData.data.nokk);
-                if (resData.data.ibu) resData.data.ibu = dekripsiJikaTerenkripsi(resData.data.ibu);
-            }
-        }
+        // --- DEKRIPSI OTOMATIS DATA SENSITIF ONLINE DIHAPUS KARENA SUDAH DI-HANDLE BACKEND ---
         return resData;
     } catch (error) {
         return { status: "error", message: "Gagal terhubung ke server database." };
