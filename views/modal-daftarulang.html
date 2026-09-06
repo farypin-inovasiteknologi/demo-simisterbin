@@ -1,499 +1,495 @@
-    <div class="modal fade" id="mdlDaftarUlang" data-bs-backdrop="static" tabindex="-1">
-        <div class="modal-dialog modal-xl modal-dialog-scrollable">
-            <div class="modal-content border-0 shadow-lg">
-                <form id="frmDaftarUlang" onsubmit="submitDaftarUlang(event)" novalidate>
-                    <div class="modal-header text-white" style="background: linear-gradient(135deg, #f6c23e, #f4a200);">
-                        <h5 class="modal-title fw-bold">Formulir Daftar Ulang Siswa Baru</h5>
-                        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
-                    </div>
-                    <div class="modal-body bg-light p-4">
-                        <div class="alert alert-warning small border-warning"><i
-                                class="bi bi-exclamation-triangle-fill"></i> Harap isi data sesuai dengan berkas
-                            aslinya. Data ini akan divalidasi oleh sekolah.</div>
+<div class="modal fade" id="mdlDaftarUlang" data-bs-backdrop="static" tabindex="-1">
+    <div class="modal-dialog modal-xl modal-dialog-scrollable">
+        <div class="modal-content border-0 shadow-lg">
+            <form id="frmDaftarUlang" onsubmit="submitDaftarUlang(event)" novalidate>
+                <div class="modal-header text-white" style="background: linear-gradient(135deg, #f6c23e, #f4a200);">
+                    <h5 class="modal-title fw-bold">Formulir Daftar Ulang Siswa Baru</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body bg-light p-4">
+                    <div class="alert alert-warning small border-warning"><i
+                            class="bi bi-exclamation-triangle-fill"></i> Harap isi data sesuai dengan berkas
+                        aslinya. Data ini akan divalidasi oleh sekolah.</div>
 
-                        <ul class="nav nav-tabs nav-fill bg-white pt-2 px-3 sticky-top" style="top:0; z-index:10;">
-                            <li class="nav-item"><a class="nav-link active fw-bold" data-bs-toggle="tab"
-                                    href="#du_t1">Pribadi</a></li>
-                            <li class="nav-item"><a class="nav-link fw-bold" data-bs-toggle="tab" href="#du_t2">Fisik &
-                                    Alamat</a></li>
-                            <li class="nav-item"><a class="nav-link fw-bold" data-bs-toggle="tab" href="#du_t3">Orang
-                                    Tua/Wali</a></li>
-                            <li class="nav-item"><a class="nav-link fw-bold text-warning" data-bs-toggle="tab"
-                                    href="#du_t6">Bansos & Rekening</a></li>
-                            <li class="nav-item"><a class="nav-link fw-bold" data-bs-toggle="tab"
-                                    href="#du_t4">Akademik</a></li>
-                            <li class="nav-item"><a class="nav-link fw-bold text-success" data-bs-toggle="tab"
-                                    href="#du_t5">Upload Foto & Berkas</a></li>
-                        </ul>
+                    <ul class="nav nav-tabs nav-fill bg-white pt-2 px-3 sticky-top" style="top:0; z-index:10;">
+                        <li class="nav-item"><a class="nav-link active fw-bold" data-bs-toggle="tab"
+                                href="#du_t1">Pribadi</a></li>
+                        <li class="nav-item"><a class="nav-link fw-bold" data-bs-toggle="tab" href="#du_t2">Fisik &
+                                Alamat</a></li>
+                        <li class="nav-item"><a class="nav-link fw-bold" data-bs-toggle="tab" href="#du_t3">Orang
+                                Tua/Wali</a></li>
+                        <li class="nav-item"><a class="nav-link fw-bold" data-bs-toggle="tab" href="#du_t6">KIP &
+                                Bank</a></li>
+                        <li class="nav-item"><a class="nav-link fw-bold" data-bs-toggle="tab" href="#du_t4">Akademik</a>
+                        </li>
+                        <li class="nav-item"><a class="nav-link fw-bold text-success" data-bs-toggle="tab"
+                                href="#du_t5">Upload Foto & Berkas</a></li>
+                    </ul>
 
-                        <div class="tab-content p-4 bg-white rounded-bottom">
-                            <div class="tab-pane fade show active" id="du_t1">
-                                <div class="row g-3">
-                                    <div class="col-md-2">
-                                        <label class="form-label small fw-bold">*No Bukti Diterima</label>
-                                        <input name="no_spmb" id="du_no_spmb" class="form-control bg-light" required
-                                            placeholder="Contoh: SPMB-2026-001">
-                                    </div>
-                                    <div class="col-md-3">
-                                        <label class="form-label small fw-bold" style="line-height: 1.1;">*NISN (Wajib
-                                            10 Digit)</label>
-                                        <input name="nisn" id="du_nisn" class="form-control"
-                                            placeholder="10 Digit Angka" maxlength="10"
-                                            oninput="batasiAngka(this, 10, 'NISN')" onblur="validasiKhususNISN(this)"
-                                            required>
-                                    </div>
-                                    <div class="col-md-7">
-                                        <label class="form-label small fw-bold">*Nama Lengkap (sesuai Ijazah)</label>
-                                        <input name="nama" id="du_nama" class="form-control fw-bold border-primary"
-                                            required placeholder="Nama Lengkap Pendaftar"
-                                            oninput="this.value = this.value.toUpperCase()">
-                                    </div>
-                                    <div class="col-md-4">
-                                        <label class="form-label small fw-bold">*NIK</label>
-                                        <input name="nik" id="du_nik" class="form-control" placeholder="16 digit angka"
-                                            oninput="batasiAngka(this, 16, 'NIK')" onblur="cekDigitPas(this, 16, 'NIK')"
-                                            required>
-                                    </div>
-                                    <div class="col-md-4">
-                                        <label class="form-label small fw-bold">*No. KK</label>
-                                        <input name="nokk" id="du_nokk" class="form-control"
-                                            placeholder="16 digit angka" oninput="batasiAngka(this, 16, 'No. KK')"
-                                            onblur="cekDigitPas(this, 16, 'No. KK')" required>
-                                    </div>
-                                    <div class="col-md-4">
-                                        <label class="form-label small fw-bold">No. Reg Akta Lahir</label>
-                                        <input name="no_reg_akta" id="du_no_reg_akta" class="form-control">
-                                    </div>
-                                    <div class="col-md-4">
-                                        <label class="form-label small fw-bold">Kewarganegaraan</label>
-                                        <select name="kewarganegaraan" id="du_kewarganegaraan" class="form-select">
-                                            <option value="WNI">WNI</option>
-                                            <option value="WNA">WNA</option>
-                                        </select>
-                                    </div>
-                                    <div class="col-md-4"><label class="form-label small fw-bold">*Agama</label>
-                                        <select name="agama" id="du_agama" class="form-select" required>
-                                            <option value="">- Pilih -</option>
-                                            <option value="Islam">Islam</option>
-                                            <option value="Kristen">Kristen</option>
-                                            <option value="Katolik">Katolik</option>
-                                            <option value="Hindu">Hindu</option>
-                                            <option value="Buddha">Buddha</option>
-                                            <option value="Khonghucu">Khonghucu</option>
-                                        </select>
-                                    </div>
-                                    <div class="col-md-4"><label class="form-label small fw-bold">*Tempat
-                                            Lahir</label><input name="tmplahir" id="du_tmplahir" class="form-control"
-                                            oninput="this.value = this.value.toUpperCase()" required></div>
-                                    <div class="col-md-4"><label class="form-label small fw-bold">*Tanggal
-                                            Lahir</label><input type="date" name="tgllahir" id="du_tgllahir"
-                                            class="form-control" required></div>
-                                    <div class="col-md-4"><label class="form-label small fw-bold">*Jenis Kelamin</label>
-                                        <select name="jk" id="du_jk" class="form-select" required>
-                                            <option value="L">Laki-laki</option>
-                                            <option value="P">Perempuan</option>
-                                        </select>
-                                    </div>
+                    <div class="tab-content p-4 bg-white rounded-bottom">
+                        <div class="tab-pane fade show active" id="du_t1">
+                            <div class="row g-3">
+                                <div class="col-md-2">
+                                    <label class="form-label small fw-bold">*No Bukti Diterima</label>
+                                    <input name="no_spmb" id="du_no_spmb" class="form-control bg-light" required
+                                        placeholder="Contoh: SPMB-2026-001">
                                 </div>
-                            </div>
-
-                            <div class="tab-pane fade" id="du_t2">
-                                <div class="row g-3">
-                                    <div class="col-md-12"><label class="form-label small fw-bold">*Alamat
-                                            Lengkap</label><textarea name="alamat" id="du_alamat" class="form-control"
-                                            rows="2" required></textarea></div>
-                                    <div class="col-md-6"><label class="form-label small fw-bold">*No.
-                                            HP/WA</label><input name="nohp" id="du_nohp" class="form-control" required>
-                                    </div>
-                                    <div class="col-md-6"><label class="form-label small fw-bold">*Email
-                                            Aktif</label><input type="email" name="email" id="du_email"
-                                            class="form-control" required></div>
-                                    <div class="col-md-3"><label class="form-label small fw-bold">*Anak Ke</label><input
-                                            name="anakke" id="du_anakke" class="form-control" required></div>
-                                    <div class="col-md-3"><label class="form-label small fw-bold">*Jml.
-                                            Bersaudara</label><input name="jmlsdr" id="du_jmlsdr" class="form-control"
-                                            required></div>
-                                    <div class="col-md-3"><label class="form-label small fw-bold">*Tinggi
-                                            (Cm)</label><input name="tinggi" id="du_tinggi" class="form-control"
-                                            required></div>
-                                    <div class="col-md-3"><label class="form-label small fw-bold">*Berat
-                                            (Kg)</label><input name="berat" id="du_berat" class="form-control" required>
-                                    </div>
-                                    <div class="col-md-3"><label class="form-label small fw-bold">*Gol. Darah</label>
-                                        <select name="goldar" id="du_goldar" class="form-select" required>
-                                            <option value="-">-</option>
-                                            <option value="A">A</option>
-                                            <option value="B">B</option>
-                                            <option value="AB">AB</option>
-                                            <option value="O">O</option>
-                                        </select>
-                                    </div>
-                                    <div class="col-md-3"><label class="form-label small fw-bold">*Jarak
-                                            (Km)</label><input name="jarak" id="du_jarak" class="form-control" required>
-                                    </div>
-                                    <div class="col-md-3"><label class="form-label small fw-bold">*Transportasi</label>
-                                        <select name="transport" id="du_transport" class="form-select" required>
-                                            <option value="">- Pilih -</option>
-                                            <option value="Jalan kaki">Jalan kaki</option>
-                                            <option value="Sepeda">Sepeda</option>
-                                            <option value="Sepeda Motor">Sepeda Motor</option>
-                                            <option value="Mobil/bus antar jemput">Mobil/bus antar jemput</option>
-                                        </select>
-                                    </div>
-                                    <div class="col-md-3"><label class="form-label small fw-bold">*Bahasa
-                                            sehari-hari</label><input name="bahasa" id="du_bahasa" class="form-control"
-                                            required></div>
-                                    <div class="col-md-6"><label class="form-label small fw-bold">*Hobby</label><input
-                                            name="hobby" id="du_hobby" class="form-control" required></div>
-                                    <div class="col-md-6"><label class="form-label small fw-bold">Penyakit (kosongkan
-                                            jika tidak ada)</label><input name="penyakit" id="du_penyakit"
-                                            class="form-control"></div>
-                                    <div class="col-md-3"><label class="form-label small fw-bold">Berkebutuhan
-                                            Khusus</label>
-                                        <select name="berkebutuhan_khusus" id="du_berkebutuhan_khusus"
-                                            class="form-select" onchange="toggleKebutuhanKhusus(this, this.form)">
-                                            <option value="Tidak">Tidak</option>
-                                            <option value="Ya">Ya</option>
-                                        </select>
-                                    </div>
-                                    <div class="col-md-3 d-none" data-kebutuhan-field><label
-                                            class="form-label small fw-bold">Jenis Kebutuhan</label>
-                                        <select name="jenis_kebutuhan_khusus" id="du_jenis_kebutuhan_khusus"
-                                            class="form-select">
-                                            <option value="">- Pilih -</option>
-                                            <option>Tunanetra</option>
-                                            <option>Tunarungu</option>
-                                            <option>Tunagrahita</option>
-                                            <option>Tunadaksa</option>
-                                            <option>Tunalaras</option>
-                                            <option>Kesulitan belajar</option>
-                                            <option>Lamban belajar</option>
-                                            <option>Autis</option>
-                                            <option>Gangguan komunikasi</option>
-                                            <option>Hiperaktif</option>
-                                            <option>Cerdas istimewa</option>
-                                            <option>Bakat istimewa</option>
-                                            <option>Down syndrome</option>
-                                            <option>Lainnya</option>
-                                        </select>
-                                    </div>
+                                <div class="col-md-3">
+                                    <label class="form-label small fw-bold" style="line-height: 1.1;">*NISN (Wajib
+                                        10 Digit)</label>
+                                    <input name="nisn" id="du_nisn" class="form-control" placeholder="10 Digit Angka"
+                                        maxlength="10" oninput="batasiAngka(this, 10, 'NISN')"
+                                        onblur="validasiKhususNISN(this)" required>
                                 </div>
-                            </div>
-
-                            <div class="tab-pane fade" id="du_t3">
-                                <div class="row g-3">
-                                    <div class="col-md-4 border-end">
-                                        <h6 class="text-primary fw-bold mb-3">DATA AYAH</h6>
-                                        <div class="mb-2"><label class="small fw-bold">Nama Ayah</label><input
-                                                name="nama_ayah" id="du_nama_ayah" class="form-control"
-                                                oninput="this.value = this.value.toUpperCase()"></div>
-                                        <div class="mb-2"><label class="small fw-bold">Tgl. Lahir Ayah</label><input
-                                                type="date" name="tgllahir_ayah" id="du_tgllahir_ayah"
-                                                class="form-control"></div>
-                                        <div class="mb-2"><label class="small fw-bold">Pekerjaan</label><input
-                                                name="kerja_ayah" id="du_kerja_ayah" class="form-control"></div>
-                                        <div class="mb-2"><label class="small fw-bold">Pdd. Terakhir</label><select
-                                                name="pdd_ayah" id="du_pdd_ayah" class="form-select">
-                                                <option value="">- Pilih -</option>
-                                                <option value="Tidak sekolah">Tidak sekolah</option>
-                                                <option value="Putus SD">Putus SD</option>
-                                                <option value="SD / sederajat">SD / sederajat</option>
-                                                <option value="SMP / sederajat">SMP / sederajat</option>
-                                                <option value="SMA / sederajat">SMA / sederajat</option>
-                                                <option value="D1">D1</option>
-                                                <option value="D2">D2</option>
-                                                <option value="D3">D3</option>
-                                                <option value="D4">D4</option>
-                                                <option value="S1">S1</option>
-                                                <option value="S2">S2</option>
-                                                <option value="S3">S3</option>
-                                                <option value="Sudah meninggal">Sudah meninggal</option>
-                                            </select></div>
-                                        <div class="mb-2"><label class="small fw-bold">Penghasilan</label><select
-                                                name="hasil_ayah" id="du_hasil_ayah" class="form-select">
-                                                <option value="">- Pilih -</option>
-                                                <option value="Tidak Berpenghasilan">Tidak Berpenghasilan</option>
-                                                <option value="0-500rb">0-500rb</option>
-                                                <option value="500-1jt">500-1jt</option>
-                                                <option value="1-2jt">1-2jt</option>
-                                                <option value="2-5jt">2-5jt</option>
-                                                <option value="5-10jt">5-10jt</option>
-                                                <option value=">10jt">>10jt</option>
-                                            </select></div>
-                                        <div class="mb-2"><label class="small fw-bold">Status</label><select
-                                                name="status_ayah" id="du_status_ayah" class="form-select">
-                                                <option value="">- Pilih -</option>
-                                                <option value="Masih hidup">Masih hidup</option>
-                                                <option value="Meninggal">Meninggal</option>
-                                            </select></div>
-                                    </div>
-                                    <div class="col-md-4 border-end">
-                                        <h6 class="text-primary fw-bold mb-3">DATA IBU</h6>
-                                        <div class="mb-2"><label class="small fw-bold">*Nama Ibu</label><input
-                                                name="nama_ibu" id="du_nama_ibu" class="form-control"
-                                                oninput="this.value = this.value.toUpperCase()" required></div>
-                                        <div class="mb-2"><label class="small fw-bold">*Tgl. Lahir Ibu</label><input
-                                                type="date" name="tgllahir_ibu" id="du_tgllahir_ibu"
-                                                class="form-control" required></div>
-                                        <div class="mb-2"><label class="small fw-bold">*Pekerjaan</label><input
-                                                name="kerja_ibu" id="du_kerja_ibu" class="form-control" required></div>
-                                        <div class="mb-2"><label class="small fw-bold">*Pdd. Terakhir</label><select
-                                                name="pdd_ibu" id="du_pdd_ibu" class="form-select" required>
-                                                <option value="">- Pilih -</option>
-                                                <option value="Tidak sekolah">Tidak sekolah</option>
-                                                <option value="Putus SD">Putus SD</option>
-                                                <option value="SD / sederajat">SD / sederajat</option>
-                                                <option value="SMP / sederajat">SMP / sederajat</option>
-                                                <option value="SMA / sederajat">SMA / sederajat</option>
-                                                <option value="D1">D1</option>
-                                                <option value="D2">D2</option>
-                                                <option value="D3">D3</option>
-                                                <option value="D4">D4</option>
-                                                <option value="S1">S1</option>
-                                                <option value="S2">S2</option>
-                                                <option value="S3">S3</option>
-                                                <option value="Sudah meninggal">Sudah meninggal</option>
-                                            </select></div>
-                                        <div class="mb-2"><label class="small fw-bold">*Penghasilan</label><select
-                                                name="hasil_ibu" id="du_hasil_ibu" class="form-select" required>
-                                                <option value="">- Pilih -</option>
-                                                <option value="Tidak Berpenghasilan">Tidak Berpenghasilan</option>
-                                                <option value="0-500rb">0-500rb</option>
-                                                <option value="500-1jt">500-1jt</option>
-                                                <option value="1-2jt">1-2jt</option>
-                                                <option value="2-5jt">2-5jt</option>
-                                                <option value="5-10jt">5-10jt</option>
-                                                <option value=">10jt">>10jt</option>
-                                            </select></div>
-                                        <div class="mb-2"><label class="small fw-bold">*Status</label><select
-                                                name="status_ibu" id="du_status_ibu" class="form-select" required>
-                                                <option value="">- Pilih -</option>
-                                                <option value="Masih hidup">Masih hidup</option>
-                                                <option value="Meninggal">Meninggal</option>
-                                            </select></div>
-                                    </div>
-                                    <div class="col-md-4">
-                                        <h6 class="text-primary fw-bold mb-3">DATA WALI</h6>
-                                        <div class="mb-2"><label class="small fw-bold">Nama Wali</label><input
-                                                name="nama_wali" id="du_nama_wali" class="form-control"
-                                                oninput="this.value = this.value.toUpperCase()"></div>
-                                        <div class="mb-2"><label class="small fw-bold">Tgl. Lahir Wali</label><input
-                                                type="date" name="tgllahir_wali" id="du_tgllahir_wali"
-                                                class="form-control"></div>
-                                        <div class="mb-2"><label class="small fw-bold">Pekerjaan Wali</label><input
-                                                name="kerja_wali" id="du_kerja_wali" class="form-control"></div>
-                                        <div class="mb-2"><label class="small fw-bold">Pdd. Terakhir</label><select
-                                                name="pdd_wali" id="du_pdd_wali" class="form-select">
-                                                <option value="">- Pilih -</option>
-                                                <option value="Tidak sekolah">Tidak sekolah</option>
-                                                <option value="Putus SD">Putus SD</option>
-                                                <option value="SD / sederajat">SD / sederajat</option>
-                                                <option value="SMP / sederajat">SMP / sederajat</option>
-                                                <option value="SMA / sederajat">SMA / sederajat</option>
-                                                <option value="D1">D1</option>
-                                                <option value="D2">D2</option>
-                                                <option value="D3">D3</option>
-                                                <option value="D4">D4</option>
-                                                <option value="S1">S1</option>
-                                                <option value="S2">S2</option>
-                                                <option value="S3">S3</option>
-                                                <option value="Sudah meninggal">Sudah meninggal</option>
-                                            </select></div>
-                                        <div class="mb-2"><label class="small fw-bold">Penghasilan</label><select
-                                                name="hasil_wali" id="du_hasil_wali" class="form-select">
-                                                <option value="">- Pilih -</option>
-                                                <option value="Tidak Berpenghasilan">Tidak Berpenghasilan</option>
-                                                <option value="0-500rb">0-500rb</option>
-                                                <option value="500-1jt">500-1jt</option>
-                                                <option value="1-2jt">1-2jt</option>
-                                                <option value="2-5jt">2-5jt</option>
-                                                <option value="5-10jt">5-10jt</option>
-                                                <option value=">10jt">>10jt</option>
-                                            </select></div>
-                                        <div class="mb-2"><label class="small fw-bold">Status</label><select
-                                                name="status_wali" id="du_status_wali" class="form-select">
-                                                <option value="">- Pilih -</option>
-                                                <option value="Masih hidup">Masih hidup</option>
-                                                <option value="Meninggal">Meninggal</option>
-                                            </select></div>
-                                    </div>
+                                <div class="col-md-7">
+                                    <label class="form-label small fw-bold">*Nama Lengkap (sesuai Ijazah)</label>
+                                    <input name="nama" id="du_nama" class="form-control fw-bold border-primary" required
+                                        placeholder="Nama Lengkap Pendaftar"
+                                        oninput="this.value = this.value.toUpperCase()">
                                 </div>
-                            </div>
-
-                            <div class="tab-pane fade" id="du_t4">
-                                <div class="row g-3">
-                                    <div class="col-md-4">
-                                        <label class="small fw-bold">*Jenjang Kls Masuk</label>
-                                        <select name="kls_masuk" id="du_kls_masuk" class="form-select" required>
-                                            <option value="">- Pilih -</option>
-                                            <option value="I">I</option>
-                                            <option value="II">II</option>
-                                            <option value="III">III</option>
-                                            <option value="IV">IV</option>
-                                            <option value="V">V</option>
-                                            <option value="VI">VI</option>
-                                            <option value="VII">VII</option>
-                                            <option value="VIII">VIII</option>
-                                            <option value="IX">IX</option>
-                                            <option value="X">X</option>
-                                            <option value="XI">XI</option>
-                                            <option value="XII">XII</option>
-                                        </select>
-                                    </div>
-                                    <div class="col-md-4">
-                                        <label class="small fw-bold text-primary">Kelas Saat Ini</label>
-                                        <input name="kls_saat_ini" id="du_kls_saat_ini"
-                                            class="form-control border-primary shadow-sm" placeholder="Cth: XI IPA 1">
-                                    </div>
-                                    <div class="col-md-4">
-                                        <label class="small fw-bold">Tgl. Masuk</label>
-                                        <input type="date" name="tgl_masuk" id="du_tgl_masuk" class="form-control">
-                                    </div>
-                                    <div class="col-md-4"><label class="small fw-bold">Pindahan dari</label><input
-                                            name="pindahan" id="du_pindahan" class="form-control"></div>
-                                    <div class="col-md-4"><label class="small fw-bold">*Lulusan dari</label><input
-                                            name="lulusan" id="du_lulusan" class="form-control" required></div>
-                                    <div class="col-md-4"><label class="small fw-bold">No. Ijazah Jenjang
-                                            Sebelumnya</label><input name="noijazah_sltp" id="du_noijazah_sltp"
-                                            class="form-control"></div>
-                                    <!-- Status Akhir sengaja dihilangkan dari form SPMB -->
+                                <div class="col-md-4">
+                                    <label class="form-label small fw-bold">*NIK</label>
+                                    <input name="nik" id="du_nik" class="form-control" placeholder="16 digit angka"
+                                        oninput="batasiAngka(this, 16, 'NIK')" onblur="cekDigitPas(this, 16, 'NIK')"
+                                        required>
                                 </div>
-                            </div>
-
-                            <div class="tab-pane fade" id="du_t5">
-                                <!-- KOTAK UPLOAD BERKAS -->
-                                <div class="card p-4 mb-4 border-0 shadow-sm"
-                                    style="border-left: 5px solid #f6c23e !important;" id="du_berkas_upload">
-                                    <h6 class="fw-bold text-warning border-bottom pb-2"><i
-                                            class="bi bi-file-earmark-arrow-up"></i> Unggah Berkas Pendukung (Maks.
-                                        300KB/file)</h6>
-                                    <div class="row g-3">
-                                        <div class="col-md-3">
-                                            <label class="small fw-bold mb-2">Foto Masuk (3:4)</label>
-                                            <div class="input-group input-group-sm mb-2 shadow-sm">
-                                                <input type="file" class="form-control" id="du_file_foto_masuk" accept=".jpg,.jpeg,.png"
-                                                    onchange="cropImage(this, 'du_masuk')">
-                                                <button type="button" class="btn btn-outline-danger"
-                                                    onclick="hapusFotoSiswa('du_masuk', 'du_id_foto_masuk', 'du_prev_masuk')"
-                                                    title="Hapus Foto"><i class="bi bi-trash"></i></button>
-                                            </div>
-                                            <input type="hidden" name="id_foto_masuk" id="du_id_foto_masuk">
-                                            <div class="d-flex justify-content-center">
-                                                <img id="du_prev_masuk" class="student-photo hidden"
-                                                    style="width: 80px !important; height: 106px !important; border-radius: 6px;">
-                                            </div>
-                                        </div>
-                                        <div class="col-md-9">
-                                            <div class="row g-3">
-                                                <div class="col-md-6">
-                                                    <label class="small fw-bold text-muted">Ijazah / SKL
-                                                        (Opsional)</label>
-                                                    <input type="file" id="file_ijazah"
-                                                        accept="application/pdf,image/jpeg,image/png"
-                                                        class="form-control form-control-sm"
-                                                        onchange="checkFileSize(this)">
-                                                </div>
-                                                <div class="col-md-6">
-                                                    <label class="small fw-bold text-muted">Kartu Keluarga
-                                                        (Opsional)</label>
-                                                    <input type="file" id="file_kk"
-                                                        accept="application/pdf,image/jpeg,image/png"
-                                                        class="form-control form-control-sm"
-                                                        onchange="prosesOCRDokumen(this)">
-                                                </div>
-                                                <div class="col-md-6">
-                                                    <label class="small fw-bold text-muted">Akta Kelahiran
-                                                        (Opsional)</label>
-                                                    <input type="file" id="file_akta"
-                                                        accept="application/pdf,image/jpeg,image/png"
-                                                        class="form-control form-control-sm"
-                                                        onchange="checkFileSize(this)">
-                                                </div>
-                                                <div class="col-md-6">
-                                                    <label class="small fw-bold text-muted">Bukti SPMB
-                                                        (Opsional)</label>
-                                                    <input type="file" id="file_bukti"
-                                                        accept="application/pdf,image/jpeg,image/png"
-                                                        class="form-control form-control-sm"
-                                                        onchange="checkFileSize(this)">
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
+                                <div class="col-md-4">
+                                    <label class="form-label small fw-bold">*No. KK</label>
+                                    <input name="nokk" id="du_nokk" class="form-control" placeholder="16 digit angka"
+                                        oninput="batasiAngka(this, 16, 'No. KK')"
+                                        onblur="cekDigitPas(this, 16, 'No. KK')" required>
                                 </div>
 
-                                <!-- KOTAK VIEW BERKAS (Hanya Muncul Saat Admin Klik Logo Mata) -->
-                                <div class="card p-4 mb-4 border-0 shadow-sm hidden"
-                                    style="border-left: 5px solid #36b9cc !important;" id="du_berkas_view">
-                                    <h6 class="fw-bold text-info border-bottom pb-2"><i class="bi bi-folder-check"></i>
-                                        Dokumen Pendaftar (Klik untuk melihat)</h6>
-                                    <div class="d-flex gap-2 flex-wrap mt-2" id="du_berkas_links">
-                                        <!-- Link akan digenerate otomatis -->
-                                    </div>
+                                <div class="col-md-4"><label class="form-label small fw-bold">*Agama</label>
+                                    <select name="agama" id="du_agama" class="form-select" required>
+                                        <option value="">- Pilih -</option>
+                                        <option value="Islam">Islam</option>
+                                        <option value="Kristen">Kristen</option>
+                                        <option value="Katolik">Katolik</option>
+                                        <option value="Hindu">Hindu</option>
+                                        <option value="Buddha">Buddha</option>
+                                        <option value="Khonghucu">Khonghucu</option>
+                                    </select>
                                 </div>
-                            </div>
-
-                            <div class="tab-pane fade" id="du_t6">
-                                <div class="row g-3">
-                                    <div class="col-md-4"><label class="form-label small fw-bold">Penerima KIP</label>
-                                        <select name="penerima_kip" id="du_penerima_kip" class="form-select"
-                                            onchange="toggleBantuanFields(this.form)">
-                                            <option value="Tidak">Tidak</option>
-                                            <option value="Ya">Ya</option>
-                                        </select>
-                                    </div>
-                                    <div class="col-md-4 d-none" data-kip-field><label
-                                            class="form-label small fw-bold">Nomor KIP</label><input name="no_kip"
-                                            id="du_no_kip" class="form-control"></div>
-                                    <div class="col-md-4 d-none" data-kip-field><label
-                                            class="form-label small fw-bold">Nama di KIP</label><input name="nama_kip"
-                                            id="du_nama_kip" class="form-control"></div>
-                                    <div class="col-md-4 d-none" data-kip-field><label
-                                            class="form-label small fw-bold">Nomor KKS</label><input name="no_kks"
-                                            id="du_no_kks" class="form-control"></div>
-                                    <div class="col-md-4"><label class="form-label small fw-bold">Penerima KPS</label>
-                                        <select name="penerima_kps" id="du_penerima_kps" class="form-select"
-                                            onchange="toggleBantuanFields(this.form)">
-                                            <option value="Tidak">Tidak</option>
-                                            <option value="Ya">Ya</option>
-                                        </select>
-                                    </div>
-                                    <div class="col-md-4" data-kps-field><label class="form-label small fw-bold">Nomor
-                                            KPS</label><input name="no_kps" id="du_no_kps" class="form-control"></div>
-                                    <div class="col-12">
-                                        <hr>
-                                        <h6 class="text-primary fw-bold">Data Bank</h6>
-                                    </div>
-                                    <div class="col-md-4"><label class="form-label small fw-bold">Nama
-                                            Bank</label><input name="nama_bank" id="du_nama_bank" class="form-control">
-                                    </div>
-                                    <div class="col-md-4"><label class="form-label small fw-bold">Nomor Rekening
-                                            Bank</label><input name="no_rekening_bank" id="du_no_rekening_bank"
-                                            class="form-control"></div>
-                                    <div class="col-md-4"><label class="form-label small fw-bold">Rekening Atas
-                                            Nama</label><input name="rekening_atas_nama" id="du_rekening_atas_nama"
-                                            class="form-control"></div>
+                                <div class="col-md-4"><label class="form-label small fw-bold">*Tempat
+                                        Lahir</label><input name="tmplahir" id="du_tmplahir" class="form-control"
+                                        oninput="this.value = this.value.toUpperCase()" required></div>
+                                <div class="col-md-4"><label class="form-label small fw-bold">*Tanggal
+                                        Lahir</label><input type="date" name="tgllahir" id="du_tgllahir"
+                                        class="form-control" required></div>
+                                <div class="col-md-4"><label class="form-label small fw-bold">*Jenis Kelamin</label>
+                                    <select name="jk" id="du_jk" class="form-select" required>
+                                        <option value="L">Laki-laki</option>
+                                        <option value="P">Perempuan</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-4">
+                                    <label class="form-label small fw-bold">No. Reg Akta Lahir</label>
+                                    <input name="no_reg_akta" id="du_no_reg_akta" class="form-control">
+                                </div>
+                                <div class="col-md-4">
+                                    <label class="form-label small fw-bold">Kewarganegaraan</label>
+                                    <select name="kewarganegaraan" id="du_kewarganegaraan" class="form-select">
+                                        <option value="WNI">WNI</option>
+                                        <option value="WNA">WNA</option>
+                                    </select>
                                 </div>
                             </div>
                         </div>
 
+                        <div class="tab-pane fade" id="du_t2">
+                            <div class="row g-3">
+                                <div class="col-md-12"><label class="form-label small fw-bold">*Alamat
+                                        Lengkap</label><textarea name="alamat" id="du_alamat" class="form-control"
+                                        rows="2" required></textarea></div>
+                                <div class="col-md-6"><label class="form-label small fw-bold">*No.
+                                        HP/WA</label><input name="nohp" id="du_nohp" class="form-control" required>
+                                </div>
+                                <div class="col-md-6"><label class="form-label small fw-bold">*Email
+                                        Aktif</label><input type="email" name="email" id="du_email" class="form-control"
+                                        required></div>
+                                <div class="col-md-3"><label class="form-label small fw-bold">*Anak Ke</label><input
+                                        name="anakke" id="du_anakke" class="form-control" required></div>
+                                <div class="col-md-3"><label class="form-label small fw-bold">*Jml.
+                                        Bersaudara</label><input name="jmlsdr" id="du_jmlsdr" class="form-control"
+                                        required></div>
+                                <div class="col-md-3"><label class="form-label small fw-bold">*Tinggi
+                                        (Cm)</label><input name="tinggi" id="du_tinggi" class="form-control" required>
+                                </div>
+                                <div class="col-md-3"><label class="form-label small fw-bold">*Berat
+                                        (Kg)</label><input name="berat" id="du_berat" class="form-control" required>
+                                </div>
+                                <div class="col-md-3"><label class="form-label small fw-bold">*Gol. Darah</label>
+                                    <select name="goldar" id="du_goldar" class="form-select" required>
+                                        <option value="-">-</option>
+                                        <option value="A">A</option>
+                                        <option value="B">B</option>
+                                        <option value="AB">AB</option>
+                                        <option value="O">O</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-3"><label class="form-label small fw-bold">*Jarak
+                                        (Km)</label><input name="jarak" id="du_jarak" class="form-control" required>
+                                </div>
+                                <div class="col-md-3"><label class="form-label small fw-bold">*Transportasi</label>
+                                    <select name="transport" id="du_transport" class="form-select" required>
+                                        <option value="">- Pilih -</option>
+                                        <option value="Jalan kaki">Jalan kaki</option>
+                                        <option value="Sepeda">Sepeda</option>
+                                        <option value="Sepeda Motor">Sepeda Motor</option>
+                                        <option value="Mobil/bus antar jemput">Mobil/bus antar jemput</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-3"><label class="form-label small fw-bold">*Bahasa
+                                        sehari-hari</label><input name="bahasa" id="du_bahasa" class="form-control"
+                                        required></div>
+                                <div class="col-md-6"><label class="form-label small fw-bold">*Hobby</label><input
+                                        name="hobby" id="du_hobby" class="form-control" required></div>
+                                <div class="col-md-6"><label class="form-label small fw-bold">Penyakit (kosongkan
+                                        jika tidak ada)</label><input name="penyakit" id="du_penyakit"
+                                        class="form-control"></div>
+                                <div class="col-md-3"><label class="form-label small fw-bold">Berkebutuhan
+                                        Khusus</label>
+                                    <select name="berkebutuhan_khusus" id="du_berkebutuhan_khusus" class="form-select"
+                                        onchange="toggleKebutuhanKhusus(this, this.form)">
+                                        <option value="Tidak">Tidak</option>
+                                        <option value="Ya">Ya</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-3 d-none" data-kebutuhan-field><label
+                                        class="form-label small fw-bold">Jenis Kebutuhan</label>
+                                    <select name="jenis_kebutuhan_khusus" id="du_jenis_kebutuhan_khusus"
+                                        class="form-select">
+                                        <option value="">- Pilih -</option>
+                                        <option>Tunanetra</option>
+                                        <option>Tunarungu</option>
+                                        <option>Tunagrahita</option>
+                                        <option>Tunadaksa</option>
+                                        <option>Tunalaras</option>
+                                        <option>Kesulitan belajar</option>
+                                        <option>Lamban belajar</option>
+                                        <option>Autis</option>
+                                        <option>Gangguan komunikasi</option>
+                                        <option>Hiperaktif</option>
+                                        <option>Cerdas istimewa</option>
+                                        <option>Bakat istimewa</option>
+                                        <option>Down syndrome</option>
+                                        <option>Lainnya</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="tab-pane fade" id="du_t3">
+                            <div class="row g-3">
+                                <div class="col-md-4 border-end">
+                                    <h6 class="text-primary fw-bold mb-3">DATA AYAH</h6>
+                                    <div class="mb-2"><label class="small fw-bold">Nama Ayah</label><input
+                                            name="nama_ayah" id="du_nama_ayah" class="form-control"
+                                            oninput="this.value = this.value.toUpperCase()"></div>
+                                    <div class="mb-2"><label class="small fw-bold">Tgl. Lahir Ayah</label><input
+                                            type="date" name="tgllahir_ayah" id="du_tgllahir_ayah" class="form-control">
+                                    </div>
+                                    <div class="mb-2"><label class="small fw-bold">Pekerjaan</label><input
+                                            name="kerja_ayah" id="du_kerja_ayah" class="form-control"></div>
+                                    <div class="mb-2"><label class="small fw-bold">Pdd. Terakhir</label><select
+                                            name="pdd_ayah" id="du_pdd_ayah" class="form-select">
+                                            <option value="">- Pilih -</option>
+                                            <option value="Tidak sekolah">Tidak sekolah</option>
+                                            <option value="Putus SD">Putus SD</option>
+                                            <option value="SD / sederajat">SD / sederajat</option>
+                                            <option value="SMP / sederajat">SMP / sederajat</option>
+                                            <option value="SMA / sederajat">SMA / sederajat</option>
+                                            <option value="D1">D1</option>
+                                            <option value="D2">D2</option>
+                                            <option value="D3">D3</option>
+                                            <option value="D4">D4</option>
+                                            <option value="S1">S1</option>
+                                            <option value="S2">S2</option>
+                                            <option value="S3">S3</option>
+                                            <option value="Sudah meninggal">Sudah meninggal</option>
+                                        </select></div>
+                                    <div class="mb-2"><label class="small fw-bold">Penghasilan</label><select
+                                            name="hasil_ayah" id="du_hasil_ayah" class="form-select">
+                                            <option value="">- Pilih -</option>
+                                            <option value="Tidak Berpenghasilan">Tidak Berpenghasilan</option>
+                                            <option value="0-500rb">0-500rb</option>
+                                            <option value="500-1jt">500-1jt</option>
+                                            <option value="1-2jt">1-2jt</option>
+                                            <option value="2-5jt">2-5jt</option>
+                                            <option value="5-10jt">5-10jt</option>
+                                            <option value=">10jt">>10jt</option>
+                                        </select></div>
+                                    <div class="mb-2"><label class="small fw-bold">Status</label><select
+                                            name="status_ayah" id="du_status_ayah" class="form-select">
+                                            <option value="">- Pilih -</option>
+                                            <option value="Masih hidup">Masih hidup</option>
+                                            <option value="Meninggal">Meninggal</option>
+                                        </select></div>
+                                </div>
+                                <div class="col-md-4 border-end">
+                                    <h6 class="text-primary fw-bold mb-3">DATA IBU</h6>
+                                    <div class="mb-2"><label class="small fw-bold">*Nama Ibu</label><input
+                                            name="nama_ibu" id="du_nama_ibu" class="form-control"
+                                            oninput="this.value = this.value.toUpperCase()" required></div>
+                                    <div class="mb-2"><label class="small fw-bold">*Tgl. Lahir Ibu</label><input
+                                            type="date" name="tgllahir_ibu" id="du_tgllahir_ibu" class="form-control"
+                                            required></div>
+                                    <div class="mb-2"><label class="small fw-bold">*Pekerjaan</label><input
+                                            name="kerja_ibu" id="du_kerja_ibu" class="form-control" required></div>
+                                    <div class="mb-2"><label class="small fw-bold">*Pdd. Terakhir</label><select
+                                            name="pdd_ibu" id="du_pdd_ibu" class="form-select" required>
+                                            <option value="">- Pilih -</option>
+                                            <option value="Tidak sekolah">Tidak sekolah</option>
+                                            <option value="Putus SD">Putus SD</option>
+                                            <option value="SD / sederajat">SD / sederajat</option>
+                                            <option value="SMP / sederajat">SMP / sederajat</option>
+                                            <option value="SMA / sederajat">SMA / sederajat</option>
+                                            <option value="D1">D1</option>
+                                            <option value="D2">D2</option>
+                                            <option value="D3">D3</option>
+                                            <option value="D4">D4</option>
+                                            <option value="S1">S1</option>
+                                            <option value="S2">S2</option>
+                                            <option value="S3">S3</option>
+                                            <option value="Sudah meninggal">Sudah meninggal</option>
+                                        </select></div>
+                                    <div class="mb-2"><label class="small fw-bold">*Penghasilan</label><select
+                                            name="hasil_ibu" id="du_hasil_ibu" class="form-select" required>
+                                            <option value="">- Pilih -</option>
+                                            <option value="Tidak Berpenghasilan">Tidak Berpenghasilan</option>
+                                            <option value="0-500rb">0-500rb</option>
+                                            <option value="500-1jt">500-1jt</option>
+                                            <option value="1-2jt">1-2jt</option>
+                                            <option value="2-5jt">2-5jt</option>
+                                            <option value="5-10jt">5-10jt</option>
+                                            <option value=">10jt">>10jt</option>
+                                        </select></div>
+                                    <div class="mb-2"><label class="small fw-bold">*Status</label><select
+                                            name="status_ibu" id="du_status_ibu" class="form-select" required>
+                                            <option value="">- Pilih -</option>
+                                            <option value="Masih hidup">Masih hidup</option>
+                                            <option value="Meninggal">Meninggal</option>
+                                        </select></div>
+                                </div>
+                                <div class="col-md-4">
+                                    <h6 class="text-primary fw-bold mb-3">DATA WALI</h6>
+                                    <div class="mb-2"><label class="small fw-bold">Nama Wali</label><input
+                                            name="nama_wali" id="du_nama_wali" class="form-control"
+                                            oninput="this.value = this.value.toUpperCase()"></div>
+                                    <div class="mb-2"><label class="small fw-bold">Tgl. Lahir Wali</label><input
+                                            type="date" name="tgllahir_wali" id="du_tgllahir_wali" class="form-control">
+                                    </div>
+                                    <div class="mb-2"><label class="small fw-bold">Pekerjaan Wali</label><input
+                                            name="kerja_wali" id="du_kerja_wali" class="form-control"></div>
+                                    <div class="mb-2"><label class="small fw-bold">Pdd. Terakhir</label><select
+                                            name="pdd_wali" id="du_pdd_wali" class="form-select">
+                                            <option value="">- Pilih -</option>
+                                            <option value="Tidak sekolah">Tidak sekolah</option>
+                                            <option value="Putus SD">Putus SD</option>
+                                            <option value="SD / sederajat">SD / sederajat</option>
+                                            <option value="SMP / sederajat">SMP / sederajat</option>
+                                            <option value="SMA / sederajat">SMA / sederajat</option>
+                                            <option value="D1">D1</option>
+                                            <option value="D2">D2</option>
+                                            <option value="D3">D3</option>
+                                            <option value="D4">D4</option>
+                                            <option value="S1">S1</option>
+                                            <option value="S2">S2</option>
+                                            <option value="S3">S3</option>
+                                            <option value="Sudah meninggal">Sudah meninggal</option>
+                                        </select></div>
+                                    <div class="mb-2"><label class="small fw-bold">Penghasilan</label><select
+                                            name="hasil_wali" id="du_hasil_wali" class="form-select">
+                                            <option value="">- Pilih -</option>
+                                            <option value="Tidak Berpenghasilan">Tidak Berpenghasilan</option>
+                                            <option value="0-500rb">0-500rb</option>
+                                            <option value="500-1jt">500-1jt</option>
+                                            <option value="1-2jt">1-2jt</option>
+                                            <option value="2-5jt">2-5jt</option>
+                                            <option value="5-10jt">5-10jt</option>
+                                            <option value=">10jt">>10jt</option>
+                                        </select></div>
+                                    <div class="mb-2"><label class="small fw-bold">Status</label><select
+                                            name="status_wali" id="du_status_wali" class="form-select">
+                                            <option value="">- Pilih -</option>
+                                            <option value="Masih hidup">Masih hidup</option>
+                                            <option value="Meninggal">Meninggal</option>
+                                        </select></div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="tab-pane fade" id="du_t4">
+                            <div class="row g-3">
+                                <div class="col-md-4">
+                                    <label class="small fw-bold">*Jenjang Kls Masuk</label>
+                                    <select name="kls_masuk" id="du_kls_masuk" class="form-select" required>
+                                        <option value="">- Pilih -</option>
+                                        <option value="I">I</option>
+                                        <option value="II">II</option>
+                                        <option value="III">III</option>
+                                        <option value="IV">IV</option>
+                                        <option value="V">V</option>
+                                        <option value="VI">VI</option>
+                                        <option value="VII">VII</option>
+                                        <option value="VIII">VIII</option>
+                                        <option value="IX">IX</option>
+                                        <option value="X">X</option>
+                                        <option value="XI">XI</option>
+                                        <option value="XII">XII</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-4">
+                                    <label class="small fw-bold text-primary">Kelas Saat Ini</label>
+                                    <input name="kls_saat_ini" id="du_kls_saat_ini"
+                                        class="form-control border-primary shadow-sm" placeholder="Cth: XI IPA 1">
+                                </div>
+                                <div class="col-md-4">
+                                    <label class="small fw-bold">Tgl. Masuk</label>
+                                    <input type="date" name="tgl_masuk" id="du_tgl_masuk" class="form-control">
+                                </div>
+                                <div class="col-md-4"><label class="small fw-bold">Pindahan dari</label><input
+                                        name="pindahan" id="du_pindahan" class="form-control"></div>
+                                <div class="col-md-4"><label class="small fw-bold">*Lulusan dari</label><input
+                                        name="lulusan" id="du_lulusan" class="form-control" required></div>
+                                <div class="col-md-4"><label class="small fw-bold">No. Ijazah Jenjang
+                                        Sebelumnya</label><input name="noijazah_sltp" id="du_noijazah_sltp"
+                                        class="form-control"></div>
+                                <!-- Status Akhir sengaja dihilangkan dari form SPMB -->
+                            </div>
+                        </div>
+
+                        <div class="tab-pane fade" id="du_t5">
+                            <!-- KOTAK UPLOAD BERKAS -->
+                            <div class="card p-4 mb-4 border-0 shadow-sm"
+                                style="border-left: 5px solid #f6c23e !important;" id="du_berkas_upload">
+                                <h6 class="fw-bold text-warning border-bottom pb-2"><i
+                                        class="bi bi-file-earmark-arrow-up"></i> Unggah Berkas Pendukung (Maks.
+                                    300KB/file)</h6>
+                                <div class="row g-3">
+                                    <div class="col-md-3">
+                                        <label class="small fw-bold mb-2">Foto Masuk (3:4)</label>
+                                        <div class="input-group input-group-sm mb-2 shadow-sm">
+                                            <input type="file" class="form-control" id="du_file_foto_masuk"
+                                                accept=".jpg,.jpeg,.png" onchange="cropImage(this, 'du_masuk')">
+                                            <button type="button" class="btn btn-outline-danger"
+                                                onclick="hapusFotoSiswa('du_masuk', 'du_id_foto_masuk', 'du_prev_masuk')"
+                                                title="Hapus Foto"><i class="bi bi-trash"></i></button>
+                                        </div>
+                                        <input type="hidden" name="id_foto_masuk" id="du_id_foto_masuk">
+                                        <div class="d-flex justify-content-center">
+                                            <img id="du_prev_masuk" class="student-photo hidden"
+                                                style="width: 80px !important; height: 106px !important; border-radius: 6px;">
+                                        </div>
+                                    </div>
+                                    <div class="col-md-9">
+                                        <div class="row g-3">
+                                            <div class="col-md-6">
+                                                <label class="small fw-bold text-muted">Ijazah / SKL
+                                                    (Opsional)</label>
+                                                <input type="file" id="file_ijazah"
+                                                    accept="application/pdf,image/jpeg,image/png"
+                                                    class="form-control form-control-sm" onchange="checkFileSize(this)">
+                                            </div>
+                                            <div class="col-md-6">
+                                                <label class="small fw-bold text-muted">Kartu Keluarga
+                                                    (Opsional)</label>
+                                                <input type="file" id="file_kk"
+                                                    accept="application/pdf,image/jpeg,image/png"
+                                                    class="form-control form-control-sm"
+                                                    onchange="prosesOCRDokumen(this)">
+                                            </div>
+                                            <div class="col-md-6">
+                                                <label class="small fw-bold text-muted">Akta Kelahiran
+                                                    (Opsional)</label>
+                                                <input type="file" id="file_akta"
+                                                    accept="application/pdf,image/jpeg,image/png"
+                                                    class="form-control form-control-sm" onchange="checkFileSize(this)">
+                                            </div>
+                                            <div class="col-md-6">
+                                                <label class="small fw-bold text-muted">Bukti SPMB
+                                                    (Opsional)</label>
+                                                <input type="file" id="file_bukti"
+                                                    accept="application/pdf,image/jpeg,image/png"
+                                                    class="form-control form-control-sm" onchange="checkFileSize(this)">
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- KOTAK VIEW BERKAS (Hanya Muncul Saat Admin Klik Logo Mata) -->
+                            <div class="card p-4 mb-4 border-0 shadow-sm hidden"
+                                style="border-left: 5px solid #36b9cc !important;" id="du_berkas_view">
+                                <h6 class="fw-bold text-info border-bottom pb-2"><i class="bi bi-folder-check"></i>
+                                    Dokumen Pendaftar (Klik untuk melihat)</h6>
+                                <div class="d-flex gap-2 flex-wrap mt-2" id="du_berkas_links">
+                                    <!-- Link akan digenerate otomatis -->
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="tab-pane fade" id="du_t6">
+                            <div class="row g-3">
+                                <div class="col-md-4"><label class="form-label small fw-bold">Penerima KIP</label>
+                                    <select name="penerima_kip" id="du_penerima_kip" class="form-select"
+                                        onchange="toggleBantuanFields(this.form)">
+                                        <option value="Tidak">Tidak</option>
+                                        <option value="Ya">Ya</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-4 d-none" data-kip-field><label
+                                        class="form-label small fw-bold">Nomor KIP</label><input name="no_kip"
+                                        id="du_no_kip" class="form-control"></div>
+                                <div class="col-md-4 d-none" data-kip-field><label class="form-label small fw-bold">Nama
+                                        di KIP</label><input name="nama_kip" id="du_nama_kip" class="form-control">
+                                </div>
+                                <div class="col-md-4 d-none" data-kip-field><label
+                                        class="form-label small fw-bold">Nomor KKS</label><input name="no_kks"
+                                        id="du_no_kks" class="form-control"></div>
+                                <div class="col-md-4"><label class="form-label small fw-bold">Penerima KPS</label>
+                                    <select name="penerima_kps" id="du_penerima_kps" class="form-select"
+                                        onchange="toggleBantuanFields(this.form)">
+                                        <option value="Tidak">Tidak</option>
+                                        <option value="Ya">Ya</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-4" data-kps-field><label class="form-label small fw-bold">Nomor
+                                        KPS</label><input name="no_kps" id="du_no_kps" class="form-control"></div>
+                                <div class="col-12">
+                                    <hr>
+                                    <h6 class="text-primary fw-bold">Data Bank</h6>
+                                </div>
+                                <div class="col-md-4"><label class="form-label small fw-bold">Nama
+                                        Bank</label><input name="nama_bank" id="du_nama_bank" class="form-control">
+                                </div>
+                                <div class="col-md-4"><label class="form-label small fw-bold">Nomor Rekening
+                                        Bank</label><input name="no_rekening_bank" id="du_no_rekening_bank"
+                                        class="form-control"></div>
+                                <div class="col-md-4"><label class="form-label small fw-bold">Rekening Atas
+                                        Nama</label><input name="rekening_atas_nama" id="du_rekening_atas_nama"
+                                        class="form-control"></div>
+                            </div>
+                        </div>
                     </div>
-                    <div class="modal-footer bg-white">
-                        <button type="button" class="btn btn-danger fw-bold shadow-sm hidden me-auto"
-                            id="btnTolakDaftarUlang"><i class="bi bi-trash"></i> TOLAK & HAPUS</button>
-                        <button type="button" class="btn btn-light border fw-bold"
-                            data-bs-dismiss="modal">Tutup</button>
-                        <button type="button" id="btnEditDaftarUlang" class="btn btn-primary fw-bold shadow-sm hidden">
-                            <i class="bi bi-pencil"></i> Edit
-                        </button>
-                        <button type="button" id="btnSetujuiDaftarUlang"
-                            class="btn btn-success px-4 fw-bold shadow-sm hidden">
-                            <i class="bi bi-check-circle"></i> Setujui
-                        </button>
-                        <button type="submit" id="btnSubmitDaftarUlang"
-                            class="btn btn-warning px-5 fw-bold shadow-sm text-dark">KIRIM PENDAFTARAN</button>
-                    </div>
-                </form>
-            </div>
+
+                </div>
+                <div class="modal-footer bg-white">
+                    <button type="button" class="btn btn-danger fw-bold shadow-sm hidden me-auto"
+                        id="btnTolakDaftarUlang"><i class="bi bi-trash"></i> TOLAK & HAPUS</button>
+                    <button type="button" class="btn btn-light border fw-bold" data-bs-dismiss="modal">Tutup</button>
+                    <button type="button" id="btnEditDaftarUlang" class="btn btn-primary fw-bold shadow-sm hidden">
+                        <i class="bi bi-pencil"></i> Edit
+                    </button>
+                    <button type="button" id="btnSetujuiDaftarUlang"
+                        class="btn btn-success px-4 fw-bold shadow-sm hidden">
+                        <i class="bi bi-check-circle"></i> Setujui
+                    </button>
+                    <button type="submit" id="btnSubmitDaftarUlang"
+                        class="btn btn-warning px-5 fw-bold shadow-sm text-dark">KIRIM PENDAFTARAN</button>
+                </div>
+            </form>
         </div>
     </div>
+</div>
