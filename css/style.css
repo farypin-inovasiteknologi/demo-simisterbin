@@ -1480,6 +1480,20 @@ textarea {
     }
 }
 
+/* Batasan 2 baris untuk Nama dan Tanggal Lahir di Tabel */
+.name-clamp {
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: normal;
+    min-width: 120px;
+    max-width: 160px;
+    line-height: 1.3;
+}
+
+
 /* Mobile: Buku Induk tab (Aktif/Alumni/Keluar) filter + button 1 baris */
 @media (max-width: 768px) {
     /* Siswa Aktif: filter kelas + tombol excel */
