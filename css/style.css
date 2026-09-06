@@ -1479,3 +1479,59 @@ textarea {
         flex-shrink: 0;
     }
 }
+
+/* Mobile: Buku Induk tab (Aktif/Alumni/Keluar) filter + button 1 baris */
+@media (max-width: 768px) {
+    /* Siswa Aktif: filter kelas + tombol excel */
+    #tabIndukAktif .d-flex.justify-content-between,
+    #tabIndukKeluar .d-flex.justify-content-between {
+        flex-wrap: nowrap !important;
+        gap: 5px !important;
+        align-items: center !important;
+    }
+    #filterIndukAktifKelas,
+    #filterIndukKeluarTahun {
+        flex: 1;
+        max-width: none !important;
+        width: auto !important;
+        font-size: 0.72rem !important;
+        padding: 3px 5px !important;
+    }
+
+    /* Alumni: filter tahun + label + tombol excel */
+    #tabIndukAlumni .d-flex.justify-content-between {
+        flex-wrap: nowrap !important;
+        gap: 5px !important;
+        align-items: center !important;
+    }
+    #tabIndukAlumni .d-flex.align-items-center {
+        flex: 1;
+        min-width: 0;
+        gap: 4px !important;
+    }
+    #filterTahunIndukAlumni {
+        flex: 1;
+        width: auto !important;
+        font-size: 0.72rem !important;
+        padding: 3px 5px !important;
+    }
+    #tabIndukAlumni .d-flex.align-items-center label {
+        font-size: 0.65rem !important;
+        white-space: nowrap;
+    }
+
+    /* Tombol Unduh Excel semua tab */
+    #tabIndukAktif button[onclick*="unduhTabelExcel"],
+    #tabIndukAlumni button[onclick*="unduhTabelExcel"],
+    #tabIndukKeluar button[onclick*="unduhTabelExcel"] {
+        flex-shrink: 0;
+        font-size: 0.65rem !important;
+        padding: 4px 7px !important;
+        white-space: nowrap !important;
+    }
+    #tabIndukAktif button[onclick*="unduhTabelExcel"] i,
+    #tabIndukAlumni button[onclick*="unduhTabelExcel"] i,
+    #tabIndukKeluar button[onclick*="unduhTabelExcel"] i {
+        font-size: 0.75rem;
+    }
+}
