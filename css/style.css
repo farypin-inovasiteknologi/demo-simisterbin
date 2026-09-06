@@ -425,18 +425,17 @@ textarea {
 /* Styling Efek Menu Bawah HP */
 .m-nav-item {
     color: #858796 !important;
-    transition: all 0.3s;
+    transition: color 0.2s;
     padding: 5px;
     flex-grow: 1;
 }
 
 .m-nav-item.active {
     color: var(--primary-color) !important;
-    transform: translateY(-3px);
 }
 
 .m-nav-item:active {
-    transform: scale(0.9);
+    opacity: 0.7;
 }
 
 /* Tombol Scroll Top (Dibawah Refresh) */
@@ -1449,4 +1448,34 @@ textarea {
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3) !important;
     border: 2px solid #fff !important;
     outline: 2px solid rgba(0, 0, 0, 0.1);
+}
+
+/* Mobile Adjustments for Settings Tabs */
+@media (max-width: 768px) {
+    #pills-settings {
+        display: flex !important;
+        flex-wrap: nowrap !important;
+        gap: 4px !important;
+        width: 100%;
+    }
+    #pills-settings .nav-item {
+        flex: 1 1 calc(33.33% - 4px) !important;
+        min-width: 0;
+    }
+    #pills-settings .nav-link {
+        font-size: 0.62rem !important;
+        padding: 0.3rem 0.1rem !important;
+        white-space: nowrap;
+        text-align: center;
+        display: flex !important;
+        flex-direction: row !important;
+        align-items: center !important;
+        justify-content: center !important;
+        width: 100%;
+    }
+    #pills-settings .nav-link i {
+        margin-right: 3px !important;
+        font-size: 0.85rem;
+        flex-shrink: 0;
+    }
 }
