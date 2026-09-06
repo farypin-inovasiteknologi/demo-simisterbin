@@ -1435,9 +1435,8 @@ textarea {
 
 /* Tab Active State Styling (Global for all devices) */
 .nav-pills .nav-link {
-    opacity: 0.5 !important;
-    transform: scale(0.98);
-    transition: all 0.3s ease;
+    opacity: 0.55 !important;
+    transition: opacity 0.2s ease, box-shadow 0.2s ease;
     border: 2px solid transparent !important;
 }
 
@@ -1447,7 +1446,6 @@ textarea {
 
 .nav-pills .nav-link.active {
     opacity: 1 !important;
-    transform: scale(1);
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3) !important;
     border: 2px solid #fff !important;
     outline: 2px solid rgba(0, 0, 0, 0.1);
