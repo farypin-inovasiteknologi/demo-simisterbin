@@ -157,8 +157,8 @@ async function restoreSession(res) {
             $('#botWaka').removeClass('d-none').addClass('d-flex');
             $('#botAdmin, #botSiswa').removeClass('d-flex').addClass('d-none');
 
-            // --- UBAH BARIS INI: Sembunyikan 3 ikon untuk Waka ---
-            $('#mobTopSetting, #mobTopLogout, #mobTopDaftarUlang').hide();
+            $('#mobTopSetting, #mobTopDaftarUlang').hide();
+            $('#mobTopLogout').show();
         }
 
         $('#mainSidebar').removeClass('hidden');
