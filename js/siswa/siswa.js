@@ -352,6 +352,7 @@ function bukaModalDaftarUlang() {
 
     // Tampilkan form upload, Sembunyikan form view berkas admin
     $('#du_berkas_upload').removeClass('hidden');
+    $('#du_prev_masuk').attr('src', 'data:image/gif;base64,R0lGODlhAQABAAD/ACwAAAAAAQABAAACADs='); // Reset foto preview
     $('#du_berkas_view').addClass('hidden');
 
     // Atur visibilitas tombol
@@ -425,8 +426,8 @@ function reviewDaftarUlang(noSpmb) {
     // Matikan semua kolom agar Read-Only
     $('#frmDaftarUlang input, #frmDaftarUlang select, #frmDaftarUlang textarea').prop('disabled', true);
 
-    // Sembunyikan form upload, Tampilkan view berkas
-    $('#du_berkas_upload').addClass('hidden');
+    // Tampilkan view berkas, biarkan form upload tampil (foto butuh div ini)
+    $('#du_berkas_upload').removeClass('hidden');
     $('#du_berkas_view').removeClass('hidden');
 
     // Atur tombol
@@ -1074,4 +1075,5 @@ function loadIndukKeluarByTahun() {
             $('#tbodyIndukKeluar').html(`<tr><td colspan="4" class="text-center text-danger">${res.message}</td></tr>`);
         }
     });
+
 }
