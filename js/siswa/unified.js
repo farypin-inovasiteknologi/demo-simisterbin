@@ -309,7 +309,7 @@ function renderKlaperAlphabet() {
 function renderKlaperTable() {
     const rows = unifiedSiswaData.filter(row => !klaperAbjadAktif || String(row[2] || '').trim().toUpperCase().startsWith(klaperAbjadAktif)).sort((a, b) => String(a[2] || '').localeCompare(String(b[2] || '')));
     if ($.fn.DataTable.isDataTable('#tblKlaperSiswa')) $('#tblKlaperSiswa').DataTable().clear().destroy();
-    const html = rows.map((row, index) => `<tr><td>${index + 1}</td><td>${unifiedEsc(row[0])} / ${unifiedEsc(row[1] || '-')}</td><td class="fw-bold">${unifiedEsc(row[2] || '-')}</td><td>${unifiedEsc(row[7] || '-')}</td><td>${unifiedEsc(row[5] || '-')}<br>${unifiedEsc(row[6] || '-')}</td><td>${unifiedEsc(row[20] || '-')} / ${unifiedEsc(row[23] || '-')}</td><td>${unifiedEsc(row[30] || '-')}</td><td>${unifiedEsc(row[31] || '-')}</td><td>${unifiedEsc(row[32] || '-')}</td></tr>`).join('');
+    const html = rows.map((row, index) => `<tr><td>${index + 1}</td><td>${unifiedEsc(row[0])} / ${unifiedEsc(row[1] || '-')}</td><td class="fw-bold"><div class="name-clamp">${unifiedEsc(row[2] || '-')}</div></td><td>${unifiedEsc(row[7] || '-')}</td><td>${unifiedEsc(row[5] || '-')}<br>${unifiedEsc(row[6] || '-')}</td><td>${unifiedEsc(row[20] || '-')} / ${unifiedEsc(row[23] || '-')}</td><td>${unifiedEsc(row[30] || '-')}</td><td>${unifiedEsc(row[31] || '-')}</td><td>${unifiedEsc(row[32] || '-')}</td></tr>`).join('');
     $('#tblKlaperSiswa tbody').html(html);
     $('#tblKlaperSiswa').DataTable({ pageLength: 25, language: { search: 'Cari:', lengthMenu: '_MENU_ data', info: '_START_-_END_ dari _TOTAL_', emptyTable: 'Data Kosong' } });
     renderKlaperAlphabet();
