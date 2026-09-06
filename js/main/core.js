@@ -4,7 +4,7 @@
 
 // 1. Buat "Buku Alamat" untuk masing-masing sekolah
 const tenantConfig = {
-    "demo": "https://script.google.com/macros/s/AKfycbw5JTbbySof9nBzsPlquM_Y-LZeEbIEJb5HfeLGr4eSuUDAaPpjIThOqMLeZ2-HoD0G/exec",
+    "demo": "https://script.google.com/macros/s/AKfycby1zybg1MOsIw_sqN7en_-APzN8gX1Ei8lCYTgOybubzXP-rFPfIrpUCMur1FO55fzK/exec",
     "sma1": "https://script.google.com/macros/s/ID_API_SEKOLAH_2/exec",
     "smk2": "https://script.google.com/macros/s/ID_API_SEKOLAH_3/exec"
     // Tambahkan sekolah lain di sini sesuai kebutuhan
@@ -105,8 +105,8 @@ async function callAPI(actionName, payloadData = {}) {
         if (actionName === 'getImage') {
             if (!payloadData.id) return null;
             if (String(payloadData.id).startsWith('data:')) return payloadData.id;
-            try { 
-                const localFoto = await window.electronAPI.getFoto(payloadData.id); 
+            try {
+                const localFoto = await window.electronAPI.getFoto(payloadData.id);
                 if (localFoto) return localFoto;
                 // Jika tidak ada di lokal (kemungkinan ID Drive), biarkan fall-through ke MODE ONLINE di bawah
             } catch (e) { }
@@ -127,7 +127,7 @@ async function callAPI(actionName, payloadData = {}) {
             const getImg = async (p) => {
                 if (!p) return '';
                 if (String(p).startsWith('data:')) return p;
-                try { 
+                try {
                     const lf = await window.electronAPI.getFoto(p);
                     if (lf) return lf;
                     return `https://lh3.googleusercontent.com/d/${p}`;
