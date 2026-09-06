@@ -87,13 +87,15 @@ function renderUnifiedTable(tableId, rows, leger) {
         const year = row[32] ? unifiedEsc(String(row[32]).substring(0, 4)) : '-';
         const middle = leger ? (status === 'Aktif' ? unifiedEsc(row[52] || '-') : year) : (status === 'Aktif' ? unifiedEsc(row[52] || '-') : year);
         const birthDate = unifiedEsc(row[6] || '-');
+        const namaClamp = `<div class="name-clamp">${unifiedEsc(row[2] || '-')}</div>`;
+        const tglClamp = `<div class="name-clamp">${birthDate}</div>`;
         if (tableId === 'tblUnifiedAktif') {
-            return `<tr><td>${nis}</td><td>${unifiedEsc(row[2] || '-')}</td><td>${birthDate}</td><td>${unifiedEsc(row[7] || '-')}</td><td>${middle}</td><td><span class="badge ${status === 'Aktif' ? 'bg-success' : 'bg-danger'}">${status}</span></td><td>${unifiedActions(row, leger)}</td></tr>`;
+            return `<tr><td>${nis}</td><td>${namaClamp}</td><td>${tglClamp}</td><td>${unifiedEsc(row[7] || '-')}</td><td>${middle}</td><td><span class="badge ${status === 'Aktif' ? 'bg-success' : 'bg-danger'}">${status}</span></td><td>${unifiedActions(row, leger)}</td></tr>`;
         }
         if (tableId === 'tblUnifiedKeluar') {
-            return `<tr><td>${nis}</td><td>${unifiedEsc(row[2] || '-')}</td><td>${unifiedEsc(row[7] || '-')}</td><td><span class="badge bg-danger">${status}</span></td><td>${year}</td><td>${unifiedEsc(row[54] || '-')}</td><td>${unifiedActions(row, leger)}</td></tr>`;
+            return `<tr><td>${nis}</td><td>${namaClamp}</td><td>${unifiedEsc(row[7] || '-')}</td><td><span class="badge bg-danger">${status}</span></td><td>${year}</td><td>${unifiedEsc(row[54] || '-')}</td><td>${unifiedActions(row, leger)}</td></tr>`;
         }
-        return `<tr><td>${nis}</td><td>${unifiedEsc(row[2] || '-')}</td><td>${unifiedEsc(row[7] || '-')}</td><td>${middle}</td><td><span class="badge ${status === 'Aktif' ? 'bg-success' : status === 'Lulus' ? 'bg-primary' : 'bg-danger'}">${status}</span></td><td>${unifiedActions(row, leger)}</td></tr>`;
+        return `<tr><td>${nis}</td><td>${namaClamp}</td><td>${unifiedEsc(row[7] || '-')}</td><td>${middle}</td><td><span class="badge ${status === 'Aktif' ? 'bg-success' : status === 'Lulus' ? 'bg-primary' : 'bg-danger'}">${status}</span></td><td>${unifiedActions(row, leger)}</td></tr>`;
     }).join('');
     body.html(html);
     $(`#${tableId}`).DataTable({ pageLength: 25, lengthMenu: [[10, 25, 50, 100, 200, 500, 1000], [10, 25, 50, 100, 200, 500, 1000]], language: { search: 'Cari:', searchPlaceholder: 'NIS, NISN, nama...', lengthMenu: '_MENU_ data', info: '_START_-_END_ dari _TOTAL_', emptyTable: 'Data Kosong' } });
