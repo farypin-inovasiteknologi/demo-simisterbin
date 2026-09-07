@@ -1320,7 +1320,7 @@ textarea {
 
 /* Mobile Adjustments for Data Siswa (Tabs & Cetak Kartu) */
 @media (max-width: 768px) {
-    /* 1. Tabs Siswa Aktif, Alumni, Siswa Keluar — 3 kolom 1 baris */
+    /* 1. Tabs Siswa Aktif, Alumni, Siswa Keluar, Kelas — 4 kolom 1 baris */
     #pills-data-siswa {
         display: flex !important;
         flex-wrap: nowrap !important;
@@ -1328,7 +1328,7 @@ textarea {
         width: 100%;
     }
     #pills-data-siswa .nav-item {
-        flex: 1 1 calc(33.33% - 4px) !important;
+        flex: 1 1 calc(25% - 4px) !important;
         min-width: 0;
     }
     #pills-data-siswa .nav-link {
