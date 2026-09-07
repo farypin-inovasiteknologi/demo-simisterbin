@@ -154,7 +154,7 @@ async function callAPI(actionName, payloadData = {}) {
     try {
         if (actionName === 'getImage' && payloadData && payloadData.id) {
             if (String(payloadData.id).startsWith('data:')) return payloadData.id;
-            return `https://lh3.googleusercontent.com/d/${payloadData.id}`;
+            // Removed lh3.googleusercontent.com shortcut due to Google blocking it. Will fetch base64 from GAS instead.
         }
         let session = localStorage.getItem('simisterbin_session');
         let tokenAman = "";
@@ -184,6 +184,7 @@ async function callAPI(actionName, payloadData = {}) {
         try {
             resData = JSON.parse(resText);
         } catch (_) {
+            if (actionName === 'getImage') return resText; // Return base64 string directly
             // Server mengembalikan bukan JSON (mungkin timeout/error GAS)
             console.error('[DESKTOP] API Error: Response bukan JSON:', resText);
             const cleanText = resText ? resText.trim() : '';
