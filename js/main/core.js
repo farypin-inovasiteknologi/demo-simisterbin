@@ -4,7 +4,7 @@
 
 // 1. Buat "Buku Alamat" untuk masing-masing sekolah
 const tenantConfig = {
-    "demo": "https://script.google.com/macros/s/AKfycby1zybg1MOsIw_sqN7en_-APzN8gX1Ei8lCYTgOybubzXP-rFPfIrpUCMur1FO55fzK/exec",
+    "demo": "https://script.google.com/macros/s/AKfycbwLsZ-kJOBDDYxRNR4CFU8omVl8oowBKZd8PrFmZ4HKz6-ZIIzrR3xSVMITNNaGyL6J/exec",
     "sma1": "https://script.google.com/macros/s/ID_API_SEKOLAH_2/exec",
     "smk2": "https://script.google.com/macros/s/ID_API_SEKOLAH_3/exec"
     // Tambahkan sekolah lain di sini sesuai kebutuhan
