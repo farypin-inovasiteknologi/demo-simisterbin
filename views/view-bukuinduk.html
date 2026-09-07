@@ -30,20 +30,30 @@
 
                         <div class="tab-content">
                             <div class="tab-pane fade show active" id="tabIndukNomor" role="tabpanel">
-                                <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
-                                    <div class="d-flex align-items-center gap-2 flex-wrap">
-                                        <select id="nomorIndukLength" class="form-select form-select-sm border-primary" style="width:120px" title="Jumlah data per halaman">
-                                            <option value="10">10 data</option><option value="25" selected>25 data</option><option value="50">50 data</option><option value="100">100 data</option><option value="200">200 data</option><option value="500">500 data</option><option value="1000">1000 data</option>
-                                        </select>
-                                        <label class="small fw-bold text-muted mb-0 d-none d-md-block">Urutan NIS:</label>
-                                        <select id="lapOrderBerdasarkan" class="form-select form-select-sm border-primary" style="width:190px">
-                                            <option value="NIS_ASC">NIS kecil ke besar</option>
-                                            <option value="NIS_DESC" selected>NIS besar ke kecil</option>
-                                        </select>
-                                        <input id="nomorIndukCari" class="form-control form-control-sm border-primary" style="width:220px" placeholder="Cari NIS atau nama...">
-                                        <input id="nomorIndukCariNisn" class="form-control form-control-sm border-primary" style="width:180px" placeholder="Cari NISN...">
+                                <div class="mb-3">
+                                    <div class="row g-2 w-100 mb-2">
+                                        <div class="col-6 col-md-2">
+                                            <select id="nomorIndukLength" class="form-select form-select-sm border-primary w-100" title="Jumlah data per halaman">
+                                                <option value="10">10 data</option><option value="25" selected>25 data</option><option value="50">50 data</option><option value="100">100 data</option><option value="200">200 data</option><option value="500">500 data</option><option value="1000">1000 data</option>
+                                            </select>
+                                        </div>
+                                        <div class="col-6 col-md-3">
+                                            <select id="lapOrderBerdasarkan" class="form-select form-select-sm border-primary w-100">
+                                                <option value="NIS_ASC">NIS kecil ke besar</option>
+                                                <option value="NIS_DESC" selected>NIS besar ke kecil</option>
+                                            </select>
+                                        </div>
+                                        <div class="col-6 col-md-4">
+                                            <input id="nomorIndukCari" class="form-control form-control-sm border-primary w-100" placeholder="Cari NIS atau nama...">
+                                        </div>
+                                        <div class="col-6 col-md-3">
+                                            <input id="nomorIndukCariNisn" class="form-control form-control-sm border-primary w-100" placeholder="Cari NISN...">
+                                        </div>
                                     </div>
-                                    <div class="d-flex gap-2"><button id="btnTampilkanNomorInduk" class="btn btn-sm btn-primary fw-bold" onclick="muatDataLaporan()"><i class="bi bi-cloud-download"></i> Tampilkan Semua Data</button><button class="btn btn-sm btn-success fw-bold" onclick="unduhLaporanExcel()"><i class="bi bi-file-earmark-excel"></i> Unduh Excel</button></div>
+                                    <div class="d-flex gap-2 w-100 justify-content-md-end">
+                                        <button id="btnTampilkanNomorInduk" class="btn btn-sm btn-primary fw-bold flex-grow-1 flex-md-grow-0" onclick="muatDataLaporan()"><i class="bi bi-cloud-download"></i> Tampilkan Semua Data</button>
+                                        <button class="btn btn-sm btn-success fw-bold flex-grow-1 flex-md-grow-0" onclick="unduhLaporanExcel()"><i class="bi bi-file-earmark-excel"></i> Unduh Excel</button>
+                                    </div>
                                 </div>
                                 <select id="lapTipeSiswa" class="d-none"><option value="Semua Siswa" selected>Semua Siswa</option></select>
                                 <select id="lapFilterKedua" class="d-none"><option value=""></option></select>
