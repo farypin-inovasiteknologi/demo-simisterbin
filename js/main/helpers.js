@@ -181,10 +181,13 @@ function validateStudentIdentity(showAlert = true) {
     const nisValue = String(nis.value || '').trim();
     const nisnValue = String(nisn.value || '').trim();
     const nisnValid = /^\d{10}$/.test(nisnValue);
+    const normNis  = v => String(v || '').replace(/^'+|'+$/g, '').replace(/\D/g, '');
+    const normNisn = v => String(v || '').replace(/^'+|'+$/g, '').replace(/\D/g, '');
     const duplicate = (typeof globalSiswa !== 'undefined' ? globalSiswa : []).find(row => {
-        const sameNis = String(row[0] || '').replace(/\D/g, '') === nisValue.replace(/\D/g, '');
-        const sameNisn = String(row[1] || '').replace(/\D/g, '') === nisnValue;
-        const sameRecord = String(row[0]) === String(nis.value) && String(row[1]) === String(nisn.value);
+        const sameNis  = normNis(row[0])  === normNis(nisValue);
+        const sameNisn = normNisn(row[1]) === normNisn(nisnValue);
+        // sameRecord: ini adalah siswa yang SEDANG diedit — normalisasi keduanya agar tidak salah deteksi
+        const sameRecord = normNis(row[0]) === normNis(nis.value) && normNisn(row[1]) === normNisn(nisn.value);
         return !sameRecord && ((nisValue && sameNis) || (nisnValue && sameNisn));
     });
     if (duplicate || !nisValue || !nisnValid) {
