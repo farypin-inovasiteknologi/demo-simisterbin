@@ -192,6 +192,12 @@ async function callAPI(actionName, payloadData = {}) {
         }
 
         // --- DEKRIPSI OTOMATIS DATA SENSITIF ONLINE DIHAPUS KARENA SUDAH DI-HANDLE BACKEND ---
+        if (resData && resData.status === 'expired') {
+            localStorage.removeItem('simisterbin_session');
+            showCoolAlert('Sesi Berakhir', resData.message || 'Sesi Anda telah berakhir, silakan login ulang.', 'warning');
+            setTimeout(() => location.reload(), 2000);
+            return { status: 'error', message: 'Sesi berakhir.' };
+        }
         return resData;
     } catch (error) {
         return { status: "error", message: "Gagal terhubung ke server database." };
