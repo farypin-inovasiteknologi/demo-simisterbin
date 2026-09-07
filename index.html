@@ -171,8 +171,8 @@
                             style="font-size: 10px; font-weight: bold;">Leger Nilai</span></a>
 
                     <a href="javascript:void(0)" onclick="openUnifiedMenu('klaper-siswa')"
-                        class="m-nav-item text-center text-decoration-none"><i
-                            class="bi bi-card-list fs-4 d-block mb-1" style="line-height: 1;"></i><span
+                        class="m-nav-item text-center text-decoration-none"><i class="bi bi-card-list fs-4 d-block mb-1"
+                            style="line-height: 1;"></i><span
                             style="font-size: 10px; font-weight: bold;">Klaper</span></a>
                 </div>
 
@@ -399,6 +399,23 @@
         <div class="modal-dialog modal-xl modal-dialog-scrollable">
             <div class="modal-content border-0 shadow-lg">
                 <form id="frmSiswa" onsubmit="saveSiswa(event)">
+                    <!-- Datalist Pekerjaan (Statis) -->
+                    <datalist id="list-pekerjaan">
+                        <option value="TNI/Polri">
+                        <option value="PNS">
+                        <option value="PPPK">
+                        <option value="Karyawan Swasta">
+                        <option value="Karyawan BUMN">
+                        <option value="Wiraswasta">
+                        <option value="Petani/Pekebun">
+                        <option value="Nelayan">
+                        <option value="Buruh Harian Lepas">
+                        <option value="Pedagang">
+                        <option value="Guru/Dosen">
+                        <option value="Dokter/Bidan/Perawat">
+                        <option value="Pensiunan">
+                        <option value="Tidak Bekerja">
+                    </datalist>
                     <input type="hidden" name="isEdit" id="isEdit" value="false">
                     <div class="modal-header bg-primary text-white bg-theme">
                         <h5 class="modal-title fw-bold" id="lblModalSiswa">Form Data Siswa</h5><button type="button"
@@ -585,7 +602,7 @@
                                         <div class="mb-2"><label class="small fw-bold">Tgl. Lahir Ayah</label><input
                                                 type="date" name="tgllahir_ayah" class="form-control"></div>
                                         <div class="mb-2"><label class="small fw-bold">Pekerjaan</label><input
-                                                name="kerja_ayah" class="form-control"></div>
+                                                name="kerja_ayah" class="form-control" list="list-pekerjaan"></div>
                                         <div class="mb-2"><label class="small fw-bold">Pdd. Terakhir</label><select
                                                 name="pdd_ayah" class="form-select">
                                                 <option value="">- Pilih -</option>
@@ -628,7 +645,7 @@
                                         <div class="mb-2"><label class="small fw-bold">Tgl. Lahir Ibu</label><input
                                                 type="date" name="tgllahir_ibu" class="form-control"></div>
                                         <div class="mb-2"><label class="small fw-bold">Pekerjaan</label><input
-                                                name="kerja_ibu" class="form-control"></div>
+                                                name="kerja_ibu" class="form-control" list="list-pekerjaan"></div>
                                         <div class="mb-2"><label class="small fw-bold">Pdd. Terakhir</label><select
                                                 name="pdd_ibu" class="form-select">
                                                 <option value="">- Pilih -</option>
@@ -671,7 +688,7 @@
                                         <div class="mb-2"><label class="small fw-bold">Tgl. Lahir Wali</label><input
                                                 type="date" name="tgllahir_wali" class="form-control"></div>
                                         <div class="mb-2"><label class="small fw-bold">Pekerjaan Wali</label><input
-                                                name="kerja_wali" class="form-control"></div>
+                                                name="kerja_wali" class="form-control" list="list-pekerjaan"></div>
                                         <div class="mb-2"><label class="small fw-bold">Pdd. Terakhir</label><select
                                                 name="pdd_wali" class="form-select">
                                                 <option value="">- Pilih -</option>
@@ -734,7 +751,7 @@
                                     <div class="col-md-4">
                                         <label class="small fw-bold text-primary">Kelas Saat Ini</label>
                                         <input name="kls_saat_ini" class="form-control border-primary shadow-sm"
-                                            placeholder="Cth: XI IPA 1">
+                                            list="list-kelas" placeholder="Cth: XI IPA 1">
                                     </div>
 
                                     <div class="col-md-4">
