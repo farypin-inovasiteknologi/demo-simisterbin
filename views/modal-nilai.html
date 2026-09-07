@@ -1,0 +1,158 @@
+    <div class="modal fade" id="mdlTranskrip" tabindex="-1">
+        <div class="modal-dialog modal-xl">
+            <div class="modal-content border-0 shadow-lg">
+                <div class="modal-header bg-info text-white">
+                    <h5 class="modal-title fw-bold">Transkrip Nilai Lengkap</h5><button type="button"
+                        class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body p-4">
+                    <h5 id="tNamaSiswa" class="fw-bold mb-3 border-bottom pb-2"></h5>
+                    <input type="hidden" id="tNis">
+
+                    <div class="mb-3 p-3 bg-light border rounded hidden" id="boxAnalisisAI">
+                        <h6 class="fw-bold text-primary"><i class="bi bi-robot"></i> Analisis AI</h6>
+                        <div id="hasilAnalisisAI" class="small text-secondary">Sedang memproses...</div>
+                    </div>
+                    <div class="table-responsive">
+                        <table class="table table-bordered table-striped text-center table-sm small">
+                            <thead class="table-dark">
+                                <tr>
+                                    <th rowspan="2" class="align-middle">Mata Pelajaran</th>
+                                    <th colspan="3">Smt 1</th>
+                                    <th colspan="3">Smt 2</th>
+                                    <th colspan="3">Smt 3</th>
+                                    <th colspan="3">Smt 4</th>
+                                    <th colspan="3">Smt 5</th>
+                                    <th colspan="3">Smt 6</th>
+                                </tr>
+                                <tr>
+                                    <th>P</th>
+                                    <th>K</th>
+                                    <th>S</th>
+                                    <th>P</th>
+                                    <th>K</th>
+                                    <th>S</th>
+                                    <th>P</th>
+                                    <th>K</th>
+                                    <th>S</th>
+                                    <th>P</th>
+                                    <th>K</th>
+                                    <th>S</th>
+                                    <th>P</th>
+                                    <th>K</th>
+                                    <th>S</th>
+                                    <th>P</th>
+                                    <th>K</th>
+                                    <th>S</th>
+                                </tr>
+                            </thead>
+                            <tbody id="tbodyTranskrip"></tbody>
+                            <tfoot id="tfootTranskrip" class="table-light fw-bold text-primary"></tfoot>
+                        </table>
+                    </div>
+                </div>
+                <div class="modal-footer bg-light"><button type="button" class="btn btn-secondary"
+                        data-bs-dismiss="modal">Tutup</button><button class="btn btn-danger fw-bold"
+                        onclick="cetakTranskrip()"><i class="bi bi-file-pdf me-1"></i> Cetak PDF</button></div><button
+                    class="btn btn-warning fw-bold" onclick="mintaAnalisisAI()"><i class="bi bi-robot me-1"></i>
+                    Analisis AI</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="mdlMapel">
+        <div class="modal-dialog" style="margin-top: 8vh;">
+            <div class="modal-content">
+                <form id="formMapel" onsubmit="saveMapel(event)">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="lblModalMapel">Data Mata Pelajaran</h5>
+                    </div>
+                    <div class="modal-body"><input type="hidden" id="oldIdMapel">
+                        <div class="mb-3"><label class="fw-bold small">Kode Mapel</label><input id="idMapel"
+                                class="form-control" required></div>
+                        <div class="mb-3"><label class="fw-bold small">Nama Mapel</label><input id="nmMapel"
+                                class="form-control" required></div>
+                    </div>
+                    <div class="modal-footer"><button type="button" class="btn btn-secondary fw-bold px-4" data-bs-dismiss="modal">TUTUP</button><button type="submit" class="btn btn-primary fw-bold px-4">SIMPAN</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="mdlInputNilai" data-bs-backdrop="static" tabindex="-1" style="z-index: 1060;">
+        <div class="modal-dialog modal-xl modal-dialog-scrollable">
+            <div class="modal-content border-0 shadow-lg">
+                <div class="modal-header bg-success text-white">
+                    <h5 class="modal-title fw-bold"><i class="bi bi-journal-check"></i> Input Nilai Siswa</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body p-4 bg-light">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <h5 id="lblNamaSiswaNilai" class="fw-bold text-dark m-0">Nama Siswa</h5>
+                        <input type="hidden" id="hdnNisNilai">
+                    </div>
+
+                    <div class="card p-3 shadow-sm border-0 mb-3 border-start border-success border-4">
+                        <label class="fw-bold small mb-2 text-muted">Pilih Semester:</label>
+                        <select id="selSemesterModal" class="form-select border-success fw-bold"
+                            onchange="loadNilaiSiswaModal()">
+                            <option value="1">Semester 1</option>
+                            <option value="2">Semester 2</option>
+                            <option value="3">Semester 3</option>
+                            <option value="4">Semester 4</option>
+                            <option value="5">Semester 5</option>
+                            <option value="6">Semester 6</option>
+                            <option value="7">Semester 7</option>
+                            <option value="8">Semester 8</option>
+                            <option value="9">Semester 9</option>
+                            <option value="10">Semester 10</option>
+                            <option value="11">Semester 11</option>
+                            <option value="12">Semester 12</option>
+                        </select>
+                    </div>
+
+                    <div class="table-responsive bg-white p-0 rounded shadow-sm border">
+                        <table class="table table-bordered text-center align-middle m-0">
+                            <thead class="table-success">
+                                <tr>
+                                    <th width="30%">Mata Pelajaran</th>
+                                    <th>Pengetahuan</th>
+                                    <th>Keterampilan</th>
+                                    <th>Sikap</th>
+                                    <th>Deskripsi (Opsional)</th>
+                                </tr>
+                            </thead>
+                            <tbody id="tbodyNilaiModal"></tbody>
+                            <tfoot class="bg-light fw-bold">
+                                <tr>
+                                    <td class="text-end">TOTAL:</td>
+                                    <td id="footPModal" class="text-primary">0</td>
+                                    <td id="footKModal" class="text-primary">0</td>
+                                    <td>-</td>
+                                </tr>
+                                <tr>
+                                    <td class="text-end">RATA-RATA:</td>
+                                    <td id="avgPModal" class="text-success">0</td>
+                                    <td id="avgKModal" class="text-success">0</td>
+                                    <td>-</td>
+                                </tr>
+                            </tfoot>
+                        </table>
+                    </div>
+                </div>
+                <div class="modal-footer bg-white d-flex justify-content-between">
+                    <div>
+                        <button type="button" class="btn btn-info fw-bold text-white shadow-sm"
+                            onclick="showImportNilaiPopup($('#hdnNisNilai').val())"><i class="bi bi-upload"></i> Import
+                            Nilai</button>
+                    </div>
+                    <div>
+                        <button type="button" class="btn btn-secondary fw-bold" data-bs-dismiss="modal">Tutup</button>
+                        <button type="button" class="btn btn-success fw-bold px-4 shadow-sm"
+                            onclick="simpanNilaiModal()">SIMPAN NILAI</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
