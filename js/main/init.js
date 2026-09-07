@@ -348,6 +348,7 @@ function nav(page, el, param) {
     $('[id^=view-]').addClass('hidden'); $('#view-' + page).removeClass('hidden');
 
     if (page == 'daftarulang') {
+        if (globalKelas.length === 0 && typeof loadKelas === 'function') loadKelas();
         // Jika data antrean masih kosong, panggil dari server
         if (globalDaftarUlang.length === 0) {
             loadDaftarUlang();
@@ -360,6 +361,7 @@ function nav(page, el, param) {
     if (page == 'siswa') {
         if (typeof inisialisasiDropdownAlumni === 'function') inisialisasiDropdownAlumni();
         if (typeof inisialisasiDropdownKeluar === 'function') inisialisasiDropdownKeluar();
+        if (globalKelas.length === 0 && typeof loadKelas === 'function') loadKelas();
         activateNomorIndukTab();
     }
 
