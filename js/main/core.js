@@ -85,6 +85,7 @@ let globalSiswa = [], curSmt = 1, cropper, cropTarget, curPage = 'dash';
 let globalMapel = [];
 let chartGender, chartStatus, chartAlumni;
 let globalDaftarUlang = [];
+let globalKelas = [];
 let scanner = null;
 
 // ==========================================
