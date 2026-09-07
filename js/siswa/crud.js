@@ -223,7 +223,8 @@ function openModalSiswa(nis, readonly) {
     $('#frmSiswa input, #frmSiswa select, #frmSiswa textarea').prop('disabled', readonly);
     $('#frmSiswa [name="nis"]').prop('readonly', true); // Pastikan NIS terkunci saat edit
     $('#btnSimpanSiswa').toggle(!readonly); $('#btnResetPasswordEdit').toggleClass('hidden', readonly); $('#lblModalSiswa').text(readonly ? "Detail Data Siswa" : "Edit Data Siswa");
-    f.nis.value = s[0]; f.nisn.value = s[1]; f.nama.value = s[2]; f.nik.value = s[3]; f.nokk.value = s[4]; f.tmplahir.value = s[5]; if (s[6]) f.tgllahir.value = s[6]; f.jk.value = s[7]; f.agama.value = s[8]; f.anakke.value = s[9]; f.jmlsdr.value = s[10]; f.bahasa.value = s[11]; f.alamat.value = s[12]; f.nohp.value = s[13]; f.jarak.value = s[14]; f.transport.value = s[15]; f.tinggi.value = s[16]; f.berat.value = s[17]; f.goldar.value = s[18]; f.penyakit.value = s[19]; f.nama_ayah.value = s[20]; if (s[21]) f.tgllahir_ayah.value = s[21]; f.kerja_ayah.value = s[22]; f.nama_ibu.value = s[23]; if (s[24]) f.tgllahir_ibu.value = s[24]; f.kerja_ibu.value = s[25]; f.pindahan.value = s[26]; f.lulusan.value = s[27]; f.noijazah_sltp.value = s[28]; f.kls_masuk.value = s[29]; if (s[30]) f.tgl_masuk.value = s[30]; f.status_akhir.value = s[31]; if (s[32]) f.tgl_keluar.value = s[32]; f.lanjut_ke.value = s[33]; f.noijazah_sma.value = s[34]; f.hobby.value = s[39] || ''; f.pdd_ayah.value = s[40] || ''; f.hasil_ayah.value = s[41] || ''; f.status_ayah.value = s[42] || ''; f.pdd_ibu.value = s[43] || ''; f.hasil_ibu.value = s[44] || ''; f.status_ibu.value = s[45] || ''; f.nama_wali.value = s[46] || ''; if (s[47]) f.tgllahir_wali.value = s[47]; f.kerja_wali.value = s[48] || ''; f.pdd_wali.value = s[49] || ''; f.hasil_wali.value = s[50] || ''; f.status_wali.value = s[51] || ''; f.kls_saat_ini.value = s[52] || ''; f.email.value = s[53] || ''; f.alasan_keluar.value = s[54] || '';
+    const cleanNIS  = v => String(v || '').replace(/^'+/, '').trim();
+    f.nis.value = cleanNIS(s[0]); f.nisn.value = cleanNIS(s[1]); f.nama.value = s[2]; f.nik.value = s[3]; f.nokk.value = s[4]; f.tmplahir.value = s[5]; if (s[6]) f.tgllahir.value = s[6]; f.jk.value = s[7]; f.agama.value = s[8]; f.anakke.value = s[9]; f.jmlsdr.value = s[10]; f.bahasa.value = s[11]; f.alamat.value = s[12]; f.nohp.value = s[13]; f.jarak.value = s[14]; f.transport.value = s[15]; f.tinggi.value = s[16]; f.berat.value = s[17]; f.goldar.value = s[18]; f.penyakit.value = s[19]; f.nama_ayah.value = s[20]; if (s[21]) f.tgllahir_ayah.value = s[21]; f.kerja_ayah.value = s[22]; f.nama_ibu.value = s[23]; if (s[24]) f.tgllahir_ibu.value = s[24]; f.kerja_ibu.value = s[25]; f.pindahan.value = s[26]; f.lulusan.value = s[27]; f.noijazah_sltp.value = s[28]; f.kls_masuk.value = s[29]; if (s[30]) f.tgl_masuk.value = s[30]; f.status_akhir.value = s[31]; if (s[32]) f.tgl_keluar.value = s[32]; f.lanjut_ke.value = s[33]; f.noijazah_sma.value = s[34]; f.hobby.value = s[39] || ''; f.pdd_ayah.value = s[40] || ''; f.hasil_ayah.value = s[41] || ''; f.status_ayah.value = s[42] || ''; f.pdd_ibu.value = s[43] || ''; f.hasil_ibu.value = s[44] || ''; f.status_ibu.value = s[45] || ''; f.nama_wali.value = s[46] || ''; if (s[47]) f.tgllahir_wali.value = s[47]; f.kerja_wali.value = s[48] || ''; f.pdd_wali.value = s[49] || ''; f.hasil_wali.value = s[50] || ''; f.status_wali.value = s[51] || ''; f.kls_saat_ini.value = s[52] || ''; f.email.value = s[53] || ''; f.alasan_keluar.value = s[54] || '';
     f.no_reg_akta.value = s[55] || ''; f.kewarganegaraan.value = s[56] || 'WNI'; f.penerima_kip.value = s[57] || 'Tidak'; f.no_kip.value = s[58] || ''; f.nama_kip.value = s[59] || ''; f.no_kks.value = s[60] || ''; f.penerima_kps.value = s[61] || 'Tidak'; f.no_kps.value = s[62] || ''; f.nama_bank.value = s[63] || ''; f.no_rekening_bank.value = s[64] || ''; f.rekening_atas_nama.value = s[65] || ''; f.berkebutuhan_khusus.value = s[66] || 'Tidak'; f.jenis_kebutuhan_khusus.value = s[67] || ''; toggleBantuanFields(f); toggleKebutuhanKhusus(f.elements.berkebutuhan_khusus, f);
     showStudentNumberOwner(f.nis, 'nis'); showStudentNumberOwner(f.nisn, 'nisn');
 
@@ -320,18 +321,21 @@ function modalSiswa() {
 
 function saveSiswa(e) {
     e.preventDefault();
+
+    // --- Buka semua gembok DULU sebelum validasi agar nilai field bisa dibaca ---
+    $('#frmSiswa input, #frmSiswa select, #frmSiswa textarea').prop('disabled', false);
+    // --------------------------------------------------------------------------
+
     if (!validateStudentIdentity(true)) return;
     $('#loader').removeClass('hidden');
-
-    // --- TAMBAHKAN BARIS INI: Buka semua gembok sesaat agar datanya terbaca oleh sistem pengirim ---
-    $('#frmSiswa input, #frmSiswa select, #frmSiswa textarea').prop('disabled', false);
-    // ---------------------------------------------------------------------------------------------
 
     const d = {};
     $.each($('#frmSiswa').serializeArray(), (_, k) => d[k.name] = k.value);
     callAPI('saveStudent', d).then(r => {
         $('#loader').addClass('hidden');
-        if (r.status === 'success') {
+        // Log response lengkap ke console untuk debugging
+        console.log('[saveSiswa] Response dari server:', JSON.stringify(r));
+        if (r && r.status === 'success') {
             $('#mdlSiswa').modal('hide');
             showCoolAlert('Sukses', 'Data berhasil disimpan', 'success');
 
@@ -353,8 +357,13 @@ function saveSiswa(e) {
             if (typeof loadIndukAlumniByTahun === 'function') loadIndukAlumniByTahun();
 
         } else {
-            showCoolAlert('Peringatan!', r.message, 'warning');
+            const pesanError = (r && r.message) ? r.message : `Gagal menyimpan data. Response: ${JSON.stringify(r)}`;
+            showCoolAlert('Peringatan!', pesanError, 'warning');
         }
+    }).catch(err => {
+        $('#loader').addClass('hidden');
+        console.error('[saveSiswa] Error tidak tertangkap:', err);
+        showCoolAlert('Error', 'Terjadi kesalahan tak terduga: ' + (err.message || err), 'error');
     });
 }
 
